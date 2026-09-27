@@ -1,0 +1,16 @@
+{
+  "name": "Su-śrotā — In-Browser Sanskrit ASR",
+  "short_name": "Su-śrotā",
+  "description": "100% Client-Side In-Browser Sanskrit Speech Recognition powered by Conformer-CTC and ONNX WebAssembly.",
+  "start_url": "/ai/sanskrit-asr/",
+  "display": "standalone",
+  "background_color": "#08080a",
+  "theme_color": "#08080a",
+  "icons": [
+    {
+      "src": "/ai/sanskrit-asr/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

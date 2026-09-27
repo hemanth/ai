@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nadha - Voice LLM</title>
+  <script type="module" crossorigin src="/ai/nadha/assets/index-DbQUGRyh.js"></script>
+  <link rel="stylesheet" crossorigin href="/ai/nadha/assets/index-BOeeelV4.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Status indicator -->
+        <div id="status" class="status idle">
+            <div class="pulse"></div>
+            <span id="status-text">Click to start</span>
+        </div>
+
+        <!-- Waveform visualizer -->
+        <div id="waveform" class="waveform">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+        <!-- Transcript area -->
+        <div id="transcript" class="transcript">
+            <div class="message-container">
+                <p id="user-text" class="user-text"></p>
+                <p id="ai-text" class="ai-text"></p>
+            </div>
+        </div>
+
+        <!-- Main interaction button -->
+        <button id="voice-btn" class="voice-btn" onclick="toggleVoice()">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+        </button>
+
+        <!-- Hint for first interaction -->
+        <p id="hint" class="hint">Tap the mic to enable voice</p>
+
+        <!-- Loading indicator for model -->
+        <div id="loading" class="loading">
+            <p id="loading-label">Loading models...</p>
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            <p id="progress-text">0%</p>
+            <p id="loading-fact" class="loading-fact">✨ Did you know?</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

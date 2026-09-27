@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome AI Text Rewriter</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #e8e8e8;
+            background-color: #050505;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #0a0a0a;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            border: 1px solid #1a1a1a;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #fff;
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+        }
+
+        textarea,
+        select,
+        button {
+            width: 100%;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        textarea,
+        select {
+            background-color: #0a0a0a;
+            color: #e8e8e8;
+            border: 1px solid #1a1a1a;
+            padding: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #444;
+            box-shadow: 0 0 0 2px rgba(68, 68, 68, 0.2);
+        }
+
+        textarea::placeholder {
+            color: #555;
+        }
+
+        textarea {
+            flex: 1;
+            min-height: 120px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        button {
+            background-color: #222;
+            color: #e8e8e8;
+            border: 1px solid #1a1a1a;
+            padding: 0.85rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #333;
+            border-color: #444;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .output-box {
+            margin-top: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-label {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .output {
+            background-color: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1.25rem;
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        @media (max-width: 640px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Chrome AI Rewriter</h1>
+            <textarea id="inputText" placeholder="Paste text here to rewrite... (e.g., 'I will be there in 5 minutes')"
+                aria-label="Input text"></textarea>
+
+            <div class="controls">
+                <select id="tone" aria-label="Tone">
+                    <option value="more-casual">More Casual</option>
+                    <option value="more-formal">More Formal</option>
+                    <option value="as-is" selected>Neutral</option>
+                </select>
+                <select id="length" aria-label="Length">
+                    <option value="shorter">Shorter</option>
+                    <option value="as-is" selected>As is</option>
+                    <option value="longer">Longer</option>
+                </select>
+                <select id="format" aria-label="Format">
+                    <option value="markdown" selected>Markdown</option>
+                    <option value="plain-text">Plain Text</option>
+                </select>
+            </div>
+
+            <button id="rewriteButton">Rewrite Text</button>
+
+            <div class="output-box">
+                <div class="output-label">✨ Rewritten Version:</div>
+                <div class="output" id="outputText">Your rewritten text will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const tone = document.getElementById('tone');
+        const length = document.getElementById('length');
+        const format = document.getElementById('format');
+        const rewriteButton = document.getElementById('rewriteButton');
+        const outputText = document.getElementById('outputText');
+
+        async function checkAvailability() {
+            if (typeof Rewriter === 'undefined') {
+                return 'unavailable';
+            }
+            try {
+                return await Rewriter.availability({ expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+            } catch (e) {
+                console.error('Rewriter availability error:', e);
+                return 'unavailable';
+            }
+        }
+
+        async function rewriteText(text, tone, length, format) {
+            const rewriter = await Rewriter.create({ tone, length, format, expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+            return rewriter.rewrite(text);
+        }
+
+        rewriteButton.addEventListener('click', async () => {
+            const text = inputText.value.trim();
+            if (!text) return;
+
+            rewriteButton.disabled = true;
+            rewriteButton.textContent = 'Rewriting...';
+            outputText.textContent = 'Processing...';
+
+            try {
+                const availability = await checkAvailability();
+                if (availability === 'unavailable') {
+                    throw new Error('Rewriter API not available.');
+                }
+
+                const result = await rewriteText(text, tone.value, length.value, format.value);
+                outputText.textContent = result;
+            } catch (error) {
+                console.error('Error rewriting text:', error);
+                outputText.textContent = `Error: ${error.message}\n\nEnsure the Rewriter API is enabled in chrome://flags.`;
+            } finally {
+                rewriteButton.disabled = false;
+                rewriteButton.textContent = 'Rewrite Text';
+            }
+        });
+
+        inputText.addEventListener('input', () => {
+            rewriteButton.disabled = !inputText.value.trim();
+        });
+
+        // Initialize check
+        checkAvailability().then(status => {
+            if (status === 'unavailable') {
+                outputText.textContent = 'Status: Rewriter API not available. Enable Rewriter API in chrome://flags.';
+                rewriteButton.disabled = true;
+            } else if (status === 'downloadable') {
+                outputText.textContent = 'Rewriter model will download on first use.';
+            } else {
+                outputText.textContent = 'Ready to rewrite!';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriCam - AI Nutrition Analyzer</title>
+  <meta name="description" content="Scan food and nutrition labels, get instant AI-powered health analysis" />
+  <meta property="og:title" content="NutriCam" />
+  <meta property="og:description" content="AI-powered nutrition analysis from photos" />
+  <meta property="og:image" content="https://h3manth.com/ai/nutricam/nutricam.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .scan-animation {
+      animation: scan 2s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
+      }
+    }
+  </style>
+</head>
+
+<body class="gradient-bg min-h-screen font-sans text-white">
+
+  <!-- Header -->
+  <header class="text-center py-8 px-4">
+    <div class="flex items-center justify-center gap-3 mb-2">
+      <div
+        class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold">NutriCam</h1>
+    </div>
+    <p class="text-gray-400">AI-powered nutrition analysis from photos</p>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 pb-8">
+
+    <!-- Upload Area -->
+    <div id="upload-area"
+      class="glass rounded-2xl p-8 text-center cursor-pointer hover:border-green-500/50 transition-all duration-300 mb-6">
+      <input type="file" accept="image/*" id="file-input" class="hidden" capture="environment">
+      <label for="file-input" class="cursor-pointer block">
+        <div
+          class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-full flex items-center justify-center pulse-glow">
+          <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <p class="text-lg font-medium text-white mb-2">Scan Food or Label</p>
+        <p class="text-sm text-gray-400">Upload, take photo, or <kbd
+            class="px-1.5 py-0.5 bg-gray-700 rounded text-xs">⌘V</kbd> paste</p>
+      </label>
+    </div>
+
+    <!-- Preview -->
+    <div id="preview-container" class="hidden mb-6">
+      <div class="glass rounded-2xl overflow-hidden relative">
+        <img id="preview" class="w-full max-h-64 object-contain" alt="Food preview">
+        <div id="scan-overlay"
+          class="absolute inset-0 bg-gradient-to-b from-green-400/20 to-transparent scan-animation hidden"></div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden glass rounded-2xl p-6 text-center mb-6">
+      <div class="inline-flex items-center gap-3">
+        <div class="w-5 h-5 border-2 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-gray-300">Analyzing nutrition...</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden space-y-4">
+
+      <!-- Summary Card -->
+      <div class="glass rounded-2xl p-6">
+        <h2 id="food-name" class="text-xl font-bold text-green-400 mb-2">Food Item</h2>
+        <p id="summary" class="text-gray-300 text-sm"></p>
+      </div>
+
+      <!-- Nutrition Grid -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-white" id="calories">-</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wide">Calories</div>
+        </div>
+        <div class="glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-white" id="protein">-</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wide">Protein</div>
+        </div>
+        <div class="glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-white" id="carbs">-</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wide">Carbs</div>
+        </div>
+        <div class="glass rounded-xl p-4 text-center">
+          <div class="text-2xl font-bold text-white" id="fat">-</div>
+          <div class="text-xs text-gray-400 uppercase tracking-wide">Fat</div>
+        </div>
+      </div>
+
+      <!-- Warnings -->
+      <div id="warnings-container" class="hidden">
+        <div class="glass rounded-2xl p-6 border-l-4 border-amber-500">
+          <h3 class="font-semibold text-amber-400 mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd" />
+            </svg>
+            Health Considerations
+          </h3>
+          <ul id="warnings-list" class="text-sm text-gray-300 space-y-1"></ul>
+        </div>
+      </div>
+
+      <!-- Vegan Badge -->
+      <div id="vegan-badge" class="hidden">
+        <div class="glass rounded-2xl p-4 flex items-center gap-3 border-l-4 border-green-500">
+          <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-semibold text-green-400">Vegan Friendly</div>
+            <div class="text-xs text-gray-400">No animal products detected</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Analysis -->
+      <details class="glass rounded-2xl">
+        <summary class="p-4 cursor-pointer text-gray-300 hover:text-white transition-colors">
+          View Full Analysis
+        </summary>
+        <div id="full-analysis" class="p-4 pt-0 text-sm text-gray-400 whitespace-pre-wrap"></div>
+      </details>
+
+      <!-- Scan Again -->
+      <button onclick="resetScan()"
+        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all">
+        Scan Another
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 text-gray-500 text-sm">
+    <p>Built by <a href="https://h3manth.com" class="text-green-400 hover:underline">Hemanth HM</a></p>
+    <p class="text-xs mt-1">Powered by Cloudflare AI</p>
+  </footer>
+
+  <script>
+    const AI_PROXY = "https://ai-proxy.hemanthhm.workers.dev";
+
+    const fileInput = document.getElementById('file-input');
+    const uploadArea = document.getElementById('upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    const preview = document.getElementById('preview');
+    const scanOverlay = document.getElementById('scan-overlay');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    // Paste support - convert pasted image to File and process like upload
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            // Use the same processing as file upload
+            processImageFile(file);
+          }
+          break;
+        }
+      }
+    });
+
+    function processImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64Data = event.target.result;
+        preview.src = base64Data;
+        uploadArea.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+        scanOverlay.classList.remove('hidden');
+        loading.classList.remove('hidden');
+        results.classList.add('hidden');
+
+        try {
+          await analyzeImage(base64Data.split(',')[1]);
+        } catch (err) {
+          console.error(err);
+          alert('Analysis failed. Please try again.');
+          resetScan();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // File input uses the shared processor
+    async function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      processImageFile(file);
+    }
+
+    async function analyzeImage(base64Image) {
+      // Stage 1: Vision model describes the food
+      const visionResponse = await fetch(AI_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64Image,
+          messages: [{ role: 'user', content: 'What food is shown in this image? Describe it including approximate portion size and visible ingredients.' }]
+        })
+      });
+
+      if (!visionResponse.ok) throw new Error('Vision API error');
+
+      const visionData = await visionResponse.json();
+      const foodDescription = visionData.result?.response || visionData.result?.description || 'Unknown food';
+
+      // Stage 2: Text model estimates nutrition with structured output
+      const nutritionResponse = await fetch(AI_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: 'You are a nutritionist. Always provide specific numerical estimates.' },
+            {
+              role: 'user', content: `Based on this food description, estimate nutrition:
+
+"${foodDescription}"
+
+IMPORTANT: Respond EXACTLY in this format with numbers:
+NAME: [food name]
+CALORIES: [number]
+PROTEIN: [number]
+CARBS: [number]
+FAT: [number]
+VEGAN: [yes or no]
+NOTES: [health notes or "none"]` }
+          ]
+        })
+      });
+
+      if (!nutritionResponse.ok) throw new Error('Nutrition API error');
+
+      const nutritionData = await nutritionResponse.json();
+      const analysis = nutritionData.result?.response || '';
+
+      displayResults(analysis, foodDescription);
+    }
+
+    function displayResults(analysis, description) {
+      loading.classList.add('hidden');
+      scanOverlay.classList.add('hidden');
+      results.classList.remove('hidden');
+
+      const text = analysis.toLowerCase();
+
+      // Parse structured format: "CALORIES: 250"
+      const nameMatch = analysis.match(/NAME:\s*(.+)/i);
+      const calorieMatch = analysis.match(/CALORIES:\s*(\d+)/i);
+      const proteinMatch = analysis.match(/PROTEIN:\s*(\d+)/i);
+      const carbMatch = analysis.match(/CARBS?:\s*(\d+)/i);
+      const fatMatch = analysis.match(/FAT:\s*(\d+)/i);
+      const notesMatch = analysis.match(/NOTES:\s*(.+)/i);
+
+      document.getElementById('calories').textContent = calorieMatch ? calorieMatch[1] : '~';
+      document.getElementById('protein').textContent = proteinMatch ? proteinMatch[1] + 'g' : '~';
+      document.getElementById('carbs').textContent = carbMatch ? carbMatch[1] + 'g' : '~';
+      document.getElementById('fat').textContent = fatMatch ? fatMatch[1] + 'g' : '~';
+
+      // Food name
+      const foodName = nameMatch ? nameMatch[1].trim() : (description || 'Food').split('.')[0];
+      document.getElementById('food-name').textContent = foodName.length < 50 ? foodName : foodName.substring(0, 47) + '...';
+
+      // Summary from description
+      const summary = description || 'Nutrition analysis complete.';
+      document.getElementById('summary').textContent = summary.length > 150 ? summary.substring(0, 147) + '...' : summary;
+
+      // Full analysis
+      document.getElementById('full-analysis').textContent = `Vision: ${description}\n\nNutrition:\n${analysis}`;
+
+      // Vegan check
+      const veganBadge = document.getElementById('vegan-badge');
+      if (text.includes('vegan') && !text.includes('not vegan') && !text.includes('non-vegan')) {
+        veganBadge.classList.remove('hidden');
+      } else {
+        veganBadge.classList.add('hidden');
+      }
+
+      // Warnings
+      const warningsContainer = document.getElementById('warnings-container');
+      const warningsList = document.getElementById('warnings-list');
+      const warnings = [];
+
+      if (text.includes('sugar') && (text.includes('high') || text.includes('added'))) {
+        warnings.push('High sugar content');
+      }
+      if (text.includes('sodium') && text.includes('high')) {
+        warnings.push('High sodium content');
+      }
+      if (text.includes('saturated') && text.includes('fat')) {
+        warnings.push('Contains saturated fat');
+      }
+      if (text.includes('processed')) {
+        warnings.push('Processed ingredients');
+      }
+
+      if (warnings.length > 0) {
+        warningsContainer.classList.remove('hidden');
+        warningsList.innerHTML = warnings.map(w => `<li>• ${w}</li>`).join('');
+      } else {
+        warningsContainer.classList.add('hidden');
+      }
+    }
+
+    function resetScan() {
+      fileInput.value = '';
+      uploadArea.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+      loading.classList.add('hidden');
+      results.classList.add('hidden');
+    }
+  </script>
+</body>
+
+</html>

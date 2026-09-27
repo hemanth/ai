@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>promptStreaming Diagnostic</title>
+    <style>
+        body { font-family: monospace; background: #050505; color: #0f0; padding: 24px; font-size: 14px; }
+        pre { white-space: pre-wrap; margin: 8px 0; padding: 12px; background: #111; border: 1px solid #1a1a1a; border-radius: 6px; }
+        h2 { color: #fff; margin-top: 24px; }
+        .err { color: #f66; }
+        .ok { color: #0f0; }
+        button { background: #222; color: #fff; border: 1px solid #333; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 6px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <h1>promptStreaming Diagnostic</h1>
+    <button id="runTest">Run Test (click = user gesture)</button>
+    <div id="output"></div>
+
+    <script>
+        const out = document.getElementById('output');
+        function log(msg, cls = '') {
+            const pre = document.createElement('pre');
+            pre.className = cls;
+            pre.textContent = msg;
+            out.appendChild(pre);
+        }
+
+        document.getElementById('runTest').addEventListener('click', async () => {
+            out.innerHTML = '';
+            
+            // 1. Check API exists
+            log(`typeof LanguageModel: ${typeof LanguageModel}`);
+            if (typeof LanguageModel === 'undefined') {
+                log('LanguageModel not available!', 'err');
+                return;
+            }
+
+            // 2. Check availability
+            try {
+                const avail = await LanguageModel.availability({ expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+                log(`availability(): "${avail}"`, 'ok');
+            } catch (e) {
+                log(`availability() error: ${e.message}`, 'err');
+            }
+
+            // 3. Create session (inside user gesture)
+            let session;
+            try {
+                session = await LanguageModel.create({ expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+                log(`session created ✅`, 'ok');
+                log(`session.contextWindow: ${session.contextWindow}`);
+                log(`session.contextUsage: ${session.contextUsage}`);
+            } catch (e) {
+                log(`LanguageModel.create() error: ${e.message}`, 'err');
+                return;
+            }
+
+            // 4. Test prompt() (non-streaming)
+            try {
+                const result = await session.prompt('Say hello in one word');
+                log(`prompt() result: "${result}"`, 'ok');
+                log(`typeof prompt result: ${typeof result}`);
+            } catch (e) {
+                log(`prompt() error: ${e.message}`, 'err');
+            }
+
+            // 5. Test promptStreaming()
+            try {
+                const stream = session.promptStreaming('Say hi in one word');
+                log(`\n=== promptStreaming() result ===`);
+                log(`typeof stream: ${typeof stream}`);
+                log(`constructor: ${stream?.constructor?.name}`);
+                log(`has getReader: ${typeof stream?.getReader}`);
+                log(`has Symbol.asyncIterator: ${typeof stream?.[Symbol.asyncIterator]}`);
+                log(`has Symbol.iterator: ${typeof stream?.[Symbol.iterator]}`);
+                log(`has then: ${typeof stream?.then}`);
+                log(`has next: ${typeof stream?.next}`);
+                
+                // List all own properties
+                const props = Object.getOwnPropertyNames(Object.getPrototypeOf(stream));
+                log(`prototype methods: ${props.join(', ')}`);
+
+                // Try to consume it — Method 1: getReader
+                log(`\n=== Trying getReader() ===`);
+                if (typeof stream.getReader === 'function') {
+                    try {
+                        const reader = stream.getReader();
+                        let chunks = [];
+                        let count = 0;
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            log(`  chunk ${count}: done=${done}, type=${typeof value}, value="${String(value).substring(0, 100)}"`);
+                            if (done) break;
+                            chunks.push(value);
+                            count++;
+                            if (count > 20) { log('  (stopping at 20 chunks)'); break; }
+                        }
+                        reader.releaseLock();
+                        log(`getReader() total chunks: ${chunks.length}`, 'ok');
+                        log(`final text: "${chunks[chunks.length - 1]}"`);
+                    } catch (e) {
+                        log(`getReader() error: ${e.message}`, 'err');
+                    }
+                } else {
+                    log('  getReader not available', 'err');
+                }
+
+                // Try Method 2: for-await on a NEW stream
+                log(`\n=== Trying for-await (new stream) ===`);
+                try {
+                    const stream2 = session.promptStreaming('Say bye in one word');
+                    log(`stream2 constructor: ${stream2?.constructor?.name}`);
+                    log(`stream2 Symbol.asyncIterator: ${typeof stream2?.[Symbol.asyncIterator]}`);
+                    
+                    if (typeof stream2?.[Symbol.asyncIterator] === 'function') {
+                        let chunks2 = [];
+                        let count2 = 0;
+                        for await (const chunk of stream2) {
+                            log(`  chunk ${count2}: type=${typeof chunk}, value="${String(chunk).substring(0, 100)}"`);
+                            chunks2.push(chunk);
+                            count2++;
+                            if (count2 > 20) break;
+                        }
+                        log(`for-await total chunks: ${chunks2.length}`, 'ok');
+                    } else {
+                        log('  Symbol.asyncIterator not available — trying values()', 'err');
+                        // Some ReadableStreams need .values()
+                        if (typeof stream2?.values === 'function') {
+                            let count3 = 0;
+                            for await (const chunk of stream2.values()) {
+                                log(`  values() chunk ${count3}: "${String(chunk).substring(0, 100)}"`);
+                                count3++;
+                                if (count3 > 20) break;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    log(`for-await error: ${e.message}`, 'err');
+                }
+
+            } catch (e) {
+                log(`promptStreaming() error: ${e.message}`, 'err');
+            }
+
+            log('\n=== DONE ===', 'ok');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Did They Die? - Historical Mortality Database</title>
+    <meta name="description" content="Discover how historical figures died - explore dates and causes of death">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.05rem;
+        }
+
+        .search-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            margin-bottom: 32px;
+        }
+
+        .search-wrapper {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: #f1f5f9;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #ef4444;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .example-chip {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            color: #fca5a5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-chip:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+
+        .result-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fca5a5;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 3px solid #ef4444;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #94a3b8;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .lds-ring {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            margin: 4px;
+            border: 4px solid #ef4444;
+            border-radius: 50%;
+            animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #ef4444 transparent transparent transparent;
+        }
+
+        .lds-ring div:nth-child(1) {
+            animation-delay: -0.45s;
+        }
+
+        .lds-ring div:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+
+        .lds-ring div:nth-child(3) {
+            animation-delay: -0.15s;
+        }
+
+        @keyframes lds-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .search-wrapper {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>How Did They Die?</h1>
+            <p class="subtitle">Explore historical dates and causes of death</p>
+        </header>
+
+        <div class="search-card">
+            <form id="searchForm">
+                <div class="search-wrapper">
+                    <input type="text" id="personName" placeholder="Enter a person's name..." autocomplete="off"
+                        required>
+                    <button type="submit" id="searchBtn">Search</button>
+                </div>
+                <div class="examples">
+                    <span class="example-chip" onclick="setName('Albert Einstein')">Albert Einstein</span>
+                    <span class="example-chip" onclick="setName('Marie Curie')">Marie Curie</span>
+                    <span class="example-chip" onclick="setName('Cleopatra')">Cleopatra</span>
+                    <span class="example-chip" onclick="setName('Abraham Lincoln')">Abraham Lincoln</span>
+                    <span class="example-chip" onclick="setName('Elvis Presley')">Elvis Presley</span>
+                </div>
+            </form>
+            <div id="loader" class="loader">
+                <div class="lds-ring">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <p>Searching records...</p>
+            </div>
+        </div>
+
+        <div id="resultCard" class="result-card">
+            <div id="resultHeader" class="result-header"></div>
+            <div id="resultContent" class="info-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        function setName(name) {
+            document.getElementById('personName').value = name;
+            document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('personName').value.trim();
+            const searchBtn = document.getElementById('searchBtn');
+            const loader = document.getElementById('loader');
+            const resultCard = document.getElementById('resultCard');
+            const resultHeader = document.getElementById('resultHeader');
+            const resultContent = document.getElementById('resultContent');
+
+            if (!name) return;
+
+            searchBtn.disabled = true;
+            loader.classList.add('active');
+            resultCard.style.display = 'none';
+
+            const prompt = `Provide information about how ${name} died. Include:
+1. Full name and brief context (who they were)
+2. Date of death (exact date if known)
+3. Age at death
+4. Cause of death (be specific and factual)
+5. Location of death (if known)
+6. Any relevant circumstances
+
+Format your response as a structured list with clear labels. Be factual and respectful.`;
+
+            try {
+                const response = await fetch('https://fptg-proxy.hemanthhm.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "google/gemini-2.0-flash-001",
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Search failed');
+
+                const data = await response.json();
+                const info = data.choices[0].message.content;
+
+                // Parse the response and display
+                resultHeader.textContent = name;
+
+                // Simple parsing - split by newlines and create info items
+                const lines = info.split('\n').filter(line => line.trim());
+                resultContent.innerHTML = '';
+
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed.match(/^\d+\.|^-|^•/) || trimmed.includes(':')) {
+                        const item = document.createElement('div');
+                        item.className = 'info-item';
+
+                        const parts = trimmed.split(':');
+                        if (parts.length > 1) {
+                            const label = parts[0].replace(/^\d+\.\s*|^-\s*|^•\s*/, '').trim();
+                            const value = parts.slice(1).join(':').trim();
+
+                            item.innerHTML = `
+                                <div class="info-label">${label}</div>
+                                <div class="info-value">${value}</div>
+                            `;
+                        } else {
+                            item.innerHTML = `<div class="info-value">${trimmed}</div>`;
+                        }
+
+                        resultContent.appendChild(item);
+                    }
+                });
+
+                resultCard.style.display = 'block';
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error(error);
+                alert('Could not find information. Please try another name.');
+            } finally {
+                searchBtn.disabled = false;
+                loader.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>

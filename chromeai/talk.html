@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome Built-in AI APIs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/night.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        .reveal {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3 {
+            font-family: 'Arial', sans-serif;
+            text-transform: none;
+        }
+
+        .reveal h1 {
+            font-size: 2.5em;
+        }
+
+        .reveal h2 {
+            font-size: 1.8em;
+        }
+
+        .reveal li {
+            font-size: 1.2em;
+            line-height: 1.4;
+        }
+
+        .reveal pre {
+            box-shadow: none;
+            margin: 15px 0;
+        }
+
+        .reveal code {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1em;
+        }
+
+        .reveal section {
+            text-align: left;
+        }
+
+        .reveal .slides {
+            text-align: left;
+        }
+
+        .reveal p {
+            font-size: 1.2em;
+            line-height: 1.4;
+        }
+
+        .container {
+            display: grid;
+            grid-auto-flow: column;
+        }
+
+    /* Code block improvements */
+    .reveal pre {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        box-shadow: none;
+        background: #1e1e1e;
+        padding: 1rem;
+    }
+
+    .reveal pre code {
+        max-height: none !important;
+        max-width: 100% !important;
+        padding: 0;
+        font-size: 1.2rem;
+        line-height: 1.4;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Slide layout for code sections */
+    .reveal .slides section {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 2rem;
+    }
+
+    .reveal .slides section h2 {
+        margin-bottom: 1rem;
+    }
+
+    /* Adjust code block size based on content */
+    .reveal .slides section pre {
+        flex: 1;
+        overflow: visible;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .reveal pre code {
+            font-size: 1rem;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <img src="./site.png"/>
+            </section>
+            <section>
+                <h1>Imagine</h1>
+                <div style="display: flex;">
+                    <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3pkZ3B6ZzdvZjBqdmR2aXh0NmtpYmt2aDh3OWFqYzJvbTZjOGQ4cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L8K62iTDkzGX6/giphy.webp"
+                        alt="">
+                    <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGh0a3JxaDRobDg4OXA3OXpkdnRlMGl3Y3Jsc3dpNnFranc2eWVuciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/UQmhtCFLOfpXz77u95/giphy.webp"
+                        alt="">
+                </div>
+            </section>
+            <section>
+                <h1>Chrome Built-in AI APIs</h1>
+                <div>
+                    <ul>
+                        <li>🤖 languageModel</li>
+                        <li>✍️ writer</li>
+                        <li>🔄 rewriter</li>
+                        <li>📝 summarizer</li>
+                        <li>🌐 languageDetector</li>
+                    </ul>
+                    <img style="position: absolute;right: 0px;"
+                        src="https://y.yarn.co/be96f98d-7615-4884-ad56-6a1b5dffc377_text.gif" alt="">
+                </div>
+
+            </section>
+            <section style="text-align: center;">
+                <h1>Caution</h1>
+                <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHlrb2N5Z2xueTY2a2RndDU3cHB3cmJhbXg4Zm92bnhtNmNrM2VtYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2DIV21X97dhSSCZHwp/giphy.webp"
+                    alt="">
+            </section>
+            <section style="text-align: center;">
+                <h1>Experimental</h1>
+                <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjhwcWR1bW43ZWpkYzJhNmxiN3lvcDd4OHRxbWxvcm9yN2tkd255MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/URvk3RuR5NJvUxnoPX/giphy.webp"
+                    alt="">
+            </section>
+            <section>
+                <h1>Prompt API</h1>
+                <p>A proposal for a web API for prompting browser-provided language models</p>
+            </section>
+            <section>
+                <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXU5MWc2cnF6eTBwcmhoNTR1bWptMTRpZ2l1aGE5Y2luZ2FlcmlpcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dILrAu24mU729pxPYN/giphy.webp"
+                    alt="">
+            </section>
+            <section>
+                <ul>
+                    <li>🚀 Browsers get language models</li>
+                    <li>🚧 Chrome explores "prompt API"</li>
+                    <li>🔄 Direct access for web devs</li>
+                    <li>🔍 Experimenting with use cases</li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 768px; left: 94px; top: 81px; height: auto;"
+                    data-origin-id="3c0ca28a1cb4aba115c420139a99de18">
+                    <div class="sl-block-content"
+                        style="text-align: left;line-height: 1.04;letter-spacing: -0.1em;font-size: 90%;"
+                        data-has-line-height="" data-has-letter-spacing="" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <h2 style="text-align: center;">LLM Capabilities</h2>
+                    </div>
+                </div>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 768px; left: 94px; top: 197px; height: auto;"
+                    data-origin-id="eee344ec58ab5be47818bce91a7f15b4">
+                    <div class="sl-block-content" style="text-align: left;" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <ul>
+                            <li><strong>Text Processing 💻</strong></li>
+                            <li><strong>Text Generation 📝</strong></li>
+                            <li><strong>Summarization 📰</strong></li>
+                            <li><strong>Content Creation 🎨</strong></li>
+                            <li><strong>Question Answering 🤔</strong></li>
+                            <li><strong>Translation 🌎</strong></li>
+                            <li><strong>Proofreading 📚</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 768px; left: 96px; top: 87px; height: auto;"
+                    data-origin-id="473abb2e91a9ef63d8d667da4b3fed79">
+                    <div class="sl-block-content"
+                        style="text-align: left;line-height: 1.04;letter-spacing: -0.1em;font-size: 90%;"
+                        data-has-line-height="" data-has-letter-spacing="" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <h2>The Prompt API</h2>
+                    </div>
+                </div>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 799px; left: 96px; top: 196.5px; height: auto;font-size: 70%;"
+                    data-origin-id="3c5c716fc03a3ea8940125e7b8428fb9">
+                    <div class="sl-block-content" style="text-align: left;" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <ul>
+                            <li>🔄 Direct access to browser/OS LLM.</li>
+                            <li>🚀 Broader LLM capabilities.</li>
+                            <li>👩‍💻 Developers craft prompts.</li>
+                            <li>
+                                <strong>🚧 Experimental:</strong> Feedback & use cases.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTR2bDltdWc4Ym5qODl0andiZzR6MmpmaXpkbXpxZmd2dHFwcDloZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/f9jwBVzohvX7LSRqWU/giphy.webp"
+                    alt="">
+            </section>
+
+            <section>
+
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 768px; left: 96px; top: 100px; height: auto;"
+                    data-origin-id="741642050bd9361b54f0a4c11e700324">
+                    <div class="sl-block-content"
+                        style="text-align: left;line-height: 1.04;letter-spacing: -0.1em;font-size: 90%;"
+                        data-has-line-height="" data-has-letter-spacing="" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <h2 style="text-align: center;"><span>Benefits over Cloud APIs</span></h2>
+                    </div>
+                </div>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 768px; left: 96px; top: 250px; height: auto; font-size: 70%;"
+                    data-origin-id="77f06d74097983605e2a77290b693a09">
+                    <div class="sl-block-content" style="text-align: left;" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <ul>
+                            <li>🔒 <strong>Local Processing:</strong> Enhanced privacy</li>
+                            <li>⚡ <strong>Potential for Speed:</strong> No server delays</li>
+                            <li>🌐 <strong>Offline Capabilities:</strong> Functions without internet</li>
+                            <li>💰 <strong>Cost Savings:</strong> Lower API usage costs</li>
+                            <li>🔄 <strong>Hybrid Approaches:</strong> Flexible options for users</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section style="height: 100vh;">
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 100%; left: 0; top: 0; height: 100%;"
+                    data-origin-id="057eff9ecb28a2f26e8d82ccd3470ada">
+                    <div class="sl-block-content"
+                        style="text-align: center; line-height: 1.04; letter-spacing: -0.1em; font-size: 90%;"
+                        data-has-line-height="" data-has-letter-spacing="" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <h2 style="text-align:center">Benefits over BYO AI&nbsp;</h2>
+                    </div>
+                </div>
+                <div class="sl-block is-focused" data-block-type="text"
+                    style="width: 100%; left: 0; top: 0; height: 100%;"
+                    data-origin-id="b3a370f7e79b94fcfad990adbed9a5f9">
+                    <div class="sl-block-content" style="text-align: center;" data-placeholder-tag="p"
+                        data-placeholder-text="Text">
+                        <ul>
+                            <li>📦 <strong>Bandwidth Savings</strong></li>
+                            <li>⚙️ <strong>Performance Optimizations</strong></li>
+                            <li>🚀 <strong>Lower Entry Barrier</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYW15a3BsdnZ5dXJpYXpkOGxmMm4wczVmNGU2emYzZ3BweWJ5c2YyMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gjCz74ilJCnLrGguht/giphy.webp"
+                    alt="">
+            </section>
+
+            <section>
+                <h2>Goals</h2>
+                <ul>
+                    <li>🎯 Uniform JavaScript API for language models</li>
+                    <li>🔍 Abstract language model details</li>
+                    <li>⚠️ Handle failure cases</li>
+                    <li>🛠️ Flexible implementation strategies</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Non-Goals</h2>
+                <ul>
+                    <li>🚫 Not forcing browser for language model shipping or exposure</li>
+                    <li>🚫 No assurance of language model quality, stability, or interoperability</li>
+                </ul>
+            </section>
+
+            <section>
+                <h1>Potential Goals</h1>
+                <ul>
+                    <li>🔍 Manage language model interactions (on-device or cloud-based)</li>
+                    <li>🔒 Ensure user data privacy and control</li>
+                    <li>📱 Provide options for on-device-only models</li>
+                    <li>🔖 Identify language model identifiers independently from browser versions</li>
+                </ul>
+            </section>
+
+            <section>
+                <img src="https://ih1.redbubble.net/image.5139094006.7230/st,large,507x507-pad,600x600,f8f8f8.u1.jpg"
+                    alt="">
+            </section>
+
+            <section>
+                <h2>Zero-shot prompting</h2>
+                <pre><code class="javascript">
+const session = await LanguageModel.create();
+
+// Prompt the model and wait for the whole result
+const result = await session.prompt("Give me a dadjoke!");
+console.log(result);
+
+// Prompt the model and stream the result
+const stream = session.promptStreaming("Give me 5 dadjokes.");
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>System prompts</h2>
+                <pre><code class="javascript">
+const session = await LanguageModel.create({
+  initialPrompts: [
+    { role: "system", content: "You are an expert VeganCook" }
+  ]
+});
+
+console.log(await session.prompt("Give me a vegan breakfast recipe"));
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>N-shot prompting</h2>
+                <pre><code class="javascript">
+const session = await LanguageModel.create({
+initialPrompts: [
+    { role: "system", content: "Generate a short, humorous response to a comment. Output a single sentence." },
+    { role: "user", content: "I just finished a 10k run!" },
+    { role: "assistant", content: "Did you chase the ice cream truck?" },
+    { role: "user", content: "I got a promotion at work!" },
+    { role: "assistant", content: "Guess it's time to buy that island!" }
+]
+});
+
+async function generateHumorousResponse(comment) {
+    const session = await session.clone();
+    return await session.prompt(comment);
+}
+
+generateHumorousResponse("I just finished a 10k run!").then(console.log);
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>Configuration Options</h2>
+                <pre><code class="javascript">
+const customSession = await LanguageModel.create({
+    temperature: 0.7,
+    topK: 10
+});
+
+const params = await LanguageModel.params();
+
+const slightlyHighTemperatureSession = await LanguageModel.create({
+    temperature: Math.max(params.defaultTemperature * 1.2, 1.0),
+});
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>Session Management</h2>
+                <ul>
+                    <li>🔄 Persistent series of interactions</li>
+                    <li>🔄 Cloning for unrelated continuations</li>
+                    <li>🚫 Destruction to free resources</li>
+                </ul>
+            </section>
+
+            <section>
+                <pre><code class="javascript">
+const session = await LanguageModel.create({
+    initialPrompts: [
+        { role: "system", content: "You are a vegan chef!" }
+    ]
+});
+    
+const result = await session.prompt(`
+    What will you cook for dinner today?
+`);
+    
+const result2 = await session.prompt(`
+    I don't like that dish, any other suggestion? 
+`);
+</code></pre>
+            </section>
+            <section>
+
+                <pre>
+    <code class="javascript">
+const session = await LanguageModel.create({
+    initialPrompts: [
+        { role: "system", content: "You are a vegan chef!" }
+    ]
+});
+    
+const session2 = await session.clone();
+session.destroy();
+    
+// The promise will be rejected.
+await session.prompt(`
+    What will you cook for dinner today?
+`);   
+    </code>
+</pre>
+            </section>
+
+            <section>
+                <h2>Session destruction</h2>
+                <pre><code class="javascript">
+const controller = new AbortController();
+stopButton.onclick = () => controller.abort();
+
+const result = await session.prompt("Write me a poem", { 
+    signal: controller.signal 
+});
+                </code></pre>
+            </section>
+
+
+            <section>
+                <h2>Availability Detection</h2>
+                <pre><code class="javascript">
+const availability = await LanguageModel.availability();
+
+switch (availability) {
+  case "no":
+    console.log("🔴");
+    break;
+  case "after-download":
+    console.log("🟠");
+    break;
+  case "readily":
+    console.log("🟢");
+    break;
+}
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>Writing Assistance APIs</h2>
+                <ul>
+                    <li><strong>Summarizer API:</strong> Generates concise summaries of text.</li>
+                    <li><strong>Writer API:</strong> Creates new content based on your prompts.</li>
+                    <li><strong>Rewriter API:</strong> Transforms and improves existing text.</li>
+                </ul>
+            </section>
+
+            <section>
+                <pre><code data-trim="" data-line-numbers="1-5|7-9|11-13">
+// Summarization
+const summarizer = await Summarizer.create({
+     type: "headline" 
+});
+
+const summary = await summarizer.summarize(text);
+
+// Writing
+const writer = await Writer.create({ 
+    tone: "formal" 
+});
+const draft = await writer.write("Draft an email about...");
+
+// Rewriting
+const rewriter = await Rewriter.create();
+const improvedText = await rewriter.rewrite(userReview, { length: "shorter" });
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>Seamless Streaming</h2>
+                <pre><code data-trim="" data-line-numbers="">
+const writer = await Writer.create();
+const stream = await writer.writeStreaming("Write a story about...");
+
+for await (const chunk of stream) {
+    document.getElementById('container').textContent += chunk;
+}
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>Smart Availability Detection</h2>
+                <pre><code data-trim="" data-line-numbers="">
+const availability = await Summarizer.availability();
+    if (availability !== "no") {
+        // Summarization API ✅
+    }
+                </code></pre>
+            </section>
+
+
+            <section>
+                <h2>Considerations</h2>
+                <ul>
+                    <li>🤖 Instruction-tuned vs base models</li>
+                    <li>⬇️ Downloading and session creation flow</li>
+                    <li>🔐 Privacy considerations</li>
+                    <li>📢 Stakeholder feedback (ongoing)</li>
+                </ul>
+            </section>
+
+            <section>
+                <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW0wYmNrb3VhYmJia2FxNWZzODF0eTRweXcwYWFkMm1rNDh6c3ZlMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QBd2kLB5qDmysEXre9/giphy.webp"
+                    alt="">
+            </section>
+
+            <section>
+                <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWw0MGloenFmd2YxbTFwMjhyaTljdjloMHFrYTczanRicHhyY2dlcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/aMr2w2XNrPfqDDuyen/giphy.webp"
+                    alt="">
+            </section>
+
+            <section>
+                <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2h1eDVmeDhlY25iMjdsZ3hpdW8wM2xudHR0OGE2eTJyNWN2eGg2MiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Th4SzxedqxnsNf1Ctz/giphy.webp"
+                    alt="">
+            </section>
+            <section>
+                <h2>window.ai.finetune</h2>
+                <pre><code class="javascript">window.ai.finetune(options: FineTuneOptions)</code></pre>
+                <pre><code class="text">
+options.model: Specifies the base model to fine-tune. defaults to "nano".
+options.dataset: An optional structured dataset for fine-tuning.
+options.rawText: An optional string of raw text for fine-tuning.
+options.epochs: An optional number of training epochs (default may vary by implementation).
+options.learningRate: An optional learning rate for the fine-tuning process.
+                </code></pre>
+            </section>
+            <section>
+                <h2>window.ai.contextCache</h2>
+                <pre><code class="javascript">
+async function manageConversationContext(conversationId, newMessage) {
+    // Configure cache
+    await window.ai.contextCache.setOptions({ maxSize: 1000, ttl: 3600000 });
+
+    // Retrieve existing context
+    let context = await window.ai.contextCache.get(conversationId);
+
+    // Update context with new message
+    context = (context ? context + "\n" : "") + newMessage;
+    await window.ai.contextCache.update(conversationId, context);
+
+    // Use updated context in AI interaction
+    const response = await someAIFunction(context);
+
+    return response;
+}
+                </code></pre>
+            </section>
+            <section>
+                <h2>window.ai.rag</h2>
+                <pre><code class="javascript">const result = await window.ai.rag.query(question, ragOptions);</code></pre>
+                <pre>
+                    <code class="webidl">
+interface RAGOptions {
+    model: string; // Identifier for the base language model
+    knowledgeBase: KnowledgeBase;
+    retrievalOptions?: RetrievalOptions;
+    generationOptions?: GenerationOptions;
+}
+                    </code>
+                </pre>
+            </section>
+            <section>
+                <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcndkMnUzeXZpZjh0cnAycDV0NXY5NnAzem90Zm1yYXZ6bGNnM2s0YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AhJIPUnoUYgyA/giphy.webp"
+                    alt="">
+
+                <p>h3manth.com</p>
+                <p>@gnumanth</p>
+            </section>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            plugins: [],
+            showNotes: 'true',
+            view: 'scroll',
+            scrollProgress: true,
+            disableLayout: false,
+
+        });
+        hljs.highlightAll();
+    </script>
+</body>
+
+</html>

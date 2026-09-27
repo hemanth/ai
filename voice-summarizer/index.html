@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Summarizer - Speak & Summarize</title>
+    <meta name="description" content="Record your voice, get it transcribed, and receive an AI-powered summary">
+    <meta property="og:title" content="Voice Summarizer - Speak & Summarize">
+    <meta property="og:description" content="Record your voice, get transcription and AI summary">
+    <meta property="og:url" content="https://h3manth.com/ai/voice-summarizer/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --accent: #8b5cf6;
+            --accent-light: #a78bfa;
+            --accent-red: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient::before {
+            content: '';
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            background: var(--accent);
+            top: -20%;
+            right: -10%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-5%, 5%);
+            }
+        }
+
+        header {
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        .status-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .status-banner.loading {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .status-banner.ready {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .status-banner.error {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .record-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .record-btn {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .record-btn.recording {
+            border-color: var(--accent-red);
+            animation: pulse 1.5s infinite;
+        }
+
+        .record-btn svg {
+            width: 48px;
+            height: 48px;
+            fill: var(--accent);
+            transition: fill 0.3s ease;
+        }
+
+        .record-btn.recording svg {
+            fill: var(--accent-red);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .record-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .result-card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-card .content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            min-height: 60px;
+            white-space: pre-wrap;
+        }
+
+        .result-card .content.placeholder {
+            font-style: italic;
+            opacity: 0.6;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .record-btn {
+                width: 100px;
+                height: 100px;
+            }
+
+            .record-btn svg {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+
+    <header>
+        <h1>🎙️ Voice Summarizer</h1>
+        <p class="subtitle">Speak, Transcribe & Summarize with AI</p>
+    </header>
+
+    <main>
+        <div class="status-banner loading" id="status-banner">
+            <span id="status-text">Loading AI model...</span>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="record-section">
+            <button class="record-btn" id="record-btn" disabled>
+                <svg viewBox="0 0 24 24" id="mic-icon">
+                    <path
+                        d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V19h4v2H8v-2h4v-3.07z" />
+                </svg>
+            </button>
+            <p class="record-label" id="record-label">Click to start recording</p>
+        </div>
+
+        <div class="result-section">
+            <div class="result-card">
+                <h2>📝 Transcription</h2>
+                <div class="content placeholder" id="transcription">Your speech will appear here...</div>
+            </div>
+
+            <div class="result-card">
+                <h2>✨ Summary</h2>
+                <div class="content placeholder" id="summary">AI summary will appear here after you stop recording...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Built with ❤️ by <a href="https://h3manth.com">Hemanth HM</a> | Powered by Web Speech API & MediaPipe
+    </footer>
+
+    <script type="module">
+        import { FilesetResolver, LlmInference } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai/+esm';
+
+        let llmInference = null;
+        let recognition = null;
+        let isRecording = false;
+        let fullTranscript = '';
+
+        const recordBtn = document.getElementById('record-btn');
+        const recordLabel = document.getElementById('record-label');
+        const micIcon = document.getElementById('mic-icon');
+        const transcriptionEl = document.getElementById('transcription');
+        const summaryEl = document.getElementById('summary');
+        const statusBanner = document.getElementById('status-banner');
+        const statusText = document.getElementById('status-text');
+        const progressBar = document.getElementById('progress-bar');
+
+        // Check for Web Speech API support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            statusBanner.classList.remove('loading');
+            statusBanner.classList.add('error');
+            statusText.textContent = '❌ Web Speech API not supported. Use Chrome or Edge.';
+        } else {
+            initializeLLM();
+        }
+
+        async function initializeLLM() {
+            try {
+                statusText.innerHTML = '<span class="spinner"></span>Loading WebGPU resources...';
+                progressBar.style.width = '20%';
+
+                const genai = await FilesetResolver.forGenAiTasks(
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-genai@latest/wasm"
+                );
+
+                statusText.innerHTML = '<span class="spinner"></span>Loading Gemma model...';
+                progressBar.style.width = '50%';
+
+                llmInference = await LlmInference.createFromOptions(genai, {
+                    baseOptions: {
+                        modelAssetPath: '/ai/llm-inference/gemma3-270m-it-q8-web.task'
+                    },
+                    maxTokens: 256,
+                    topK: 20,
+                    temperature: 0.5,
+                    randomSeed: Date.now()
+                });
+
+                // Initialize speech recognition
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onresult = handleSpeechResult;
+                recognition.onerror = handleSpeechError;
+                recognition.onend = handleSpeechEnd;
+
+                progressBar.style.width = '100%';
+                statusBanner.classList.remove('loading');
+                statusBanner.classList.add('ready');
+                statusText.textContent = '✅ Ready! Click the microphone to start recording.';
+                recordBtn.disabled = false;
+
+            } catch (error) {
+                console.error('Error initializing:', error);
+                statusBanner.classList.remove('loading');
+                statusBanner.classList.add('error');
+                statusText.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        recordBtn.addEventListener('click', toggleRecording);
+
+        function toggleRecording() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            fullTranscript = '';
+            transcriptionEl.textContent = '';
+            transcriptionEl.classList.remove('placeholder');
+            summaryEl.textContent = 'Listening...';
+            summaryEl.classList.add('placeholder');
+
+            recognition.start();
+            isRecording = true;
+            recordBtn.classList.add('recording');
+            recordLabel.textContent = 'Click to stop recording';
+
+            // Change icon to stop
+            micIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
+        }
+
+        function stopRecording() {
+            recognition.stop();
+            isRecording = false;
+            recordBtn.classList.remove('recording');
+            recordLabel.textContent = 'Click to start recording';
+
+            // Change icon back to mic
+            micIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V19h4v2H8v-2h4v-3.07z"/>';
+
+            if (fullTranscript.trim()) {
+                generateSummary(fullTranscript);
+            } else {
+                summaryEl.textContent = 'No speech detected. Try again.';
+                summaryEl.classList.add('placeholder');
+            }
+        }
+
+        function handleSpeechResult(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                fullTranscript += finalTranscript;
+            }
+
+            transcriptionEl.textContent = fullTranscript + interimTranscript;
+        }
+
+        function handleSpeechError(event) {
+            console.error('Speech recognition error:', event.error);
+            if (event.error === 'not-allowed') {
+                summaryEl.textContent = 'Microphone access denied. Please allow microphone access.';
+            }
+        }
+
+        function handleSpeechEnd() {
+            if (isRecording) {
+                // Restart recognition if it ended unexpectedly
+                recognition.start();
+            }
+        }
+
+        async function generateSummary(text) {
+            summaryEl.innerHTML = '<span class="spinner"></span>Generating summary...';
+            summaryEl.classList.remove('placeholder');
+
+            const prompt = `<start_of_turn>user
+Summarize the following text in 2-3 concise sentences:
+
+${text}<end_of_turn>
+<start_of_turn>model
+`;
+
+            try {
+                let summary = '';
+                await llmInference.generateResponse(prompt, (partialResult, done) => {
+                    const cleaned = partialResult.replace(/<end_of_turn>/g, '').replace(/<start_of_turn>/g, '');
+                    summary += cleaned;
+                    summaryEl.textContent = summary;
+                });
+            } catch (error) {
+                console.error('Error generating summary:', error);
+                summaryEl.textContent = 'Error generating summary. Please try again.';
+                summaryEl.classList.add('placeholder');
+            }
+        }
+    </script>
+</body>
+
+</html>

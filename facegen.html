@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceGen - AI Face Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #000;
+            background: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-width: 2px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+        button:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 3rem;
+            border: 1px solid #000;
+            padding: 2rem;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result img {
+            width: 100%;
+            display: block;
+        }
+
+        .demo-link {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .demo-link a {
+            color: #000;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>FaceGen</h1>
+
+        <div class="input-group">
+            <label for="apiKey">Google Cloud API Key</label>
+            <input type="text" id="apiKey" placeholder="Enter your API key">
+        </div>
+
+        <button id="generateBtn">Generate Face</button>
+
+        <div id="result" class="result">
+            <img id="faceImage" alt="Generated face">
+        </div>
+
+        <div class="demo-link">
+            <a href="https://x.com/GNUmanth/status/1842248022337671442" target="_blank">View Demo</a>
+        </div>
+    </div>
+
+    <script>
+        const apiKeyInput = document.getElementById('apiKey');
+        const generateBtn = document.getElementById('generateBtn');
+        const result = document.getElementById('result');
+        const faceImage = document.getElementById('faceImage');
+
+        generateBtn.addEventListener('click', async () => {
+            const apiKey = apiKeyInput.value.trim();
+
+            if (!apiKey) {
+                alert('Please enter your API key');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch(`https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT/locations/us-central1/publishers/google/models/imagen-3.0-generate-001:predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        instances: [{
+                            prompt: 'A photorealistic portrait of a unique person with natural features and distinctive appearance'
+                        }],
+                        parameters: {
+                            sampleCount: 1
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.predictions && data.predictions[0]) {
+                    faceImage.src = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                    result.classList.add('show');
+                } else {
+                    throw new Error('No image generated');
+                }
+            } catch (error) {
+                alert('Error generating face: ' + error.message + '\n\nNote: You need a Google Cloud API key with Vertex AI enabled.');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Face';
+            }
+        });
+    </script>
+</body>
+
+</html>

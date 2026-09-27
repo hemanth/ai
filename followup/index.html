@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FollowUp - AI Chat Assistant</title>
+    <meta name="description" content="Interactive AI chat assistant with intelligent follow-up questions">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100vh;
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        main::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        main::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .messages {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 100px 20px 60px;
+        }
+
+        .welcome h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .message.assistant .message-content {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom-left-radius: 6px;
+        }
+
+        .followup-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 0 20px;
+            display: none;
+        }
+
+        .followup-section.active {
+            display: block;
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .followup-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .followup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .followup-tablet {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .followup-tablet::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .followup-tablet:hover::before {
+            opacity: 1;
+        }
+
+        .followup-tablet:hover {
+            transform: translateY(-2px);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .followup-tablet-text {
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
+
+        .input-container {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        #sendBtn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        #sendBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #sendBtn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border-bottom-left-radius: 6px;
+            max-width: fit-content;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome h1 {
+                font-size: 2rem;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .followup-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .followup-section {
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <main id="chatArea">
+            <div class="messages">
+                <div class="welcome">
+                    <h1>Ask me anything</h1>
+                    <p>I'll provide detailed answers and suggest follow-up questions</p>
+                </div>
+            </div>
+        </main>
+        <div id="followupSection" class="followup-section">
+            <div class="followup-header">💡 Suggested Questions</div>
+            <div id="followupGrid" class="followup-grid"></div>
+        </div>
+        <div class="input-container">
+            <form class="input-wrapper" id="messageForm">
+                <input type="text" id="userInput" placeholder="Ask anything..." autocomplete="off">
+                <button type="submit" id="sendBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z">
+                        </path>
+                        <path d="m21.854 2.147-10.94 10.939"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const messagesContainer = document.querySelector('.messages');
+        const messageForm = document.getElementById('messageForm');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatArea = document.getElementById('chatArea');
+        const followupSection = document.getElementById('followupSection');
+        const followupGrid = document.getElementById('followupGrid');
+
+        let conversationHistory = [];
+
+        function addMessage(content, isUser = false) {
+            const welcome = document.querySelector('.welcome');
+            if (welcome) welcome.remove();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            if (isUser) {
+                contentDiv.textContent = content;
+            } else {
+                contentDiv.innerHTML = marked.parse(content);
+            }
+
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            return messageDiv;
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator active';
+            indicator.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+            messagesContainer.appendChild(indicator);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            return indicator;
+        }
+
+        function showFollowUpQuestions(questions) {
+            followupGrid.innerHTML = '';
+
+            if (questions.length === 0) {
+                followupSection.classList.remove('active');
+                return;
+            }
+
+            questions.forEach(question => {
+                const tablet = document.createElement('div');
+                tablet.className = 'followup-tablet';
+                tablet.innerHTML = `<div class="followup-tablet-text">${question}</div>`;
+                tablet.onclick = () => handleFollowUp(question);
+                followupGrid.appendChild(tablet);
+            });
+
+            followupSection.classList.add('active');
+        }
+
+        function handleFollowUp(question) {
+            userInput.value = question;
+            messageForm.dispatchEvent(new Event('submit'));
+        }
+
+        async function sendMessage(message) {
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
+            // Hide follow-ups when user sends a message
+            followupSection.classList.remove('active');
+
+            const indicator = showTypingIndicator();
+            sendBtn.disabled = true;
+
+            try {
+                const prompt = `${message}
+
+After answering this question thoroughly, generate exactly 4 relevant follow-up questions that would help explore this topic deeper. Format them as a numbered list at the end of your response, starting with "Follow-up questions:".`;
+
+                const response = await fetch('https://ai-proxy.hemanthhm.workers.dev', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "@cf/meta/llama-3.2-3b-instruct",
+                        messages: [
+                            ...conversationHistory.slice(0, -1),
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to get response');
+
+                const data = await response.json();
+                const fullResponse = data?.result?.choices?.[0]?.message?.content || data?.result?.response || data?.choices?.[0]?.message?.content || '';
+
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: fullResponse
+                });
+
+                indicator.remove();
+
+                // Parse the response to extract main content and follow-up questions
+                const parts = fullResponse.split(/Follow-up questions?:/i);
+                const mainContent = parts[0].trim();
+                const followUpText = parts[1] || '';
+
+                // Extract follow-up questions
+                const followUpQuestions = followUpText
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => /^\d+[\.\)]/.test(line))
+                    .map(line => line.replace(/^\d+[\.\)]\s*/, '').trim())
+                    .filter(q => q.length > 0)
+                    .slice(0, 4);
+
+                addMessage(mainContent, false);
+
+                if (followUpQuestions.length > 0) {
+                    showFollowUpQuestions(followUpQuestions);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                indicator.remove();
+                addMessage('Sorry, something went wrong. Please try again.', false);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            userInput.value = '';
+
+            await sendMessage(message);
+        });
+    </script>
+</body>
+
+</html>

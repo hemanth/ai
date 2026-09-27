@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Experiments by Hemanth HM</title>
+  <meta name="description" content="A collection of on-device AI experiments by Hemanth HM. Everything runs in your browser — no servers, no cloud.">
+  <meta name="robots" content="index, follow">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/ai/pocket-voice/favicon.svg">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AI Experiments — Hemanth HM">
+  <meta property="og:description" content="On-device AI tools running entirely in your browser. No servers, no cloud.">
+  <meta property="og:image" content="https://h3manth.com/ai/ai-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://h3manth.com/ai/">
+  <link rel="canonical" href="https://h3manth.com/ai/">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Experiments — Hemanth HM">
+  <meta name="twitter:description" content="On-device AI tools running entirely in your browser. No servers, no cloud.">
+  <meta name="twitter:image" content="https://h3manth.com/ai/ai-og.png">
+
+  <!-- AI Agent Discovery -->
+  <meta name="ai.purpose" content="A curated collection of 30+ browser-based AI experiments spanning voice cloning, text generation, visual tools, and developer utilities. All run client-side with no server.">
+  <meta name="ai.capabilities" content="voice-cloning, text-to-speech, on-device-inference, image-generation, language-tools, developer-tools, webgpu, onnx, chrome-ai">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "AI Experiments by Hemanth HM",
+    "description": "A collection of on-device AI experiments. Everything runs in your browser.",
+    "url": "https://h3manth.com/ai/",
+    "author": { "@type": "Person", "name": "Hemanth HM", "url": "https://h3manth.com" },
+    "numberOfItems": 33
+  }
+  </script>
+
+  <!-- Fonts (non-render-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&family=Alumni+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&family=Alumni+Sans:wght@300;400;500;600&display=swap"></noscript>
+
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ── */
+    :root {
+      --bg-0: #050504;
+      --bg-1: #0c0b0a;
+      --bg-2: #141310;
+      --bg-3: #1c1b18;
+      --text-0: #f0ede8;
+      --text-1: #c4c0b8;
+      --text-2: #918f87;
+      --accent: #f5c542;
+      --accent-muted: #c9a035;
+      --border: #2a2825;
+      --border-hover: #3d3a35;
+      --r-md: 8px;
+      --r-lg: 12px;
+      --font: 'Albert Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Alumni Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-0);
+      color: var(--text-1);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Grain ── */
+    .grain {
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none; opacity: 0.03;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 clamp(1.25rem, 4vw, 4rem);
+    }
+
+    /* ── Header ── */
+    .site-header {
+      padding: 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .site-header__brand {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--text-0);
+      letter-spacing: 0.02em;
+    }
+
+    .site-header__links { display: flex; gap: 1.25rem; align-items: center; }
+
+    .site-header__links a {
+      color: var(--text-2);
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+    .site-header__links a:hover { color: var(--text-0); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 5rem 0 3.5rem;
+      text-align: center;
+    }
+
+    .hero__eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 600;
+      color: var(--text-0);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .hero__subtitle {
+      font-size: 1.05rem;
+      color: var(--text-2);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .hero__byline {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-2);
+    }
+
+    .hero__byline a {
+      color: var(--accent-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .hero__byline a:hover { color: var(--accent); }
+
+    /* ── Section ── */
+    .section { margin-bottom: 4rem; }
+
+    .section__label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Featured Grid ── */
+    .featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .featured-card {
+      padding: 2rem 1.75rem;
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .featured-card:hover { background: var(--bg-2); border-color: var(--border-hover); }
+
+    .featured-card__name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-0);
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-card__desc {
+      font-size: 0.92rem;
+      color: var(--text-2);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .featured-card__tag {
+      margin-top: 1.25rem;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-muted);
+    }
+
+    /* ── App Grid ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .app-card {
+      padding: 1.5rem 1.35rem;
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      transition: background 0.25s, border-color 0.25s;
+      display: block;
+    }
+
+    .app-card:hover { background: var(--bg-2); border-color: var(--border-hover); }
+
+    .app-card__name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-0);
+      margin-bottom: 0.4rem;
+      transition: color 0.2s;
+    }
+
+    .app-card:hover .app-card__name { color: var(--accent); }
+
+    .app-card__desc {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    /* ── Compact Grid (Creative / Chrome AI) ── */
+    .compact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .compact-card {
+      padding: 1.15rem;
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      text-align: center;
+      transition: background 0.25s, border-color 0.25s;
+      display: block;
+    }
+
+    .compact-card:hover { background: var(--bg-2); border-color: var(--border-hover); }
+
+    .compact-card__name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-0);
+      transition: color 0.2s;
+    }
+
+    .compact-card:hover .compact-card__name { color: var(--accent); }
+
+    .compact-card__desc {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      margin-top: 0.25rem;
+      line-height: 1.45;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-2);
+    }
+
+    .footer a {
+      color: var(--accent-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+    .footer a:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .featured-grid { grid-template-columns: 1fr; }
+      .app-grid { grid-template-columns: 1fr 1fr; }
+      .compact-grid { grid-template-columns: repeat(3, 1fr); }
+      .hero { padding: 3rem 0 2.5rem; }
+      .site-header__links .gh-text { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .app-grid { grid-template-columns: 1fr; }
+      .compact-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="hero__eyebrow">Open Source · Browser-First</span>
+    <h1 class="hero__title">AI Experiments</h1>
+    <p class="hero__subtitle">A collection of AI experiments. Most run on-device, right in your browser. No servers, no cloud.</p>
+    <p class="hero__byline">by <a href="https://h3manth.com">Hemanth HM</a></p>
+  </section>
+
+  <main>
+    <!-- Featured -->
+    <section class="section" aria-label="Featured projects">
+      <h2 class="section__label">Featured</h2>
+      <div class="featured-grid">
+        <a href="./eloquent/" class="featured-card">
+          <div>
+            <div class="featured-card__name">Eloquent Web</div>
+            <div class="featured-card__desc">On-device AI dictation powered by Gemma 4 and WebGPU. Speak naturally, get polished text.</div>
+          </div>
+          <div class="featured-card__tag">WebGPU · Gemma 4</div>
+        </a>
+        <a href="./pocket-voice/" class="featured-card">
+          <div>
+            <div class="featured-card__name">Pocket Voice</div>
+            <div class="featured-card__desc">Clone any voice in your browser. Record, clone, and speak — 100% client-side via ONNX.</div>
+          </div>
+          <div class="featured-card__tag">ONNX · Voice Cloning</div>
+        </a>
+        <a href="./visual-narrator/" class="featured-card">
+          <div>
+            <div class="featured-card__name">Visual Narrator</div>
+            <div class="featured-card__desc">Visual storytelling powered by Qwen 3.5 0.8B running via WebGPU.</div>
+          </div>
+          <div class="featured-card__tag">WebGPU · Qwen 3.5</div>
+        </a>
+        <a href="./emtools/" class="featured-card">
+          <div>
+            <div class="featured-card__name">EM Tools</div>
+            <div class="featured-card__desc">Engineering management toolkit for team leads and managers.</div>
+          </div>
+          <div class="featured-card__tag">Productivity</div>
+        </a>
+        <a href="./pmtools/" class="featured-card">
+          <div>
+            <div class="featured-card__name">PM Tools</div>
+            <div class="featured-card__desc">AI utilities for specs, PRDs, and product planning.</div>
+          </div>
+          <div class="featured-card__tag">Productivity</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Voice & Language -->
+    <section class="section" aria-label="Voice and Language tools">
+      <h2 class="section__label">Voice & Language</h2>
+      <div class="app-grid">
+        <a href="./sanskrit-asr/" class="app-card">
+          <div class="app-card__name">Su-śrotā (सुश्रोता)</div>
+          <div class="app-card__desc">On-device Sanskrit speech recognition via Conformer-CTC with live audio and IAST transliteration.</div>
+        </a>
+        <a href="./pocket-voice/" class="app-card">
+          <div class="app-card__name">Pocket Voice</div>
+          <div class="app-card__desc">Clone any voice in your browser. Record, clone, and speak — 100% client-side.</div>
+        </a>
+        <a href="./voice-summarizer/" class="app-card">
+          <div class="app-card__name">Voice Summarizer</div>
+          <div class="app-card__desc">Record or upload audio and get an AI-generated summary.</div>
+        </a>
+        <a href="./nadha/" class="app-card">
+          <div class="app-card__name">Nadha</div>
+          <div class="app-card__desc">AI music generation and sound exploration tool.</div>
+        </a>
+        <a href="./textcraft/" class="app-card">
+          <div class="app-card__name">TextCraft</div>
+          <div class="app-card__desc">Transform, reformat, and polish text with AI assistance.</div>
+        </a>
+        <a href="./debate/" class="app-card">
+          <div class="app-card__name">Debate</div>
+          <div class="app-card__desc">AI-powered debate simulator for exploring both sides of an argument.</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Chrome Built-in AI -->
+    <section class="section" aria-label="Chrome Built-in AI tools">
+      <h2 class="section__label">Chrome Built-in AI</h2>
+      <div class="compact-grid">
+        <a href="./chromeai/" class="compact-card">
+          <div class="compact-card__name">Chat</div>
+          <div class="compact-card__desc">Conversational AI</div>
+        </a>
+        <a href="./chromeai/write" class="compact-card">
+          <div class="compact-card__name">Write</div>
+          <div class="compact-card__desc">Generate drafts</div>
+        </a>
+        <a href="./chromeai/rewrite" class="compact-card">
+          <div class="compact-card__name">Rewrite</div>
+          <div class="compact-card__desc">Rephrase content</div>
+        </a>
+        <a href="./chromeai/summarize" class="compact-card">
+          <div class="compact-card__name">Summarize</div>
+          <div class="compact-card__desc">Condense text</div>
+        </a>
+        <a href="./chromeai/translate" class="compact-card">
+          <div class="compact-card__name">Translate</div>
+          <div class="compact-card__desc">Language translation</div>
+        </a>
+        <a href="./chromeai/talk" class="compact-card">
+          <div class="compact-card__name">Talk</div>
+          <div class="compact-card__desc">Voice-driven chat</div>
+        </a>
+        <a href="./chromeai/vak" class="compact-card">
+          <div class="compact-card__name">VAK</div>
+          <div class="compact-card__desc">Learning styles</div>
+        </a>
+        <a href="./webmcp/" class="compact-card">
+          <div class="compact-card__name">WebMCP</div>
+          <div class="compact-card__desc">MCP bridge</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Knowledge & Research -->
+    <section class="section" aria-label="Knowledge and Research tools">
+      <h2 class="section__label">Knowledge & Research</h2>
+      <div class="app-grid">
+        <a href="./explain-paper/" class="app-card">
+          <div class="app-card__name">Explain Paper</div>
+          <div class="app-card__desc">Paste an academic paper and get a plain-language explanation.</div>
+        </a>
+        <a href="./book-summary/" class="app-card">
+          <div class="app-card__name">Book Summary</div>
+          <div class="app-card__desc">Get concise summaries and key takeaways from any book.</div>
+        </a>
+        <a href="./first-principles/" class="app-card">
+          <div class="app-card__name">First Principles</div>
+          <div class="app-card__desc">Break down any concept into its fundamental building blocks.</div>
+        </a>
+        <a href="./followup/" class="app-card">
+          <div class="app-card__name">FollowUp</div>
+          <div class="app-card__desc">Generate smart follow-up questions for deeper exploration.</div>
+        </a>
+        <a href="./prompt-tuner/" class="app-card">
+          <div class="app-card__name">Prompt Tuner</div>
+          <div class="app-card__desc">Refine and optimize prompts for better AI outputs.</div>
+        </a>
+        <a href="./pmtools/" class="app-card">
+          <div class="app-card__name">PM Tools</div>
+          <div class="app-card__desc">AI utilities for specs, PRDs, and product planning.</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Creative & Visual -->
+    <section class="section" aria-label="Creative and Visual tools">
+      <h2 class="section__label">Creative & Visual</h2>
+      <div class="compact-grid">
+        <a href="./color-bar/" class="compact-card">
+          <div class="compact-card__name">Color Bar</div>
+          <div class="compact-card__desc">AI color palette generator</div>
+        </a>
+        <a href="./facegen/" class="compact-card">
+          <div class="compact-card__name">Facegen</div>
+          <div class="compact-card__desc">Generate synthetic faces</div>
+        </a>
+        <a href="./hairstyle/" class="compact-card">
+          <div class="compact-card__name">Hairstyle</div>
+          <div class="compact-card__desc">Try virtual hairstyles</div>
+        </a>
+        <a href="./snapshopper/" class="compact-card">
+          <div class="compact-card__name">SnapShopper</div>
+          <div class="compact-card__desc">Snap a product, find it</div>
+        </a>
+        <a href="./nutricam/" class="compact-card">
+          <div class="compact-card__name">NutriCam</div>
+          <div class="compact-card__desc">Camera nutrition info</div>
+        </a>
+        <a href="./cinematch/" class="compact-card">
+          <div class="compact-card__name">CineMatch</div>
+          <div class="compact-card__desc">AI movie picks</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Culture & Knowledge -->
+    <section class="section" aria-label="Culture and Knowledge tools">
+      <h2 class="section__label">Culture & Knowledge</h2>
+      <div class="app-grid">
+        <a href="./rootword/" class="app-card">
+          <div class="app-card__name">Rootword</div>
+          <div class="app-card__desc">Explore the etymological roots of any word.</div>
+        </a>
+        <a href="./sanskrit-flash-cards/" class="app-card">
+          <div class="app-card__name">Sanskrit Flash Cards</div>
+          <div class="app-card__desc">Learn Sanskrit vocabulary with AI-generated flash cards.</div>
+        </a>
+        <a href="./vedantic-views/" class="app-card">
+          <div class="app-card__name">Vedantic Views</div>
+          <div class="app-card__desc">Explore Vedantic philosophy through AI-guided conversations.</div>
+        </a>
+        <a href="./obituary/" class="app-card">
+          <div class="app-card__name">Historical Mortality</div>
+          <div class="app-card__desc">Explore historical figures and their life stories.</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Developer -->
+    <section class="section" aria-label="Developer tools">
+      <h2 class="section__label">Developer</h2>
+      <div class="app-grid">
+        <a href="./functiongemma/" class="app-card">
+          <div class="app-card__name">FunctionGemma</div>
+          <div class="app-card__desc">Function-calling with Gemma models via WebGPU.</div>
+        </a>
+        <a href="./llm-inference/" class="app-card">
+          <div class="app-card__name">LLM Inference</div>
+          <div class="app-card__desc">Run large language models directly in the browser.</div>
+        </a>
+        <a href="./models/" class="app-card">
+          <div class="app-card__name">Models</div>
+          <div class="app-card__desc">Browse and compare available on-device AI models.</div>
+        </a>
+        <a href="./emtools/" class="app-card">
+          <div class="app-card__name">EM Tools</div>
+          <div class="app-card__desc">Engineering management tools for team leads.</div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>Built with ❤️ by <a href="https://h3manth.com">Hemanth HM</a></span>
+    <span>Open Source · <a href="https://github.com/hemanth">GitHub</a></span>
+  </footer>
+</div>
+
+</body>
+</html>

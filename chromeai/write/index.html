@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Writer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #0a0a0a;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            border: 1px solid #1a1a1a;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        textarea,
+        select,
+        button {
+            width: 100%;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        textarea,
+        select {
+            background-color: #0a0a0a;
+            color: #e8e8e8;
+            border: 1px solid #1a1a1a;
+            padding: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #444;
+            box-shadow: 0 0 0 2px rgba(68, 68, 68, 0.2);
+        }
+
+        textarea::placeholder {
+            color: #555;
+        }
+
+        textarea {
+            flex: 1;
+            min-height: 150px;
+            resize: none;
+        }
+
+        .select-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        button {
+            background-color: #222;
+            color: #e8e8e8;
+            border: 1px solid #1a1a1a;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #333;
+            border-color: #444;
+        }
+
+        button:disabled {
+            background-color: #111;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .output-section {
+            margin-top: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .output {
+            background-color: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        @media (max-width: 640px) {
+            .select-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="dark">
+    <div class="container">
+        <div class="card">
+            <h1>AI Text Writer</h1>
+            <textarea id="inputText" placeholder="What should I write about? (e.g., An intro for a blog post about AI)"
+                aria-label="Prompt"></textarea>
+
+            <div class="select-group">
+                <select id="tone" aria-label="Tone">
+                    <option value="casual">Casual</option>
+                    <option value="formal">Formal</option>
+                    <option value="neutral" selected>Neutral</option>
+                </select>
+                <select id="length" aria-label="Length">
+                    <option value="short">Short</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="long">Long</option>
+                </select>
+                <select id="format" aria-label="Format">
+                    <option value="markdown" selected>Markdown</option>
+                    <option value="plain-text">Plain Text</option>
+                </select>
+            </div>
+
+            <button id="writeButton">Generate Text</button>
+
+            <div class="output-section">
+                <div class="output-label">✨ Generated Content:</div>
+                <div class="output" id="outputText">Your generated text will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const tone = document.getElementById('tone');
+        const length = document.getElementById('length');
+        const format = document.getElementById('format');
+        const writeButton = document.getElementById('writeButton');
+        const outputText = document.getElementById('outputText');
+
+        async function checkAvailability() {
+            if (typeof Writer === 'undefined') {
+                return 'unavailable';
+            }
+            try {
+                return await Writer.availability({ expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+            } catch (e) {
+                console.error('Writer availability error:', e);
+                return 'unavailable';
+            }
+        }
+
+        async function writeText(text, tone, length, format) {
+            const writer = await Writer.create({ tone, length, format, expectedOutputs: [{ type: 'text', languages: ['en'] }] });
+            return writer.write(text);
+        }
+
+        writeButton.addEventListener('click', async () => {
+            const prompt = inputText.value.trim();
+            if (!prompt) return;
+
+            writeButton.disabled = true;
+            writeButton.textContent = 'Writing...';
+            outputText.textContent = 'Generating...';
+
+            try {
+                const availability = await checkAvailability();
+                if (availability === 'unavailable') {
+                    throw new Error('Writer API not available.');
+                }
+
+                const result = await writeText(prompt, tone.value, length.value, format.value);
+                outputText.textContent = result;
+            } catch (error) {
+                console.error('Error writing text:', error);
+                outputText.textContent = `Error: ${error.message}\n\nEnsure the Writer API is enabled in chrome://flags.`;
+            } finally {
+                writeButton.disabled = false;
+                writeButton.textContent = 'Generate Text';
+            }
+        });
+
+        inputText.addEventListener('input', () => {
+            writeButton.disabled = !inputText.value.trim();
+        });
+
+        // Capabilities check
+        checkAvailability().then(status => {
+            if (status === 'unavailable') {
+                outputText.textContent = 'Status: Writer API not available. Enable Writer API in chrome://flags.';
+                writeButton.disabled = true;
+            } else if (status === 'downloadable') {
+                outputText.textContent = 'Writer model will download on first use.';
+            } else {
+                outputText.textContent = 'Ready to write!';
+            }
+        });
+    </script>
+</body>
+
+</html>

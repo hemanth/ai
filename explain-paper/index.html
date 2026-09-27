@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-g" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Research Paper Explainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --color-bg: #ffffff;
+        --color-surface: #ffffff;
+        --color-primary: #000000;
+        --color-primary-hover: #333333;
+        --color-secondary: #666666;
+        --color-text-primary: #000000;
+        --color-text-secondary: #333333;
+        --color-border: #000000;
+      }
+      html.dark {
+        --color-bg: #000000;
+        --color-surface: #000000;
+        --color-primary: #ffffff;
+        --color-primary-hover: #e5e5e5;
+        --color-secondary: #a3a3a3;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #e5e5e5;
+        --color-border: #ffffff;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              'brand-bg': 'var(--color-bg)',
+              'brand-surface': 'var(--color-surface)',
+              'brand-primary': 'var(--color-primary)',
+              'brand-primary-hover': 'var(--color-primary-hover)',
+              'brand-secondary': 'var(--color-secondary)',
+              'brand-text-primary': 'var(--color-text-primary)',
+              'brand-text-secondary': 'var(--color-text-secondary)',
+              'brand-border': 'var(--color-border)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+            }
+          }
+        }
+      }
+    </script>
+
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.16.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/ai/explain-paper/assets/index-CGLmS0Iu.js"></script>
+</head>
+  <body class="bg-brand-bg text-brand-text-primary transition-colors duration-300">
+    <div id="root"></div>
+  </body>
+</html>

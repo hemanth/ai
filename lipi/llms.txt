@@ -1,0 +1,30 @@
+# ಲಿಪಿ (Lipi) — Kannada Voice Editor
+
+> Speak Kannada and watch your words stream onto the page in real time.
+
+## What this app does
+Lipi is a browser-based Kannada voice editor. It uses the Web Speech API to stream Kannada speech to text in real time. Users can also type in English and the app transliterates it to Kannada phonetically. After recording, users can click "Polish" to re-transcribe their audio using a Whisper AI model for improved accuracy.
+
+## Links
+- [Lipi App](https://h3manth.com/ai/lipi/): The live web application
+- [Source Code](https://github.com/hemanth/lipi): GitHub repository (private)
+- [Transformers.js](https://huggingface.co/docs/transformers.js): The library powering local Whisper inference
+- [Author](https://h3manth.com): Hemanth HM
+
+## Features
+- Real-time speech-to-text streaming for Kannada (via Web Speech API)
+- Phonetic typing: type English letters, get Kannada script (e.g., "namaskara" → ನಮಸ್ಕಾರ)
+- Whisper AI polish: re-transcribe recorded audio with Whisper for better accuracy
+- Full text editor: edit, copy, save as .txt
+- Auto-save to localStorage
+- Works on Chrome and Edge browsers
+- Fallback to Whisper chunked transcription for browsers without Speech API
+
+## Tech stack
+- Vanilla HTML/CSS/JS (no framework)
+- Web Speech API for live streaming
+- Transformers.js + Whisper ONNX for polish and file upload
+- Custom phonetic-to-Kannada transliteration engine
+
+## Author
+Hemanth HM — [h3manth.com](https://h3manth.com)

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Bar - Extract Colors from Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #000;
+            background: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-width: 2px;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+            margin-top: 1rem;
+        }
+
+        button:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview {
+            margin-top: 2rem;
+            border: 1px solid #000;
+            padding: 1rem;
+            display: none;
+        }
+
+        .preview.show {
+            display: block;
+        }
+
+        .preview img {
+            width: 100%;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .result {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .color-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .color-bar:hover {
+            border-color: #000;
+        }
+
+        .demo-link {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .demo-link a {
+            color: #000;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .copied {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            color: #fff;
+            padding: 1rem 2rem;
+            border: 1px solid #000;
+            font-size: 0.875rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .copied.show {
+            opacity: 1;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Color Bar</h1>
+
+        <div class="input-group">
+            <label for="imageUrl">Image URL</label>
+            <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+        </div>
+
+        <button id="extractBtn">Extract Colors</button>
+
+        <div id="preview" class="preview">
+            <img id="previewImg" alt="Preview" crossorigin="anonymous">
+        </div>
+
+        <div id="result" class="result"></div>
+
+        <div class="demo-link">
+            <a href="https://x.com/GNUmanth/status/1840097600474886472" target="_blank">View Demo</a>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <div class="copied" id="copiedMsg">Copied to clipboard!</div>
+
+    <script>
+        const imageUrlInput = document.getElementById('imageUrl');
+        const extractBtn = document.getElementById('extractBtn');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const result = document.getElementById('result');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const copiedMsg = document.getElementById('copiedMsg');
+
+        extractBtn.addEventListener('click', async () => {
+            const url = imageUrlInput.value.trim();
+
+            if (!url) {
+                alert('Please enter an image URL');
+                return;
+            }
+
+            extractBtn.disabled = true;
+            extractBtn.textContent = 'Extracting...';
+            preview.classList.remove('show');
+            result.classList.remove('show');
+
+            try {
+                // Load image
+                previewImg.src = url;
+                await new Promise((resolve, reject) => {
+                    previewImg.onload = resolve;
+                    previewImg.onerror = reject;
+                });
+
+                preview.classList.add('show');
+
+                // Extract colors
+                const colors = extractDominantColors(previewImg, 5);
+                displayColors(colors);
+            } catch (error) {
+                alert('Error loading image. Make sure the URL is correct and CORS is enabled.');
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.textContent = 'Extract Colors';
+            }
+        });
+
+        function extractDominantColors(img, count) {
+            // Draw image to canvas
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+
+            // Sample pixels (every 10th pixel for performance)
+            const colors = [];
+            for (let i = 0; i < pixels.length; i += 40) {
+                colors.push({
+                    r: pixels[i],
+                    g: pixels[i + 1],
+                    b: pixels[i + 2]
+                });
+            }
+
+            // Simple k-means clustering
+            const clusters = kMeans(colors, count);
+            return clusters.map(rgbToHex);
+        }
+
+        function kMeans(colors, k) {
+            // Initialize random centroids
+            let centroids = colors.slice(0, k);
+
+            for (let iter = 0; iter < 10; iter++) {
+                // Assign colors to nearest centroid
+                const clusters = Array(k).fill().map(() => []);
+
+                colors.forEach(color => {
+                    let minDist = Infinity;
+                    let cluster = 0;
+
+                    centroids.forEach((centroid, i) => {
+                        const dist = colorDistance(color, centroid);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            cluster = i;
+                        }
+                    });
+
+                    clusters[cluster].push(color);
+                });
+
+                // Update centroids
+                centroids = clusters.map(cluster => {
+                    if (cluster.length === 0) return centroids[0];
+                    const r = cluster.reduce((sum, c) => sum + c.r, 0) / cluster.length;
+                    const g = cluster.reduce((sum, c) => sum + c.g, 0) / cluster.length;
+                    const b = cluster.reduce((sum, c) => sum + c.b, 0) / cluster.length;
+                    return { r, g, b };
+                });
+            }
+
+            return centroids;
+        }
+
+        function colorDistance(c1, c2) {
+            return Math.sqrt(
+                Math.pow(c1.r - c2.r, 2) +
+                Math.pow(c1.g - c2.g, 2) +
+                Math.pow(c1.b - c2.b, 2)
+            );
+        }
+
+        function rgbToHex(rgb) {
+            const toHex = (n) => {
+                const hex = Math.round(n).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+            return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+        }
+
+        function displayColors(colors) {
+            result.innerHTML = colors.map(color => {
+                const rgb = hexToRgb(color);
+                const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+                const textColor = luminance > 0.5 ? '#000' : '#fff';
+
+                return `<div class="color-bar" style="background-color: ${color}; color: ${textColor}" data-color="${color}">
+                    ${color}
+                </div>`;
+            }).join('');
+
+            result.classList.add('show');
+
+            // Add click to copy
+            result.querySelectorAll('.color-bar').forEach(bar => {
+                bar.addEventListener('click', () => {
+                    const color = bar.dataset.color;
+                    navigator.clipboard.writeText(color);
+                    showCopied();
+                });
+            });
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        function showCopied() {
+            copiedMsg.classList.add('show');
+            setTimeout(() => copiedMsg.classList.remove('show'), 1500);
+        }
+    </script>
+</body>
+
+</html>

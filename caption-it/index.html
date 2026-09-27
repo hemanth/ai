@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Caption It — Add closed captions to your videos using on-device AI. 100% private, runs entirely in your browser." />
+  <title>Caption It — AI Video Captioning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/ai/caption-it/assets/index-C4ygvFpw.js"></script>
+  <link rel="stylesheet" crossorigin href="/ai/caption-it/assets/index-Bk473z3o.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 2h10l4 4v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+            <path d="M9 13h6"/>
+            <path d="M9 17h3"/>
+            <path d="M14 2v4h4"/>
+          </svg>
+        </div>
+        <h1>Caption <span class="accent">It</span></h1>
+      </div>
+      <p class="tagline">AI-powered closed captions · 100% on-device · Zero data leaves your browser</p>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="progress-stepper" id="progress-stepper">
+      <div class="step active" data-step="upload">
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <span>Upload</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="extract">
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <span>Extract</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="transcribe">
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </div>
+        <span>Transcribe</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="preview">
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <span>Preview</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" data-step="export">
+        <div class="step-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <span>Export</span>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Upload Section -->
+      <section class="section upload-section" id="upload-section">
+        <div class="glass-card upload-zone" id="upload-zone">
+          <div class="upload-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+          </div>
+          <h2>Drop your video here</h2>
+          <p>or click to browse · MP4, WebM, MOV supported · Max 200MB</p>
+          <input type="file" id="file-input" accept="video/mp4,video/webm,video/quicktime,video/*" hidden />
+          <button class="btn btn-primary" id="browse-btn">Choose Video</button>
+        </div>
+      </section>
+
+      <!-- Processing Section -->
+      <section class="section processing-section hidden" id="processing-section">
+        <div class="glass-card processing-card">
+          <div class="processing-header">
+            <h2 id="processing-title">Processing your video...</h2>
+            <p id="processing-subtitle">This may take a moment</p>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar" id="progress-bar">
+                <div class="progress-bar-glow"></div>
+              </div>
+            </div>
+            <span class="progress-text" id="progress-text">0%</span>
+          </div>
+
+          <div class="processing-status" id="processing-status">
+            <div class="status-spinner"></div>
+            <span id="status-message">Initializing...</span>
+          </div>
+
+          <!-- Model download sub-progress -->
+          <div class="model-progress hidden" id="model-progress">
+            <div class="model-progress-items" id="model-progress-items"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preview Section — Video Editor Layout -->
+      <section class="section preview-section hidden" id="preview-section">
+        <div class="editor-layout">
+
+          <!-- Left: Tools Sidebar -->
+          <aside class="editor-sidebar glass-card">
+            <div class="sidebar-section">
+              <h4 class="sidebar-title">Caption Style</h4>
+
+              <!-- Position -->
+              <div class="sidebar-group">
+                <label class="sidebar-label">Position</label>
+                <div class="toolbar-btn-group">
+                  <button class="toolbar-btn" data-position="top" title="Top">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="toolbar-btn" data-position="center" title="Center">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg>
+                  </button>
+                  <button class="toolbar-btn active" data-position="bottom" title="Bottom">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="12" x2="16" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Font -->
+              <div class="sidebar-group">
+                <label class="sidebar-label">Font</label>
+                <select class="toolbar-select sidebar-select" id="caption-font">
+                  <option value="Inter" selected>Inter</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Courier New">Courier New</option>
+                  <option value="Impact">Impact</option>
+                  <option value="Comic Sans MS">Comic Sans</option>
+                </select>
+              </div>
+
+              <!-- Size -->
+              <div class="sidebar-group">
+                <label class="sidebar-label">Size</label>
+                <div class="sidebar-row">
+                  <input type="range" class="toolbar-range sidebar-range" id="caption-size" min="14" max="48" value="24" />
+                  <span class="toolbar-value" id="caption-size-value">24px</span>
+                </div>
+              </div>
+
+              <!-- Colors -->
+              <div class="sidebar-group">
+                <label class="sidebar-label">Text Color</label>
+                <div class="toolbar-color-wrap">
+                  <input type="color" class="toolbar-color" id="caption-color" value="#ffffff" />
+                </div>
+              </div>
+
+              <div class="sidebar-group">
+                <label class="sidebar-label">Background</label>
+                <div class="sidebar-row">
+                  <div class="toolbar-color-wrap">
+                    <input type="color" class="toolbar-color" id="caption-bg-color" value="#000000" />
+                  </div>
+                  <input type="range" class="toolbar-range sidebar-range" id="caption-bg-opacity" min="0" max="100" value="70" title="Opacity" />
+                </div>
+              </div>
+
+              <div class="sidebar-group">
+                <label class="sidebar-label">Outline</label>
+                <div class="sidebar-row">
+                  <input type="range" class="toolbar-range sidebar-range" id="caption-outline" min="0" max="6" value="2" />
+                  <div class="toolbar-color-wrap">
+                    <input type="color" class="toolbar-color" id="caption-outline-color" value="#000000" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Word Highlight -->
+              <div class="sidebar-group">
+                <label class="sidebar-label">Word Highlight</label>
+                <div class="sidebar-row">
+                  <label class="toggle-label">
+                    <input type="checkbox" id="word-highlight-toggle" checked />
+                    <span class="toggle-text">On</span>
+                  </label>
+                  <div class="toolbar-color-wrap">
+                    <input type="color" class="toolbar-color" id="word-highlight-color" value="#8ab563" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="sidebar-group">
+                <label class="sidebar-label">Highlight Scale</label>
+                <div class="sidebar-row">
+                  <input type="range" class="toolbar-range sidebar-range" id="word-highlight-scale" min="100" max="140" value="115" />
+                  <span class="toolbar-value" id="word-highlight-scale-value">1.15x</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Export in sidebar -->
+            <div class="sidebar-section sidebar-export">
+
+              <button class="btn btn-primary btn-glow btn-full" id="burn-captions-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                Burn into Video
+              </button>
+              <div class="sidebar-export-row">
+                <button class="btn btn-sm btn-ghost" id="download-srt-btn">SRT</button>
+                <button class="btn btn-sm btn-ghost" id="download-vtt-btn">VTT</button>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Center: Video -->
+          <main class="editor-main">
+            <div class="video-wrapper" id="video-wrapper">
+              <video id="preview-video" controls>
+                <track id="preview-track" kind="captions" srclang="en" label="English" />
+              </video>
+              <div class="caption-overlay" id="caption-overlay" data-position="bottom">
+                <span id="caption-text"></span>
+              </div>
+            </div>
+          </main>
+
+        </div>
+
+        <!-- Bottom: Timeline Transcript -->
+        <div class="editor-timeline glass-card">
+          <div class="timeline-header">
+            <span class="timeline-label">Timeline</span>
+            <span class="timeline-hint">Click timestamp to seek · Edit text inline</span>
+          </div>
+          <div class="timeline-track" id="transcript-editor">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Export / Download Section -->
+      <section class="section download-section hidden" id="download-section">
+        <div class="glass-card download-card">
+          <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2>Video Ready!</h2>
+          <p>Your captioned video is ready for download.</p>
+          <button class="btn btn-primary btn-glow btn-large" id="download-video-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Captioned Video
+          </button>
+          <div class="download-actions-row">
+            <button class="btn btn-ghost" id="back-to-editor-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to Editor
+            </button>
+            <button class="btn btn-ghost" id="start-over-btn">Start Over</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Powered by <strong>Whisper</strong> (on-device) + <strong>FFmpeg.wasm</strong> · No data ever leaves your browser</p>
+    </footer>
+  </div>
+
+</body>
+</html>

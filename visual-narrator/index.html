@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Narrator / Qwen3.5-0.8B WebGPU</title>
+    <meta name="description"
+        content="Drop or paste any image and get an instant AI-powered description, running entirely in your browser via WebGPU. No data leaves your device." />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Visual Narrator / Qwen3.5-0.8B WebGPU" />
+    <meta property="og:description"
+        content="AI-powered image analysis running entirely in your browser. Drop or paste an image to get instant descriptions." />
+    <meta property="og:image" content="https://h3manth.com/ai/visual-narrator/og.png" />
+    <meta property="og:url" content="https://h3manth.com/ai/visual-narrator/" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Visual Narrator / Qwen3.5-0.8B WebGPU" />
+    <meta name="twitter:description"
+        content="AI-powered image analysis running entirely in your browser. No data leaves your device." />
+    <meta name="twitter:image" content="https://h3manth.com/ai/visual-narrator/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #000000;
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --bg-glass-hover: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.1);
+            --border-active: rgba(255, 255, 255, 0.4);
+            --text: #ffffff;
+            --text-dim: #a0a0a0;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-glow: rgba(255, 255, 255, 0.1);
+            --red: #ff4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', 'SF Mono', monospace;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 16px;
+            gap: 20px;
+        }
+
+        /* ── Header ────────────────────────────────── */
+        .header {
+            text-align: center;
+            max-width: 560px;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+        }
+
+        .header p {
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        /* ── Drop Zone ─────────────────────────────── */
+        .drop-zone {
+            width: min(92vw, 600px);
+            min-height: 220px;
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-glass);
+        }
+
+        .drop-zone:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: var(--bg-glass-hover);
+        }
+
+        .drop-zone.drag-over {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .drop-zone.has-image {
+            border-style: solid;
+            border-color: var(--border);
+            min-height: 0;
+            cursor: default;
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            opacity: 0.6;
+        }
+
+        .drop-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .drop-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .drop-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+        }
+
+        .drop-zone.has-image .drop-placeholder {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            width: 100%;
+            position: relative;
+        }
+
+        .drop-zone.has-image .preview-container {
+            display: block;
+        }
+
+        .preview-img {
+            display: block;
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: calc(var(--radius) - 2px);
+        }
+
+        .clear-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(8px);
+            color: var(--text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: rgba(239, 68, 68, 0.6);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        /* ── Loading overlay ───────────────────────── */
+        .model-status {
+            width: min(92vw, 600px);
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .model-status.ready {
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .model-status.loading .status-dot {
+            background: var(--accent);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .model-status.ready .status-dot {
+            animation: none;
+            background: #22c55e;
+        }
+
+        .model-status.error .status-dot {
+            background: var(--red);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .status-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .status-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ffffff;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .model-status.ready .progress-track,
+        .model-status.error .progress-track {
+            display: none;
+        }
+
+        /* ── Mode buttons ──────────────────────────── */
+        .modes {
+            display: flex;
+            gap: 8px;
+            width: min(92vw, 600px);
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 14px;
+            font-family: var(--sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mode-btn:hover:not(:disabled) {
+            background: var(--bg-glass-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-active);
+            color: var(--text);
+        }
+
+        .mode-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .mode-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ── Analyze button ────────────────────────── */
+        .analyze-btn {
+            width: min(92vw, 600px);
+            padding: 14px;
+            font-family: var(--sans);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .analyze-btn.running {
+            background: #333333;
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        /* ── Response ──────────────────────────────── */
+        .response-card {
+            width: min(92vw, 600px);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .response-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.7rem;
+            font-family: var(--mono);
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            color: var(--accent);
+        }
+
+        .response-body {
+            padding: 16px;
+            min-height: 60px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .response-body.placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+        }
+
+        .response-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .response-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        /* ── Footer ────────────────────────────────── */
+        .footer {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .footer a {
+            color: #ffffff;
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, 0.3);
+            text-underline-offset: 2px;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px 10px;
+                gap: 14px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .modes {
+                gap: 6px;
+            }
+
+            .mode-btn {
+                min-width: 90px;
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>Visual Narrator</h1>
+        <p>Drop or paste an image. AI describes what it sees, reads text, or analyzes the scene. Runs entirely in your
+            browser.</p>
+        <span class="badge">Qwen3.5-0.8B / On-Device / WebGPU</span>
+    </header>
+
+    <div class="model-status loading" id="modelStatus">
+        <span class="status-dot"></span>
+        <div class="status-info">
+            <div class="status-label" id="statusLabel">Loading model…</div>
+            <div class="status-sub" id="statusSub">~850 MB download (cached after first load)</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+        <div class="drop-placeholder">
+            <span class="drop-icon" style="font-size:1.5rem;opacity:0.4">+</span>
+            <span class="drop-text">Drop, paste, or click to add an image</span>
+            <span class="drop-hint">Ctrl+V to paste from clipboard</span>
+        </div>
+        <div class="preview-container">
+            <img id="previewImg" class="preview-img" alt="Preview" />
+            <button class="clear-btn" id="clearBtn" title="Remove image">✕</button>
+        </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" class="hidden" />
+
+    <div class="modes">
+        <button class="mode-btn active" data-mode="describe">
+            Describe
+        </button>
+        <button class="mode-btn" data-mode="read">
+            Read Text
+        </button>
+        <button class="mode-btn" data-mode="navigate">
+            Analyze
+        </button>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Image</button>
+
+    <div class="response-card" id="responseCard">
+        <div class="response-header">
+            <span class="response-title">Response</span>
+            <div class="stats" id="statsBar">
+                <span>Prefill: <span class="stat-val" id="statPrefill">—</span></span>
+                <span>Speed: <span class="stat-val" id="statSpeed">—</span></span>
+            </div>
+        </div>
+        <div class="response-body placeholder" id="responseBody">Drop an image above to get started…</div>
+    </div>
+
+    <footer class="footer">
+        100% in-browser. No data leaves your device.<br />
+        Powered by <a href="https://huggingface.co/Qwen/Qwen3.5-0.8B" target="_blank">Qwen3.5-0.8B</a>
+        and <a href="https://huggingface.co/docs/transformers.js" target="_blank">Transformers.js</a>
+    </footer>
+
+    <script type="module">
+        import {
+            AutoProcessor,
+            Qwen3_5ForConditionalGeneration,
+            RawImage,
+            TextStreamer,
+        } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.0-next.5";
+
+        // ── Config ────────────────────────────────────
+        const MODEL_ID = "onnx-community/Qwen3.5-0.8B-ONNX";
+
+        const PROMPTS = {
+            describe:
+                "Describe what you see in this image in 2-3 clear sentences, as if explaining to someone who cannot see it.",
+            read:
+                "Read all visible text, labels, signs, or writing in this image. List each piece of text you find. If there is no text, say so.",
+            navigate:
+                "Analyze this image in detail. What objects are present? How are they arranged? What is the context or setting? Be thorough but concise.",
+        };
+
+        // ── DOM ───────────────────────────────────────
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+        const previewImg = document.getElementById("previewImg");
+        const clearBtn = document.getElementById("clearBtn");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+        const responseBody = document.getElementById("responseBody");
+        const modelStatus = document.getElementById("modelStatus");
+        const statusLabel = document.getElementById("statusLabel");
+        const statusSub = document.getElementById("statusSub");
+        const progressFill = document.getElementById("progressFill");
+        const statPrefill = document.getElementById("statPrefill");
+        const statSpeed = document.getElementById("statSpeed");
+        const modeButtons = document.querySelectorAll(".mode-btn");
+
+        // ── State ─────────────────────────────────────
+        let currentMode = "describe";
+        let currentImage = null;   // RawImage
+        let isProcessing = false;
+        let isModelReady = false;
+        let processor = null;
+        let model = null;
+
+        // ── Helpers ───────────────────────────────────
+        function setResponse(text, placeholder = false) {
+            responseBody.textContent = text;
+            responseBody.classList.toggle("placeholder", placeholder);
+        }
+
+        function updateAnalyzeBtn() {
+            analyzeBtn.disabled = !isModelReady || !currentImage || isProcessing;
+        }
+
+        // ── Mode selection ────────────────────────────
+        modeButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (isProcessing) return;
+                modeButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentMode = btn.dataset.mode;
+            });
+        });
+
+        // ── Image input ───────────────────────────────
+        async function loadImage(source) {
+            try {
+                let url;
+                if (source instanceof File) {
+                    url = URL.createObjectURL(source);
+                } else if (source instanceof Blob) {
+                    url = URL.createObjectURL(source);
+                } else if (typeof source === "string") {
+                    url = source;
+                } else {
+                    return;
+                }
+
+                previewImg.src = url;
+                await new Promise((res, rej) => {
+                    previewImg.onload = res;
+                    previewImg.onerror = rej;
+                });
+
+                currentImage = await RawImage.fromURL(url);
+                dropZone.classList.add("has-image");
+                setResponse("Image loaded. Choose a mode and press Analyze.", true);
+                updateAnalyzeBtn();
+            } catch (err) {
+                console.error("Image load error:", err);
+                setResponse("Failed to load image: " + err.message, true);
+            }
+        }
+
+        function clearImage() {
+            currentImage = null;
+            previewImg.src = "";
+            dropZone.classList.remove("has-image");
+            setResponse("Drop an image above to get started…", true);
+            updateAnalyzeBtn();
+        }
+
+        // Click to upload
+        dropZone.addEventListener("click", (e) => {
+            if (dropZone.classList.contains("has-image")) return;
+            fileInput.click();
+        });
+        fileInput.addEventListener("change", (e) => {
+            const f = e.target.files?.[0];
+            if (f) loadImage(f);
+            e.target.value = "";
+        });
+
+        // Drag & drop
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("drag-over");
+        });
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("drag-over");
+        });
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("drag-over");
+            const file = e.dataTransfer.files?.[0];
+            if (file && file.type.startsWith("image/")) loadImage(file);
+        });
+
+        // Paste from clipboard
+        document.addEventListener("paste", (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of items) {
+                if (item.type.startsWith("image/")) {
+                    e.preventDefault();
+                    loadImage(item.getAsFile());
+                    return;
+                }
+            }
+        });
+
+        // Clear
+        clearBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            clearImage();
+        });
+
+        // ── Model loading ─────────────────────────────
+        async function initModel() {
+            modelStatus.className = "model-status loading";
+            statusLabel.textContent = "Loading processor…";
+            statusSub.textContent = "Preparing tokenizer";
+            progressFill.style.width = "15%";
+
+            processor = await AutoProcessor.from_pretrained(MODEL_ID);
+
+            statusLabel.textContent = "Loading model…";
+            statusSub.textContent = "~850 MB · q4 quantized + fp16 vision";
+            progressFill.style.width = "35%";
+
+            model = await Qwen3_5ForConditionalGeneration.from_pretrained(MODEL_ID, {
+                dtype: {
+                    embed_tokens: "q4",
+                    vision_encoder: "fp16",
+                    decoder_model_merged: "q4",
+                },
+                device: "webgpu",
+            });
+
+            progressFill.style.width = "100%";
+            statusLabel.textContent = "Model ready";
+            statusSub.textContent = "Qwen3.5-0.8B loaded on WebGPU";
+            modelStatus.className = "model-status ready";
+        }
+
+        // ── Inference ─────────────────────────────────
+        async function runInference() {
+            if (!currentImage || isProcessing) return;
+
+            isProcessing = true;
+            analyzeBtn.textContent = "⏳ Analyzing…";
+            analyzeBtn.classList.add("running");
+            analyzeBtn.disabled = true;
+            modeButtons.forEach(b => b.disabled = true);
+            setResponse("", false);
+
+            const messages = [
+                {
+                    role: "user",
+                    content: [
+                        { type: "image" },
+                        { type: "text", text: PROMPTS[currentMode] },
+                    ],
+                },
+            ];
+
+            const text = processor.apply_chat_template(messages, {
+                add_generation_prompt: true,
+                tokenizer_kwargs: { enable_thinking: false },
+            });
+
+            const t0 = performance.now();
+            const inputs = await processor(text, [currentImage]);
+            const prefillMs = performance.now() - t0;
+            statPrefill.textContent = `${prefillMs.toFixed(0)}ms`;
+
+            let tokenCount = 0;
+            let firstTokenTime = null;
+
+            try {
+                await model.generate({
+                    ...inputs,
+                    do_sample: false,
+                    max_new_tokens: 512,
+                    streamer: new TextStreamer(processor.tokenizer, {
+                        skip_prompt: true,
+                        skip_special_tokens: true,
+                        callback_function: (tok) => {
+                            if (!firstTokenTime) {
+                                firstTokenTime = performance.now();
+                                responseBody.textContent = tok.trimStart();
+                                responseBody.classList.remove("placeholder");
+                            } else {
+                                responseBody.textContent += tok;
+                            }
+                            tokenCount++;
+                            responseBody.scrollTop = responseBody.scrollHeight;
+                        },
+                    }),
+                });
+            } catch (e) {
+                console.error(e);
+                setResponse("Error: " + e.message, true);
+            }
+
+            if (firstTokenTime && tokenCount > 1) {
+                const sec = (performance.now() - firstTokenTime) / 1000;
+                statSpeed.textContent = `${((tokenCount - 1) / sec).toFixed(1)} tok/s`;
+            }
+
+            isProcessing = false;
+            analyzeBtn.textContent = "▶ Analyze Image";
+            analyzeBtn.classList.remove("running");
+            modeButtons.forEach(b => b.disabled = false);
+            updateAnalyzeBtn();
+        }
+
+        analyzeBtn.addEventListener("click", runInference);
+
+        // Keyboard shortcut
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space" && !["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
+                e.preventDefault();
+                if (!isProcessing && isModelReady && currentImage) runInference();
+            }
+        });
+
+        // ── Init ──────────────────────────────────────
+        (async () => {
+            if (!navigator.gpu) {
+                modelStatus.className = "model-status error";
+                statusLabel.textContent = "WebGPU not available";
+                statusSub.textContent = "Please use Chrome 113+ or Edge 113+";
+                setResponse("WebGPU is required but not available in this browser.", true);
+                return;
+            }
+
+            try {
+                await initModel();
+                isModelReady = true;
+                updateAnalyzeBtn();
+            } catch (err) {
+                console.error("Init error:", err);
+                modelStatus.className = "model-status error";
+                statusLabel.textContent = "Failed to load model";
+                statusSub.textContent = err.message;
+                setResponse("Initialization failed: " + err.message, true);
+            }
+        })();
+    </script>
+</body>
+
+</html>

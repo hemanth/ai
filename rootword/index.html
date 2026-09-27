@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rootword - Sanskrit Etymology Explorer</title>
+    <meta name="description"
+        content="Explore Sanskrit word roots and their meanings with AI-powered etymology analysis">
+    <meta property="og:title" content="Rootword - Sanskrit Etymology Explorer">
+    <meta property="og:description" content="Discover the roots and meanings of Sanskrit words with AI">
+    <meta property="og:image" content="https://h3manth.com/ai/rootword/og.jpeg">
+    <meta property="og:url" content="https://h3manth.com/ai/rootword/">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-gradient::before {
+            content: '';
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            background: var(--accent);
+            top: -20%;
+            right: -10%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-5%, 5%);
+            }
+        }
+
+        header {
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            line-height: 1.6;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--accent);
+            color: #000;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.received pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: inherit;
+            margin: 0;
+        }
+
+        .message.received h1,
+        .message.received h2,
+        .message.received h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 16px 0 8px;
+            color: var(--accent-light);
+        }
+
+        .message.received h1:first-child,
+        .message.received h2:first-child {
+            margin-top: 0;
+        }
+
+        .message.received ul,
+        .message.received ol {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .message.received li {
+            margin: 4px 0;
+        }
+
+        .message.received strong {
+            color: var(--accent-light);
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            padding: 8px 12px;
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .example-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-chip:hover {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent-light);
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .message {
+                max-width: 95%;
+            }
+
+            button {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+
+    <header>
+        <h1>🌱 Rootword</h1>
+        <p class="subtitle">Sanskrit Etymology Explorer</p>
+    </header>
+
+    <div class="chat-container">
+        <div class="examples">
+            <span class="example-chip" onclick="tryExample('महाराज')">महाराज</span>
+            <span class="example-chip" onclick="tryExample('Rama')">Rama</span>
+            <span class="example-chip" onclick="tryExample('dharma')">dharma</span>
+            <span class="example-chip" onclick="tryExample('yoga')">yoga</span>
+            <span class="example-chip" onclick="tryExample('karma')">karma</span>
+        </div>
+
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <div class="input-area">
+            <input type="text" id="chat-input" placeholder="Enter a Sanskrit word..." autocomplete="off">
+            <button id="send-btn" onclick="sendMessage()">Analyze</button>
+        </div>
+    </div>
+
+    <footer>
+        Built with ❤️ by <a href="https://h3manth.com">Hemanth HM</a>
+    </footer>
+
+    <script>
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const sendBtn = document.getElementById('send-btn');
+
+        chatInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function tryExample(word) {
+            chatInput.value = word;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            const sentMessage = createMessageElement(message, 'sent');
+            chatMessages.appendChild(sentMessage);
+            chatInput.value = '';
+            sendBtn.disabled = true;
+            scrollToBottom();
+
+            const spinner = document.createElement('div');
+            spinner.classList.add('spinner');
+            chatMessages.appendChild(spinner);
+
+            try {
+                const response = await fetchResponse(message);
+                const receivedMessage = createMessageElement(response, 'received');
+                chatMessages.appendChild(receivedMessage);
+                scrollToBottom();
+            } catch (error) {
+                console.error('Error fetching response:', error);
+                const errorMessage = createMessageElement('Sorry, something went wrong. Please try again.', 'received');
+                chatMessages.appendChild(errorMessage);
+            } finally {
+                spinner.remove();
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        function createMessageElement(data, className) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+
+            const pre = document.createElement('pre');
+            pre.innerHTML = data;
+            messageElement.appendChild(pre);
+
+            return messageElement;
+        }
+
+        async function fetchResponse(word) {
+            const systemPrompt = `Given a Sanskrit word, identify and return its root syllables. Additionally, provide multiple meanings of both the input word and the identified root syllables. If applicable, indicate any affixes or suffixes present in the word and explain their contribution to the overall meaning. Refer Shabda Kalpadruma and give the response in markdown format.`;
+
+            const response = await fetch("https://ai-proxy.hemanthhm.workers.dev", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "@cf/meta/llama-3.2-3b-instruct",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: `Analyze the Sanskrit word: ${word}` }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            const content = data?.result?.response || data?.result?.choices?.[0]?.message?.content || data?.choices?.[0]?.message?.content || "No response received.";
+            return marked.parse(content);
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/ai/rootword/service-worker.js')
+                    .then(function (registration) {
+                        console.log('Service Worker registered: ', registration);
+                    })
+                    .catch(function (error) {
+                        console.log('Service Worker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>

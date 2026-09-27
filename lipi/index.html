@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+  <title>ಲಿಪಿ — Kannada Voice Editor</title>
+  <meta name="description" content="Speak Kannada and watch text stream in real time. Type phonetically to write Kannada. Edit, copy, save.">
+  <meta name="theme-color" content="#111116">
+  <meta name="google" content="notranslate">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%231b1b22'/><text x='50' y='68' text-anchor='middle' font-size='52' font-family='sans-serif' fill='%23c8912e'>ಲಿ</text></svg>">
+
+  <meta property="og:title" content="ಲಿಪಿ — Kannada Voice Editor">
+  <meta property="og:description" content="Speak Kannada, stream text, edit, save. Powered by Whisper AI.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://h3manth.com/ai/lipi/og.jpg">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="900">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://h3manth.com/ai/lipi/og.jpg">
+
+  <!-- LLM / Agent discoverability -->
+  <link rel="llms" href="/ai/lipi/llms.txt" type="text/plain">
+
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ಲಿಪಿ (Lipi)",
+    "alternateName": "Lipi Kannada Voice Editor",
+    "url": "https://h3manth.com/ai/lipi/",
+    "description": "Real-time Kannada speech-to-text editor. Speak Kannada and watch words stream live. Type English to get Kannada. Polish with Whisper AI.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "browserRequirements": "Chrome 80+, Edge 80+",
+    "inLanguage": ["kn", "en"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Hemanth HM", "url": "https://h3manth.com" },
+    "featureList": [
+      "Real-time Kannada speech streaming",
+      "Phonetic English-to-Kannada transliteration",
+      "Whisper AI polish for improved accuracy",
+      "Full text editor with auto-save",
+      "Audio file upload and transcription"
+    ]
+  }
+  </script>
+
+  <!-- Non-render-blocking fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+
+  <link rel="stylesheet" href="index.css?v=3">
+  <script>if(location.hash==='#editor'){document.documentElement.classList.add('direct-editor'); const isMobile = window.matchMedia('(max-width: 600px)').matches || 'ontouchstart' in window; if (!isMobile) setTimeout(() => document.getElementById('editor')?.focus(), 500);}</script>
+  <style>.direct-editor #landing{display:none}.direct-editor #editor-view{display:flex!important}</style>
+</head>
+<body>
+
+  <main>
+
+  <!-- ═══════ LANDING ═══════ -->
+  <section class="landing" id="landing">
+    <div class="hero">
+      <span class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        real-time streaming
+      </span>
+
+      <h1 class="hero-title">ಲಿಪಿ</h1>
+
+      <p class="hero-tagline">Kannada Voice Editor</p>
+
+      <p class="hero-sub">
+        Speak Kannada and watch your words stream onto the page in real time.
+        Type in English and it converts to Kannada. Edit, copy, save.
+      </p>
+
+      <div class="hero-cta-group">
+        <button class="btn-primary" id="hero-open-editor">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          Open Editor
+        </button>
+      </div>
+    </div>
+
+    <section class="features" aria-label="Features">
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <h2 class="feature-title">Real-time Streaming</h2>
+        <p class="feature-desc">Words appear as you speak. No waiting.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <h2 class="feature-title">Whisper Polish</h2>
+        <p class="feature-desc">One click to refine text with Whisper AI for better accuracy.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <h2 class="feature-title">Phonetic Typing</h2>
+        <p class="feature-desc">Type "namaskara" → ನಮಸ್ಕಾರ. No keyboard switch needed.</p>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+        <h2 class="feature-title">Full Editor</h2>
+        <p class="feature-desc">Edit, copy, save as .txt. Your work is auto-saved.</p>
+      </div>
+    </section>
+
+    <section class="preview" aria-label="Preview">
+      <span class="preview-label">The editor</span>
+      <div class="preview-window">
+        <div class="preview-chrome">
+          <span class="preview-dot"></span>
+          <span class="preview-dot"></span>
+          <span class="preview-dot"></span>
+        </div>
+        <div class="preview-body">
+          ನಮಸ್ಕಾರ, ಇದು ಕನ್ನಡ ಧ್ವನಿ ಸಂಪಾದಕ.
+          <span class="preview-accent">ನಿಮ್ಮ ಮಾತುಗಳನ್ನು ಪಠ್ಯವಾಗಿ ಪರಿವರ್ತಿಸಿ…</span>
+        </div>
+        <div class="preview-rec-row">
+          <span class="preview-rec-dot"></span>
+          <span class="preview-rec-text">Click the red dot to stream</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <p>ಲಿಪಿ · Powered by Web Speech API + <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a> Whisper</p>
+    </footer>
+  </section>
+
+  <!-- ═══════ EDITOR ═══════ -->
+  <section class="editor-view" id="editor-view" hidden>
+    <button class="back-btn" id="back-btn" title="Back to home">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+
+    <div class="editor" id="editor" contenteditable="true" spellcheck="false"
+         role="textbox" aria-multiline="true" aria-label="Kannada text editor"></div>
+
+    <div class="float-bar" id="float-bar" role="toolbar" aria-label="Editor tools">
+      <button class="mic" id="mic" aria-label="Record">
+        <span class="mic-dot"></span>
+      </button>
+      <span class="mic-label" id="mic-label"></span>
+
+      <span class="sep" role="separator"></span>
+
+      <button class="polish-btn" id="polish-btn" hidden title="Re-transcribe with Whisper for better accuracy">Polish</button>
+
+      <button class="fbtn kn-toggle is-active" id="kn-toggle" aria-pressed="true" title="Kannada typing">ಕ</button>
+      <button class="fbtn" id="upload-btn" title="Upload audio" aria-label="Upload audio file">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+      </button>
+      <button class="fbtn" id="copy-btn" title="Copy all" aria-label="Copy text">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+      <button class="fbtn" id="save-btn" title="Save .txt" aria-label="Save as text file">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      </button>
+      <button class="fbtn" id="clear-btn" title="Clear" aria-label="Clear editor">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+
+      <span class="sep" role="separator"></span>
+
+      <select class="model-sel" id="model-select" aria-label="Whisper model"></select>
+
+      <span class="sep" role="separator"></span>
+
+      <button class="fbtn" id="help-btn" title="Voice commands & shortcuts" aria-label="Help">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+      </button>
+    </div>
+
+    <!-- Help overlay -->
+    <div class="help-overlay" id="help-overlay" hidden>
+      <div class="help-panel">
+        <div class="help-header">
+          <h2 class="help-title">Commands & Shortcuts</h2>
+          <button class="help-close" id="help-close" aria-label="Close help">&times;</button>
+        </div>
+
+        <div class="help-section">
+          <h3>Voice Commands</h3>
+          <p class="help-hint">Say these while recording to control formatting</p>
+          <table class="cmd-table" id="cmd-table">
+            <thead><tr><th>You say</th><th>It types</th><th></th></tr></thead>
+            <tbody id="cmd-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="help-section">
+          <h3>Add Custom Command</h3>
+          <form class="cmd-form" id="cmd-form">
+            <input type="text" id="cmd-trigger" placeholder="Trigger phrase" required aria-label="Trigger phrase">
+            <input type="text" id="cmd-output" placeholder="Output text" required aria-label="Output text">
+            <button type="submit" class="cmd-add-btn">Add</button>
+          </form>
+        </div>
+
+        <div class="help-section">
+          <h3>Pause Detection</h3>
+          <label class="help-toggle">
+            <input type="checkbox" id="pause-toggle">
+            <span>Auto-insert new line on pause</span>
+          </label>
+          <div class="pause-slider-wrap" id="pause-slider-wrap">
+            <label>Threshold: <span id="pause-val">1.5</span>s</label>
+            <input type="range" id="pause-threshold" min="0.8" max="3" step="0.1" value="1.5">
+          </div>
+        </div>
+
+        <div class="help-section">
+          <h3>Keyboard Shortcuts</h3>
+          <table class="cmd-table">
+            <tbody>
+              <tr><td><kbd>Cmd/Ctrl</kbd> + <kbd>M</kbd></td><td>Toggle recording</td><td></td></tr>
+              <tr><td><kbd>Cmd/Ctrl</kbd> + <kbd>/</kbd></td><td>Open this help</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button class="cmd-reset-btn" id="cmd-reset">Reset to defaults</button>
+      </div>
+    </div>
+
+    <div class="progress" id="progress" hidden role="progressbar" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <input type="file" id="file-input" accept="audio/*,.wav,.mp3,.webm,.ogg,.m4a,.flac" hidden>
+    <div class="toast-box" id="toast-container" aria-live="polite"></div>
+  </section>
+
+  </main>
+
+  <script type="module" src="app.js?v=3"></script>
+</body>
+</html>

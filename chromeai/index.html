@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat With Chrome AI - Interactive AI Chat Interface</title>
+    <meta name="description"
+        content="Experience real-time AI conversations with Chrome's built-in AI. This interactive chat interface leverages Chrome's advanced AI capabilities for engaging discussions.">
+    <meta name="keywords" content="Chrome AI, AI chat, interactive AI, Chrome Dev, Chrome Canary, AI conversation">
+    <meta name="author" content="Hemanth HM">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Chat With Chrome AI - Interactive AI Chat Interface">
+    <meta property="og:description"
+        content="Experience real-time AI conversations with Chrome's built-in AI. Engage in intelligent discussions using Chrome's advanced AI capabilities.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://h3manth.com/ai/chromeai">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-size: 15px;
+        }
+
+        body,
+        html {
+            font-family: 'Inter', sans-serif;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050505;
+            color: #e8e8e8;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #050505;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.6;
+            font-size: 14px;
+            transition: opacity 0.2s ease;
+        }
+
+        .user-message {
+            background-color: #222;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background-color: #111;
+            color: #e8e8e8;
+            align-self: flex-start;
+            border: 1px solid #1a1a1a;
+            border-bottom-left-radius: 4px;
+        }
+
+        .initial-message {
+            color: #888;
+            text-align: center;
+            align-self: center;
+            margin: auto 0;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 24px;
+            background-color: #050505;
+            border-top: 1px solid #1a1a1a;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        #user-input:focus {
+            border-color: #444;
+        }
+
+        #user-input::placeholder {
+            color: #555;
+        }
+
+        #send-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 12px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #send-button svg {
+            width: 24px;
+            height: 24px;
+            fill: #666;
+            transition: fill 0.2s ease, transform 0.2s ease;
+        }
+
+        #send-button:hover svg {
+            fill: #fff;
+            transform: scale(1.1);
+        }
+
+        #send-button:disabled svg {
+            fill: #333;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .overlay-content {
+            background-color: #111;
+            padding: 32px;
+            border-radius: 12px;
+            max-width: 500px;
+            border: 1px solid #1a1a1a;
+            color: #e8e8e8;
+        }
+
+        .overlay h2 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .overlay ol {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .overlay li {
+            margin-bottom: 12px;
+            color: #ccc;
+        }
+
+        .overlay-msg {
+            margin-bottom: 1.2rem;
+            color: #888;
+        }
+
+        code {
+            background-color: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #aaa;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="overlay" class="overlay" style="display: none;">
+        <div class="overlay-content">
+            <h2>Chrome AI Unavailable</h2>
+            <p class="overlay-msg">To use this app, you need Chrome 138+ with the built-in AI APIs enabled:</p>
+            <ol>
+                <li>Open <strong>chrome://flags/#optimization-guide-on-device-model</strong><br>
+                    Set to <code>Enabled BypassPerfRequirement</code></li>
+                <li>Open <strong>chrome://flags/#prompt-api-for-gemini-nano</strong><br>
+                    Set to <code>Enabled</code></li>
+                <li>Open <strong>chrome://components</strong><br>
+                    Click "Check for update" on <code>Optimization Guide On Device Model</code></li>
+            </ol>
+            <p>After enabling, relaunch Chrome to start chatting!</p>
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            <div id="initial-message" class="initial-message">
+                Welcome to Chat With Chrome AI! Type your message below to start chatting.
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const overlay = document.getElementById('overlay');
+        let initialMessage = document.getElementById('initial-message');
+
+        let session = null;
+        let isAvailable = false;
+
+        async function createSession() {
+            const monitor = (m) => {
+                m.addEventListener('downloadprogress', (e) => {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    if (initialMessage) {
+                        initialMessage.textContent = `Downloading model… ${pct}%`;
+                    }
+                    console.log(`Model download: ${pct}%`);
+                });
+            };
+
+            session = await LanguageModel.create({
+                monitor,
+                expectedOutputs: [{ type: 'text', languages: ['en'] }]
+            });
+
+            console.log(`Context window: ${session.contextWindow} tokens`);
+
+            session.oncontextoverflow = async () => {
+                console.warn('Context overflow — resetting session.');
+                appendMessage('⚠️ Context limit reached. Starting a new session…', 'bot-message');
+                session.destroy();
+                session = null;
+                await createSession();
+            };
+        }
+
+        function removeInitialMessage() {
+            if (initialMessage) {
+                initialMessage.remove();
+                initialMessage = null;
+            }
+        }
+
+        function appendMessage(text, className) {
+            const el = document.createElement('div');
+            el.classList.add('message', className);
+            el.textContent = text;
+            chatMessages.appendChild(el);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return el;
+        }
+
+        async function streamToElement(stream, el) {
+            el.textContent = ''; // Clear placeholder
+
+            // Try ReadableStream.getReader() first
+            if (stream && typeof stream.getReader === 'function') {
+                const reader = stream.getReader();
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        if (value != null) {
+                            el.textContent += value; // Append delta chunks
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+                return;
+            }
+
+            // Try async iterable
+            if (stream && typeof stream[Symbol.asyncIterator] === 'function') {
+                for await (const chunk of stream) {
+                    if (chunk != null) {
+                        el.textContent += chunk; // Append delta chunks
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                }
+                return;
+            }
+
+            // Plain value
+            el.textContent = String(stream);
+        }
+
+        async function checkBrowserCompatibility() {
+            if (typeof LanguageModel === 'undefined') {
+                overlay.style.display = 'flex';
+                return;
+            }
+
+            try {
+                const availability = await LanguageModel.availability({
+                    expectedOutputs: [{ type: 'text', languages: ['en'] }]
+                });
+                if (availability === 'unavailable' || availability === 'no') {
+                    overlay.style.display = 'flex';
+                    return;
+                }
+
+                isAvailable = true;
+
+                if (availability === 'downloadable' || availability === 'after-download') {
+                    if (initialMessage) {
+                        initialMessage.textContent = 'AI model will download on first message. Type below to start!';
+                    }
+                } else {
+                    try {
+                        await createSession();
+                    } catch (e) {
+                        console.log('Deferred session creation to user gesture.');
+                    }
+                    if (initialMessage) {
+                        initialMessage.textContent = 'Welcome to Chat With Chrome AI! Type your message below to start chatting.';
+                    }
+                }
+            } catch (e) {
+                console.error("Init failed:", e);
+                overlay.style.display = 'flex';
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message || !isAvailable) return;
+
+            userInput.value = '';
+            userInput.disabled = true;
+            sendButton.disabled = true;
+
+            removeInitialMessage();
+            appendMessage(message, 'user-message');
+
+            const botEl = appendMessage('…', 'bot-message');
+
+            try {
+                if (!session) {
+                    botEl.textContent = 'Creating session…';
+                    await createSession();
+                }
+
+                const stream = session.promptStreaming(message);
+                await streamToElement(stream, botEl);
+                console.log(`Context: ${session.contextUsage}/${session.contextWindow} tokens`);
+            } catch (e) {
+                console.error("Prompt failed:", e);
+                botEl.textContent = `Error: ${e.message}`;
+            } finally {
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        window.addEventListener('load', checkBrowserCompatibility);
+    </script>
+</body>
+
+</html>

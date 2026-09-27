@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard App</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    #card-container {
+      max-width: 400px;
+      width: 85%;
+      perspective: 1000px;
+    }
+
+    #card {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+
+    #front, #back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    #back {
+      transform: rotateY(180deg);
+    }
+
+    #nav-buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>संस्कृथं फ्लैश कार्ड</h1>
+  <div id="card-container">
+    <div id="card">
+      <div id="front">
+        <p>What is the capital of France?</p>
+      </div>
+      <div id="back">
+        <h2>Answer</h2>
+        <p>Paris</p>
+      </div>
+    </div>
+  </div>
+  <div id="nav-buttons">
+    <button id="prev-btn">Previous</button>
+    <button id="next-btn">Next</button>
+  </div>
+
+  <script>
+    const card = document.getElementById('card');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let currentCardIndex = 0;
+    let isFlipped = false;
+    const flashcards = [
+    { "question": "What is the Sanskrit word for 'self' or 'soul'?", "answer": "Atma" },
+    { "question": "How many grammatical cases (vibhaktis) are there in Sanskrit?", "answer": "7" },
+    { "question": "Which of these is an example of 'Sandhi' in Sanskrit?", "answer": "देव + इति → देवोति" },
+    { "question": "What is the correct form of the verb 'to see' (दृश्) in the imperative mood, second person singular?", "answer": "दृशस्व" },
+    { "question": "Which of these is an example of a compound word (समास, samāsa) in Sanskrit?", "answer": "देवोत्तम" },
+    { "question": "What is the nominative case (prathamā vibhakti) used for in Sanskrit?", "answer": "Subject" },
+    { "question": "Which of these is the correct order of the three numbers (singular, dual, plural) in Sanskrit?", "answer": "Singular, Dual, Plural" },
+    { "question": "Which case and number is represented by the word ending '-ebhyaḥ' in Sanskrit?", "answer": "Ablative plural" },
+    { "question": "Which of these is the correct form of the Sanskrit verb 'to go' (गम्) in the present tense, third person singular?", "answer": "गच्छति" },
+    { "question": "Which of these is an example of a Sanskrit verbal root (dhātu)?", "answer": "करोति" },
+    { "question": "Which of these is the correct form of the verb 'to see' (दृश्) in the present tense, third person singular?", "answer": "दृशति" },
+    { "question": "What is the Sanskrit word for 'knowledge'?", "answer": "Jnana" },
+    { "question": "How many tenses are there in Sanskrit?", "answer": "10" },
+    { "question": "Which of these is an example of 'Samaasa' (compound) in Sanskrit?", "answer": "राजर्षिः (राजा + ऋषिः)" },
+    { "question": "What is the correct form of the verb 'to eat' (खाद्) in the imperative mood, second person singular?", "answer": "खाद" },
+    { "question": "Which of these is an example of a feminine noun in Sanskrit?", "answer": "नदी" },
+    { "question": "What is the accusative case (dvitiya vibhakti) used for in Sanskrit?", "answer": "Direct object" },
+    { "question": "Which of these is the correct order of the three genders (masculine, feminine, neuter) in Sanskrit?", "answer": "Masculine, Feminine, Neuter" },
+    { "question": "Which case and number is represented by the word ending '-su' in Sanskrit?", "answer": "Locative plural" },
+    { "question": "Which of these is the correct form of the Sanskrit verb 'to make' (कृ) in the present tense, third person singular?", "answer": "करोति" },
+    { "question": "Which of these is an example of a Sanskrit preposition (upasarga)?", "answer": "प्रति" },
+    { "question": "Which of these is the correct form of the verb 'to drink' (पा) in the present tense, third person singular?", "answer": "पिबति" },
+    { "question": "What is the Sanskrit word for 'peace'?", "answer": "Shanti" },
+    { "question": "How many moods are there in Sanskrit?", "answer": "3" },
+    { "question": "Which of these is an example of 'Taddhita' suffix in Sanskrit?", "answer": "आचार्यः (आचार + य)" },
+    { "question": "What is the correct form of the verb 'to speak' (वद्) in the imperative mood, second person singular?", "answer": "वद" },
+    { "question": "Which of these is an example of a masculine noun in Sanskrit?", "answer": "गुरुः" },
+    { "question": "What is the genitive case (shashthi vibhakti) used for in Sanskrit?", "answer": "Possession" },
+    { "question": "Which of these is the correct order of the three persons (first, second, third) in Sanskrit?", "answer": "First, Second, Third" },
+    { "question": "Which case and number is represented by the word ending '-ām' in Sanskrit?", "answer": "Genitive plural" },
+    { "question": "Which of these is the correct form of the Sanskrit verb 'to know' (ज्ञा) in the present tense, third person singular?", "answer": "जानाति" },
+    { "question": "Which of these is an example of a Sanskrit pronoun?", "answer": "अहम्" },
+    { "question": "Which of these is the correct form of the verb 'to write' (लिख्) in the present tense, third person singular?", "answer": "लिखति" },
+    { "question": "What is the Sanskrit word for 'truth'?", "answer": "Satya" },
+    { "question": "How many voices are there in Sanskrit?", "answer": "2" },
+    { "question": "Which of these is an example of 'Krudanta' suffix in Sanskrit?", "answer": "कर्तुं (कृ + तुं)" },
+    { "question": "What is the correct form of the verb 'to read' (पठ्) in the imperative mood, second person singular?", "answer": "पठ" },
+    { "question": "Which of these is an example of a neuter noun in Sanskrit?", "answer": "फलम्" },
+    { "question": "What is the dative case (chaturthi vibhakti) used for in Sanskrit?", "answer": "Indirect object" },
+    { "question": "Which of these is the correct order of the three numbers (singular, dual, plural) in Sanskrit?", "answer": "Singular, Dual, Plural" },
+    { "question": "Which case and number is represented by the word ending '-bhyaḥ' in Sanskrit?", "answer": "Dative plural" },
+    { "question": "Which of these is the correct form of the Sanskrit verb 'to see' (दृश्) in the past tense, third person singular?", "answer": "अद्राक्षीत्" },
+    { "question": "Which of these is an example of a Sanskrit conjunction (sandhi)?", "answer": "च" },
+    { "question": "Which of these is the correct form of the verb 'to become' (भू) in the present tense, third person singular?", "answer": "भवति" },
+    { "question": "What is the Sanskrit word for 'love'?", "answer": "प्रेम" },
+    { "question": "How many verbal roots (dhatus) are there in Sanskrit?", "answer": "2000+" },
+    { "question": "Which of these is an example of 'Avyaya' in Sanskrit?", "answer": "सर्वदा" },
+    { "question": "What is the correct form of the verb 'to go' (गम्) in the imperative mood, second person singular?", "answer": "गच्छ" },
+    { "question": "Which of these is an example of a feminine noun ending in '-ā' in Sanskrit?", "answer": "विद्या" },
+    { "question": "What is the instrumental case (tritiya vibhakti) used for in Sanskrit?", "answer": "Means" },
+    { "question": "Which of these is the correct order of the three genders (masculine, feminine, neuter) in Sanskrit?", "answer": "Masculine, Feminine, Neuter" },
+    { "question": "Which case and number is represented by the word ending '-स्य' in Sanskrit?", "answer": "Genitive singular" },
+    { "question": "Which of these is the correct form of the Sanskrit verb 'to know' (ज्ञा) in the past tense, third person singular?", "answer": "अजानात्" },
+    { "question": "Which of these is an example of a Sanskrit adjective?", "answer": "महान्" },
+    { "question": "Which of these is the correct form of the verb 'to give' (दा) in the present tense, third person singular?", "answer": "ददाति" },
+    { "question": "What is the Sanskrit word for 'strength'?", "answer": "बलम्" },
+    { "question": "How many conjugation classes (गण) are there in Sanskrit?", "answer": "10" },
+    { "question": "Which of these is an example of 'Tatsama' in Sanskrit?", "answer": "कर्म" },
+    { "question": "What is the present tense of the verb root 'गम् (gam)'?", "answer": "गच्छति (gacchati)" },
+    { "question": "What is the past tense of the verb root 'गम् (gam)'?", "answer": "अगच्छत् (agacchat)" },
+    { "question": "What is the future tense of the verb root 'गम् (gam)'?", "answer": "गमिष्यति (gamiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'भू (bhū)'?", "answer": "भवति (bhavati)" },
+    { "question": "What is the past tense of the verb root 'भू (bhū)'?", "answer": "अभवत् (abhavat)" },
+    { "question": "What is the future tense of the verb root 'भू (bhū)'?", "answer": "भविष्यति (bhaviṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'कृ (kṛ)'?", "answer": "करोति (karoti)" },
+    { "question": "What is the past tense of the verb root 'कृ (kṛ)'?", "answer": "अकरोत् (akarot)" },
+    { "question": "What is the future tense of the verb root 'कृ (kṛ)'?", "answer": "करिष्यति (kariṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'पठ् (paṭh)'?", "answer": "पठति (paṭhati)" },
+    { "question": "What is the past tense of the verb root 'पठ् (paṭh)'?", "answer": "अपठत् (apaṭhat)" },
+    { "question": "What is the future tense of the verb root 'पठ् (paṭh)'?", "answer": "पठिष्यति (paṭhiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'स्मृ (smṛ)'?", "answer": "स्मरति (smarati)" },
+    { "question": "What is the past tense of the verb root 'स्मृ (smṛ)'?", "answer": "अस्मरत् (asmarat)" },
+    { "question": "What is the future tense of the verb root 'स्मृ (smṛ)'?", "answer": "स्मरिष्यति (smariṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'हस (hasa)'?", "answer": "हसति (hasati)" },
+    { "question": "What is the past tense of the verb root 'हस (hasa)'?", "answer": "अहसत् (ahasat)" },
+    { "question": "What is the future tense of the verb root 'हस (hasa)'?", "answer": "हसिष्यति (hasiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'लिख् (likh)'?", "answer": "लिखति (likhati)" },
+    { "question": "What is the past tense of the verb root 'लिख् (likh)'?", "answer": "अलिखत् (alikhat)" },
+    { "question": "What is the future tense of the verb root 'लिख् (likh)'?", "answer": "लिखिष्यति (likhiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'ग्रह् (grah)'?", "answer": "गृह्णाति (gṛhṇāti)" },
+    { "question": "What is the past tense of the verb root 'ग्रह् (grah)'?", "answer": "अगृह्णात् (agṛhṇāt)" },
+    { "question": "What is the future tense of the verb root 'ग्रह् (grah)'?", "answer": "ग्रहीष्यति (grahīṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'धाव् (dhāv)'?", "answer": "धावति (dhāvati)" },
+    { "question": "What is the past tense of the verb root 'धाव् (dhāv)'?", "answer": "अधावत् (adhāvat)" },
+    { "question": "What is the future tense of the verb root 'धाव् (dhāv)'?", "answer": "धाविष्यति (dhāviṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'श्रु (śru)'?", "answer": "श्रुणोति (śruṇoti)" },
+    { "question": "What is the past tense of the verb root 'श्रु (śru)'?", "answer": "अश्रौषीत् (aśrauṣīt)" },
+    { "question": "What is the future tense of the verb root 'श्रु (śru)'?", "answer": "श्रविष्यति (śraviṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'दृश् (dṛś)'?", "answer": "पश्यति (paśyati)" },
+    { "question": "What is the past tense of the verb root 'दृश् (dṛś)'?", "answer": "अपश्यत् (apaśyat)" },
+    { "question": "What is the future tense of the verb root 'दृश् (dṛś)'?", "answer": "द्रक्ष्यति (drakṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'स्था (sthā)'?", "answer": "तिष्ठति (tiṣṭhati)" },
+    { "question": "What is the past tense of the verb root 'स्था (sthā)'?", "answer": "अतिष्ठत् (atiṣṭhat)" },
+    { "question": "What is the future tense of the verb root 'स्था (sthā)'?", "answer": "स्थास्यति (sthāsyati)" },
+    
+    { "question": "What is the present tense of the verb root 'वद् (vad)'?", "answer": "वदति (vadati)" },
+    { "question": "What is the past tense of the verb root 'वद् (vad)'?", "answer": "अवदत् (avadat)" },
+    { "question": "What is the future tense of the verb root 'वद् (vad)'?", "answer": "वदिष्यति (vadiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'पा (pā)'?", "answer": "पिबति (pibati)" },
+    { "question": "What is the past tense of the verb root 'पा (pā)'?", "answer": "अपिबत् (apibat)" },
+    { "question": "What is the future tense of the verb root 'पा (pā)'?", "answer": "पास्यति (pāsyati)" },
+    
+    { "question": "What is the present tense of the verb root 'क्री (krī)'?", "answer": "क्रीणाति (krīṇāti)" },
+    { "question": "What is the past tense of the verb root 'क्री (krī)'?", "answer": "अक्रीणात् (akrīṇāt)" },
+    { "question": "What is the future tense of the verb root 'क्री (krī)'?", "answer": "क्रीणीष्यति (krīṇīṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'त्यज् (tyaj)'?", "answer": "त्यजति (tyajati)" },
+    { "question": "What is the past tense of the verb root 'त्यज् (tyaj)'?", "answer": "अत्यजत् (atyajat)" },
+    { "question": "What is the future tense of the verb root 'त्यज् (tyaj)'?", "answer": "त्यक्ष्यति (tyakṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'धृ (dhṛ)'?", "answer": "धारयति (dhārayati)" },
+    { "question": "What is the past tense of the verb root 'धृ (dhṛ)'?", "answer": "अधारयत् (adhārayat)" },
+    { "question": "What is the future tense of the verb root 'धृ (dhṛ)'?", "answer": "धारयिष्यति (dhārayiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'शुच् (śuc)'?", "answer": "शोचति (śocati)" },
+    { "question": "What is the past tense of the verb root 'शुच् (śuc)'?", "answer": "अशोचत् (aśocat)" },
+    { "question": "What is the future tense of the verb root 'शुच् (śuc)'?", "answer": "शोचिष्यति (śociṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'रक्ष् (rakṣ)'?", "answer": "रक्षति (rakṣati)" },
+    { "question": "What is the past tense of the verb root 'रक्ष् (rakṣ)'?", "answer": "अरक्षित् (arakṣit)" },
+    { "question": "What is the future tense of the verb root 'रक्ष् (rakṣ)'?", "answer": "रक्षिष्यति (rakṣiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'हन् (han)'?", "answer": "हन्ति (hanti)" },
+    { "question": "What is the past tense of the verb root 'हन् (han)'?", "answer": "अहन् (ahan)" },
+    { "question": "What is the future tense of the verb root 'हन् (han)'?", "answer": "घनिष्यति (ghaniṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'जि (ji)'?", "answer": "जयति (jayati)" },
+    { "question": "What is the past tense of the verb root 'जि (ji)'?", "answer": "अजयत् (ajayat)" },
+    { "question": "What is the future tense of the verb root 'जि (ji)'?", "answer": "जेष्यति (jeṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'क्रीड् (krīḍ)'?", "answer": "क्रीडति (krīḍati)" },
+    { "question": "What is the past tense of the verb root 'क्रीड् (krīḍ)'?", "answer": "अक्रीडत् (akrīḍat)" },
+    { "question": "What is the future tense of the verb root 'क्रीड् (krīḍ)'?", "answer": "क्रीडिष्यति (krīḍiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'सद् (sad)'?", "answer": "सीदति (sīdati)" },
+    { "question": "What is the past tense of the verb root 'सद् (sad)'?", "answer": "असीदत् (asīdat)" },
+    { "question": "What is the future tense of the verb root 'सद् (sad)'?", "answer": "सीदिष्यति (sīdiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'दंश् (daṃś)'?", "answer": "दंशति (daṃśati)" },
+    { "question": "What is the past tense of the verb root 'दंश् (daṃś)'?", "answer": "अदंशत् (adaṃśat)" },
+    { "question": "What is the future tense of the verb root 'दंश् (daṃś)'?", "answer": "दंशिष्यति (daṃśiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'मृ (mṛ)'?", "answer": "म्रियते (mriyate)" },
+    { "question": "What is the past tense of the verb root 'मृ (mṛ)'?", "answer": "अम्रियत (amriyata)" },
+    { "question": "What is the future tense of the verb root 'मृ (mṛ)'?", "answer": "मर्त्स्यते (martsyate)" },
+    
+    { "question": "What is the present tense of the verb root 'पृ (pṛ)'?", "answer": "पृणाति (pṛṇāti)" },
+    { "question": "What is the past tense of the verb root 'पृ (pṛ)'?", "answer": "अपृणात् (apṛṇāt)" },
+    { "question": "What is the future tense of the verb root 'पृ (pṛ)'?", "answer": "प्रीणास्यति (prīṇāsyati)" },
+    
+    { "question": "What is the present tense of the verb root 'द्रु (dru)'?", "answer": "द्रवति (dravati)" },
+    { "question": "What is the past tense of the verb root 'द्रु (dru)'?", "answer": "अद्रवत् (adravat)" },
+    { "question": "What is the future tense of the verb root 'द्रु (dru)'?", "answer": "द्रविष्यति (draviṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'नम् (nam)'?", "answer": "नमति (namati)" },
+    { "question": "What is the past tense of the verb root 'नम् (nam)'?", "answer": "अनमत् (anamat)" },
+    { "question": "What is the future tense of the verb root 'नम् (nam)'?", "answer": "नमिष्यति (namiṣyati)" },
+    
+    { "question": "What is the present tense of the verb root 'यज् (yaj)'?", "answer": "यजति (yajati)" },
+    { "question": "What is the past tense of the verb root 'यज् (yaj)'?", "answer": "अयजत् (ayajat)" },
+    { "question": "What is the future tense of the verb root 'यज् (yaj)'?", "answer": "यक्ष्यति (yakṣyati)"},
+
+    { "question": "What is the present tense of 'गच्छति (gacchati)'?", "answer": "गच्छति (gacchati)" },
+    { "question": "What is the past tense of 'गच्छति (gacchati)'?", "answer": "अगच्छत् (agacchat)" },
+    { "question": "What is the future tense of 'गच्छति (gacchati)'?", "answer": "गमिष्यति (gamiṣyati)" },
+
+    { "question": "What is the present tense of 'भवति (bhavati)'?", "answer": "भवति (bhavati)" },
+    { "question": "What is the past tense of 'भवति (bhavati)'?", "answer": "अभवत् (abhavat)" },
+    { "question": "What is the future tense of 'भवति (bhavati)'?", "answer": "भविष्यति (bhaviṣyati)" },
+
+    { "question": "What is the present tense of 'करोति (karoti)'?", "answer": "करोति (karoti)" },
+    { "question": "What is the past tense of 'करोति (karoti)'?", "answer": "अकरोत् (akarot)" },
+    { "question": "What is the future tense of 'करोति (karoti)'?", "answer": "करिष्यति (kariṣyati)" },
+
+    { "question": "What is the present tense of 'पठति (paṭhati)'?", "answer": "पठति (paṭhati)" },
+    { "question": "What is the past tense of 'पठति (paṭhati)'?", "answer": "अपठत् (apaṭhat)" },
+    { "question": "What is the future tense of 'पठति (paṭhati)'?", "answer": "पठिष्यति (paṭhiṣyati)" },
+
+    { "question": "What is the present tense of 'स्मरति (smarati)'?", "answer": "स्मरति (smarati)" },
+    { "question": "What is the past tense of 'स्मरति (smarati)'?", "answer": "अस्मरत् (asmarat)" },
+    { "question": "What is the future tense of 'स्मरति (smarati)'?", "answer": "स्मरिष्यति (smariṣyati)" },
+
+    { "question": "What is the present tense of 'हसति (hasati)'?", "answer": "हसति (hasati)" },
+    { "question": "What is the past tense of 'हसति (hasati)'?", "answer": "अहसत् (ahasat)" },
+    { "question": "What is the future tense of 'हसति (hasati)'?", "answer": "हसिष्यति (hasiṣyati)" },
+
+    { "question": "What is the present tense of 'लिखति (likhati)'?", "answer": "लिखति (likhati)" },
+    { "question": "What is the past tense of 'लिखति (likhati)'?", "answer": "अलिखत् (alikhat)" },
+    { "question": "What is the future tense of 'लिखति (likhati)'?", "answer": "लिखिष्यति (likhiṣyati)" },
+
+    { "question": "What is the present tense of 'गृह्णाति (gṛhṇāti)'?", "answer": "गृह्णाति (gṛhṇāti)" },
+    { "question": "What is the past tense of 'गृह्णाति (gṛhṇāti)'?", "answer": "अगृह्णात् (agṛhṇāt)" },
+    { "question": "What is the future tense of 'गृह्णाति (gṛhṇāti)'?", "answer": "ग्रहीष्यति (grahīṣyati)" },
+
+    { "question": "What is the present tense of 'धावति (dhāvati)'?", "answer": "धावति (dhāvati)" },
+    { "question": "What is the past tense of 'धावति (dhāvati)'?", "answer": "अधावत् (adhāvat)" },
+    { "question": "What is the future tense of 'धावति (dhāvati)'?", "answer": "धाविष्यति (dhāviṣyati)" },
+
+    { "question": "What is the present tense of 'श्रुणोति (śruṇoti)'?", "answer": "श्रुणोति (śruṇoti)" },
+    { "question": "What is the past tense of 'श्रुणोति (śruṇoti)'?", "answer": "अश्रौषीत् (aśrauṣīt)" },
+    { "question": "What is the future tense of 'श्रुणोति (śruṇoti)'?", "answer": "श्रविष्यति (śraviṣyati)" },
+
+    { "question": "What is the present tense of 'पश्यति (paśyati)'?", "answer": "पश्यति (paśyati)" },
+    { "question": "What is the past tense of 'पश्यति (paśyati)'?", "answer": "अपश्यत् (apaśyat)" },
+    { "question": "What is the future tense of 'पश्यति (paśyati)'?", "answer": "द्रक्ष्यति (drakṣyati)" },
+
+    { "question": "What is the present tense of 'तिष्ठति (tiṣṭhati)'?", "answer": "तिष्ठति (tiṣṭhati)" },
+    { "question": "What is the past tense of 'तिष्ठति (tiṣṭhati)'?", "answer": "अतिष्ठत् (atiṣṭhat)" },
+    { "question": "What is the future tense of 'तिष्ठति (tiṣṭhati)'?", "answer": "स्थास्यति (sthāsyati)" },
+
+    { "question": "What is the present tense of 'वदति (vadati)'?", "answer": "वदति (vadati)" },
+    { "question": "What is the past tense of 'वदति (vadati)'?", "answer": "अवदत् (avadat)" },
+    { "question": "What is the future tense of 'वदति (vadati)'?", "answer": "वदिष्यति (vadiṣyati)" },
+
+    { "question": "What is the present tense of 'पिबति (pibati)'?", "answer": "पिबति (pibati)" },
+    { "question": "What is the past tense of 'पिबति (pibati)'?", "answer": "अपिबत् (apibat)" },
+    { "question": "What is the future tense of 'पिबति (pibati)'?", "answer": "पास्यति (pāsyati)" },
+
+    { "question": "What is the present tense of 'क्रीणाति (krīṇāti)'?", "answer": "क्रीणाति (krīṇāti)" },
+    { "question": "What is the past tense of 'क्रीणाति (krīṇāti)'?", "answer": "अक्रीणात् (akrīṇāt)" },
+    { "question": "What is the future tense of 'क्रीणाति (krīṇāti)'?", "answer": "क्रीणीष्यति (krīṇīṣyati)" },
+
+    { "question": "What is the present tense of 'त्यजति (tyajati)'?", "answer": "त्यजति (tyajati)" },
+    { "question": "What is the past tense of 'त्यजति (tyajati)'?", "answer": "अत्यजत् (atyajat)" },
+    { "question": "What is the future tense of 'त्यजति (tyajati)'?", "answer": "त्यक्ष्यति (tyakṣyati)" },
+
+    { "question": "What is the present tense of 'धारयति (dhārayati)'?", "answer": "धारयति (dhārayati)" },
+    { "question": "What is the past tense of 'धारयति (dhārayati)'?", "answer": "अधारयत् (adhārayat)" },
+    { "question": "What is the future tense of 'धारयति (dhārayati)'?", "answer": "धारयिष्यति (dhārayiṣyati)" },
+
+    { "question": "What is the present tense of 'शोचति (śocati)'?", "answer": "शोचति (śocati)" },
+    { "question": "What is the past tense of 'शोचति (śocati)'?", "answer": "अशोचत् (aśocat)" },
+    { "question": "What is the future tense of 'शोचति (śocati)'?", "answer": "शोचिष्यति (śociṣyati)" },
+
+    { "question": "What is the present tense of 'रक्षति (rakṣati)'?", "answer": "रक्षति (rakṣati)" },
+    { "question": "What is the past tense of 'रक्षति (rakṣati)'?", "answer": "अरक्षित् (arakṣit)" },
+    { "question": "What is the future tense of 'रक्षति (rakṣati)'?", "answer": "रक्षिष्यति (rakṣiṣyati)" },
+
+    { "question": "What is the present tense of 'हन्ति (hanti)'?", "answer": "हन्ति (hanti)" },
+    { "question": "What is the past tense of 'हन्ति (hanti)'?", "answer": "अहन् (ahan)" },
+    { "question": "What is the future tense of 'हन्ति (hanti)'?", "answer": "घनिष्यति (ghaniṣyati)" },
+
+    { "question": "What is the present tense of 'जयति (jayati)'?", "answer": "जयति (jayati)" },
+    { "question": "What is the past tense of 'जयति (jayati)'?", "answer": "अजयत् (ajayat)" },
+    { "question": "What is the future tense of 'जयति (jayati)'?", "answer": "जेष्यति (jeṣyati)" },
+
+    { "question": "What is the present tense of 'क्रीडति (krīḍati)'?", "answer": "क्रीडति (krīḍati)" },
+    { "question": "What is the past tense of 'क्रीडति (krīḍati)'?", "answer": "अक्रीडत् (akrīḍat)" },
+    { "question": "What is the future tense of 'क्रीडति (krīḍati)'?", "answer": "क्रीडिष्यति (krīḍiṣyati)" },
+
+    { "question": "What is the present tense of 'सीदति (sīdati)'?", "answer": "सीदति (sīdati)" },
+    { "question": "What is the past tense of 'सीदति (sīdati)'?", "answer": "असीदत् (asīdat)" },
+    { "question": "What is the future tense of 'सीदति (sīdati)'?", "answer": "सीदिष्यति (sīdiṣyati)" },
+
+    { "question": "What is the present tense of 'दंशति (daṃśati)'?", "answer": "दंशति (daṃśati)" },
+    { "question": "What is the past tense of 'दंशति (daṃśati)'?", "answer": "अदंशत् (adaṃśat)" },
+    { "question": "What is the future tense of 'दंशति (daṃśati)'?", "answer": "दंशिष्यति (daṃśiṣyati)" },
+
+    { "question": "What is the present tense of 'म्रियते (mriyate)'?", "answer": "म्रियते (mriyate)" },
+    { "question": "What is the past tense of 'म्रियते (mriyate)'?", "answer": "अम्रियत् (amriyata)" },
+    { "question": "What is the future tense of 'म्रियते (mriyate)'?", "answer": "मर्त्स्यते (martsyate)" },
+
+    { "question": "What is the present tense of 'पृणाति (pṛṇāti)'?", "answer": "पृणाति (pṛṇāti)" },
+    { "question": "What is the past tense of 'पृणाति (pṛṇāti)'?", "answer": "अपृणात् (apṛṇāt)" },
+    { "question": "What is the future tense of 'पृणाति (pṛṇāti)'?", "answer": "प्रीणास्यति (prīṇāsyati)" },
+
+    { "question": "What is the present tense of 'द्रवति (dravati)'?", "answer": "द्रवति (dravati)" },
+    { "question": "What is the past tense of 'द्रवति (dravati)'?", "answer": "अद्रवत् (adravat)" },
+    { "question": "What is the future tense of 'द्रवति (dravati)'?", "answer": "द्रविष्यति (draviṣyati)" },
+
+    { "question": "What is the present tense of 'नमति (namati)'?", "answer": "नमति (namati)" },
+    { "question": "What is the past tense of 'नमति (namati)'?", "answer": "अनमत् (anamat)" },
+    { "question": "What is the future tense of 'नमति (namati)'?", "answer": "नमिष्यति (namiṣyati)" },
+
+    { "question": "What is the present tense of 'यजति (yajati)'?", "answer": "यजति (yajati)" },
+    { "question": "What is the past tense of 'यजति (yajati)'?", "answer": "अयजत् (ayajat)" },
+    { "question": "What is the future tense of 'यजति (yajati)'?", "answer": "यक्ष्यति (yakṣyati)" }
+    ];
+
+    function showCard() {
+      const cardFront = card.querySelector('#front');
+      const cardBack = card.querySelector('#back');
+
+      cardFront.querySelector('p').textContent = flashcards[currentCardIndex].question;
+      cardBack.querySelector('p').textContent = flashcards[currentCardIndex].answer;
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      card.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+    }
+
+    function previousCard() {
+      isFlipped = false;
+      currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+      showCard();
+      card.style.transform = 'rotateY(0deg)';
+    }
+
+    function nextCard() {
+      isFlipped = false;
+      currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+      showCard();
+      card.style.transform = 'rotateY(0deg)';
+    }
+
+    card.addEventListener('click', flipCard);
+    prevBtn.addEventListener('click', previousCard);
+    nextBtn.addEventListener('click', nextCard);
+
+    showCard();
+  </script>
+</body>
+</html>

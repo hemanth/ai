@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to Chrome AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #e8e8e8;
+            --secondary: #888;
+            --background: #050505;
+            --text: #e8e8e8;
+            --card: #0a0a0a;
+        }
+
+        [data-theme="dark"] {
+            --primary: #e8e8e8;
+            --secondary: #888;
+            --background: #050505;
+            --text: #e8e8e8;
+            --card: #0a0a0a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 15px;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .header {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .lang-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .lang-option:hover {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            color: #888;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            color: #e8e8e8;
+            border-color: #333;
+        }
+
+        .voice-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #111;
+            border: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.15s ease;
+        }
+
+        .voice-circle:hover {
+            transform: scale(1.05);
+            border-color: #333;
+            background-color: #1a1a1a;
+        }
+
+        .voice-circle::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid #888;
+            animation: pulse 2s infinite;
+            opacity: 0;
+        }
+
+        .listening .voice-circle {
+            background-color: #e8e8e8;
+            border-color: #e8e8e8;
+        }
+
+        .listening .voice-circle .icon {
+            color: #050505;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            color: #888;
+            transition: color 0.15s ease;
+        }
+
+        .voice-circle:hover .icon {
+            color: #e8e8e8;
+        }
+
+        .status-text {
+            font-family: 'Space Grotesk', sans-serif;
+            margin-top: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            color: #888;
+            letter-spacing: -0.01em;
+        }
+
+        .transcript {
+            margin-top: 20px;
+            max-width: 340px;
+            text-align: center;
+            min-height: 60px;
+            color: #e8e8e8;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="theme-toggle" id="themeToggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+    </div>
+    
+    <div class="voice-circle" id="voiceCircle">
+        <svg class="icon" id="micIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+    </div>
+    <div class="status-text" id="statusText">Tap to speak</div>
+    <div class="transcript" id="transcript"></div>
+
+    <script>
+        const voiceCircle = document.getElementById('voiceCircle');
+        const statusText = document.getElementById('statusText');
+        const transcriptDiv = document.getElementById('transcript');
+        const themeToggle = document.getElementById('themeToggle');
+        
+        let isListening = false;
+        let currentLanguage = 'en-US';
+        let recognition;
+        let synth = window.speechSynthesis;
+        let bestVoice = null;
+
+        // Ranked voice preferences (first match wins)
+        const PREFERRED = [
+          'Google UK English Female',
+          'Google US English',
+          'Samantha',           // macOS premium
+          'Karen',              // macOS Australian
+          'Daniel',             // macOS British
+          'Moira',              // macOS Irish
+          'Tessa',              // macOS South African
+          'Fiona',              // macOS Scottish
+        ];
+
+        function loadVoices() {
+            const all = synth.getVoices();
+            const enVoices = all.filter(v => v.lang.startsWith('en'));
+            // Pick the highest-ranked preferred voice available
+            for (const name of PREFERRED) {
+                const match = enVoices.find(v => v.name === name);
+                if (match) { bestVoice = match; return; }
+            }
+            // Fallback: any en-US voice
+            bestVoice = enVoices.find(v => v.lang === 'en-US') || enVoices[0] || null;
+        }
+        loadVoices();
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = loadVoices;
+        }
+
+        // Check LanguageModel support 
+        if (typeof LanguageModel === 'undefined') {
+            statusText.textContent = "No Support for LanguageModel API";
+        }
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.setAttribute('data-theme', 
+                document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+
+        // Speech recognition initialization
+        function initializeSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Speech recognition is not supported in this browser.');
+                return null;
+            }
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = currentLanguage;
+
+            recognition.onstart = () => {
+                isListening = true;
+                document.body.classList.add('listening');
+                statusText.textContent = 'Listening...';
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                document.body.classList.remove('listening');
+                statusText.textContent = 'Tap to speak';
+            };
+
+            recognition.onresult = async (event) => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
+                
+                transcriptDiv.textContent = transcript;
+                
+                if (event.results[0].isFinal) {
+                    statusText.textContent = 'Thinking...';
+                    const assistant = await LanguageModel.create({
+                        expectedInputs: [{ type: 'text', languages: ['en'] }],
+                        expectedOutputs: [{ type: 'text', languages: ['en'] }]
+                    });
+                    const reply = await assistant.prompt(transcript);
+                    speakResponse(reply);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                statusText.textContent = `Error: ${event.error}`;
+            };
+
+            return recognition;
+        }
+
+        function speakResponse(text) {
+            statusText.textContent = 'Responding...';
+            // Cancel any queued speech
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            if (bestVoice) {
+                utterance.voice = bestVoice;
+            }
+            utterance.rate = 1.05;    // slightly faster for natural feel
+            utterance.pitch = 1.0;
+            utterance.onend = () => {
+                statusText.textContent = 'Tap to speak';
+            };
+            synth.speak(utterance);
+        }
+
+        voiceCircle.addEventListener('click',() => {
+            if (!recognition) {
+                recognition = initializeSpeechRecognition();
+                if (!recognition) return;
+            }
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+    </script>
+</body>
+</html>
+

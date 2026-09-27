@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Bar - Extract Colors from Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.875rem;
+            letter-spacing: 0.02em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+            font-family: inherit;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        .demo-embed {
+            margin-bottom: 3rem;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed #000;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone.dragover {
+            background: #f5f5f5;
+        }
+
+        .upload-zone p {
+            font-size: 0.875rem;
+            letter-spacing: 0.02em;
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .preview {
+            margin-top: 2rem;
+            border: 1px solid #000;
+            padding: 1rem;
+            display: none;
+        }
+
+        .preview.show {
+            display: block;
+        }
+
+        .preview img {
+            width: 100%;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+        button:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .color-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .color-bar:hover {
+            border-color: #000;
+        }
+
+        .copied {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            color: #fff;
+            padding: 1rem 2rem;
+            border: 1px solid #000;
+            font-size: 0.875rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .copied.show {
+            opacity: 1;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Color Bar</h1>
+
+        <div class="input-group">
+            <label for="imageUrl">Image URL (optional)</label>
+            <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+        </div>
+
+        <div style="text-align: center; margin: 1rem 0; opacity: 0.5; font-size: 0.875rem;">OR</div>
+
+        <div class="upload-zone" id="uploadZone">
+            <p>Click to upload, or drag and drop</p>
+            <p style="margin-top: 0.5rem; opacity: 0.6;">PNG, JPG or GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div id="preview" class="preview">
+            <img id="previewImg" alt="Preview">
+            <button id="extractBtn">Extract Colors</button>
+        </div>
+
+        <div id="result" class="result"></div>
+
+        <div class="demo-embed">
+            <blockquote class="twitter-tweet" data-theme="light">
+                <p lang="en" dir="ltr">DOM a color bar! <a href="https://t.co/example">pic.twitter.com/example</a></p>
+                &mdash; Hemanth HM (@GNUmanth) <a
+                    href="https://twitter.com/GNUmanth/status/1840097600474886472">September 28, 2024</a>
+            </blockquote>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+    <div class="copied" id="copiedMsg">Copied to clipboard!</div>
+
+    <script>
+        const imageUrlInput = document.getElementById('imageUrl');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const extractBtn = document.getElementById('extractBtn');
+        const result = document.getElementById('result');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const copiedMsg = document.getElementById('copiedMsg');
+
+        let selectedFile = null;
+
+        // Handle URL input
+        imageUrlInput.addEventListener('input', () => {
+            if (imageUrlInput.value.trim()) {
+                loadImageFromUrl(imageUrlInput.value.trim());
+            }
+        });
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function loadImageFromUrl(url) {
+            // Use CORS proxy for external images
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                previewImg.src = proxyUrl;
+                selectedFile = null; // Clear file reference
+                preview.classList.add('show');
+                result.classList.remove('show');
+            };
+            img.onerror = () => {
+                alert('Failed to load image from URL. Make sure the URL is correct.');
+            };
+            img.src = proxyUrl;
+        }
+
+        function handleFile(file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                preview.classList.add('show');
+                result.classList.remove('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        extractBtn.addEventListener('click', () => {
+            if (!selectedFile) return;
+
+            extractBtn.disabled = true;
+            extractBtn.textContent = 'Extracting...';
+
+            // Wait for image to load
+            setTimeout(() => {
+                const colors = extractDominantColors(previewImg, 5);
+                displayColors(colors);
+                extractBtn.disabled = false;
+                extractBtn.textContent = 'Extract Colors';
+            }, 100);
+        });
+
+        function extractDominantColors(img, count) {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+
+            const colors = [];
+            for (let i = 0; i < pixels.length; i += 40) {
+                colors.push({
+                    r: pixels[i],
+                    g: pixels[i + 1],
+                    b: pixels[i + 2]
+                });
+            }
+
+            const clusters = kMeans(colors, count);
+            return clusters.map(rgbToHex);
+        }
+
+        function kMeans(colors, k) {
+            let centroids = colors.slice(0, k);
+
+            for (let iter = 0; iter < 10; iter++) {
+                const clusters = Array(k).fill().map(() => []);
+
+                colors.forEach(color => {
+                    let minDist = Infinity;
+                    let cluster = 0;
+
+                    centroids.forEach((centroid, i) => {
+                        const dist = colorDistance(color, centroid);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            cluster = i;
+                        }
+                    });
+
+                    clusters[cluster].push(color);
+                });
+
+                centroids = clusters.map(cluster => {
+                    if (cluster.length === 0) return centroids[0];
+                    const r = cluster.reduce((sum, c) => sum + c.r, 0) / cluster.length;
+                    const g = cluster.reduce((sum, c) => sum + c.g, 0) / cluster.length;
+                    const b = cluster.reduce((sum, c) => sum + c.b, 0) / cluster.length;
+                    return { r, g, b };
+                });
+            }
+
+            return centroids;
+        }
+
+        function colorDistance(c1, c2) {
+            return Math.sqrt(
+                Math.pow(c1.r - c2.r, 2) +
+                Math.pow(c1.g - c2.g, 2) +
+                Math.pow(c1.b - c2.b, 2)
+            );
+        }
+
+        function rgbToHex(rgb) {
+            const toHex = (n) => {
+                const hex = Math.round(n).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+            return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+        }
+
+        function displayColors(colors) {
+            result.innerHTML = colors.map(color => {
+                const rgb = hexToRgb(color);
+                const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+                const textColor = luminance > 0.5 ? '#000' : '#fff';
+
+                return `<div class="color-bar" style="background-color: ${color}; color: ${textColor}" data-color="${color}">
+                    ${color}
+                </div>`;
+            }).join('');
+
+            result.classList.add('show');
+
+            result.querySelectorAll('.color-bar').forEach(bar => {
+                bar.addEventListener('click', () => {
+                    const color = bar.dataset.color;
+                    navigator.clipboard.writeText(color);
+                    showCopied();
+                });
+            });
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        function showCopied() {
+            copiedMsg.classList.add('show');
+            setTimeout(() => copiedMsg.classList.remove('show'), 1500);
+        }
+    </script>
+</body>
+
+</html>

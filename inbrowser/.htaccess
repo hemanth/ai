@@ -1,0 +1,1 @@
+RedirectMatch 301 ^/ai/inbrowser/(.*)$ /ai/browser-llm-fit/$1

@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+*.task
+*.bin
+*.onnx
+*.wasm
+.next/cache/

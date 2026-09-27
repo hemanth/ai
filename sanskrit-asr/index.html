@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="sa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  
+  <!-- Primary Metadata -->
+  <title>Su-śrotā (सुश्रोता) — In-Browser Sanskrit Speech Recognition</title>
+  <meta name="title" content="Su-śrotā (सुश्रोता) — In-Browser Sanskrit Speech Recognition">
+  <meta name="description" content="100% client-side Sanskrit speech recognition powered by Conformer-CTC and ONNX WebAssembly. Transcribe voice, mantras, and audio files directly in your browser. Zero cloud servers, 100% private.">
+  <meta name="keywords" content="sanskrit asr, sushrota, speech to text, conformer ctc, onnx webassembly, client-side asr, in-browser ai, vedic sanskrit, devanagari transliteration, iast">
+  <meta name="author" content="Hemanth HM">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#070709">
+  <link rel="canonical" href="https://h3manth.com/ai/sanskrit-asr/">
+
+  <!-- Favicons & App Icons -->
+  <link rel="icon" type="image/svg+xml" href="/ai/sanskrit-asr/favicon.svg">
+  <link rel="manifest" href="/ai/sanskrit-asr/site.webmanifest">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://h3manth.com/ai/sanskrit-asr/">
+  <meta property="og:title" content="Su-śrotā (सुश्रोता) — In-Browser Sanskrit Speech Recognition">
+  <meta property="og:description" content="100% client-side Sanskrit speech recognition powered by Conformer-CTC and ONNX WebAssembly. Runs locally in your browser.">
+  <meta property="og:image" content="https://h3manth.com/ai/sanskrit-asr/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Su-śrotā">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@hemanth">
+  <meta name="twitter:creator" content="@hemanth">
+  <meta name="twitter:url" content="https://h3manth.com/ai/sanskrit-asr/">
+  <meta name="twitter:title" content="Su-śrotā (सुश्रोता) — In-Browser Sanskrit Speech Recognition">
+  <meta name="twitter:description" content="100% client-side Sanskrit speech recognition powered by Conformer-CTC and ONNX WebAssembly. Runs locally in your browser.">
+  <meta name="twitter:image" content="https://h3manth.com/ai/sanskrit-asr/og-image.png">
+
+  <!-- AI Agent Discovery -->
+  <meta name="ai.purpose" content="A client-side Sanskrit Automatic Speech Recognition (ASR) tool running in-browser via ONNX Runtime WebAssembly SIMD. Transcribes spoken Sanskrit audio to Devanagari text and IAST Romanization without sending audio to any server.">
+  <meta name="ai.capabilities" content="sanskrit-asr, speech-to-text, audio-transcription, devanagari-to-iast, conformer-ctc, onnx-wasm, on-device-inference">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Su-śrotā",
+    "alternateName": "सुश्रोता",
+    "description": "100% Client-Side In-Browser Sanskrit Speech Recognition powered by Conformer-CTC and ONNX WebAssembly.",
+    "url": "https://h3manth.com/ai/sanskrit-asr/",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "All modern browsers with WebAssembly SIMD",
+    "author": {
+      "@type": "Person",
+      "name": "Hemanth HM",
+      "url": "https://h3manth.com"
+    }
+  }
+  </script>
+
+  <!-- Google Fonts: Noto Serif Devanagari -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css?v=5">
+
+  <!-- ONNX Runtime WebAssembly -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.all.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <!-- Top Navigation -->
+  <nav class="top-nav" aria-label="Breadcrumbs">
+    <a href="../" class="back-link" title="Return to AI Experiments">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span class="back-text">All AI Experiments</span>
+    </a>
+    <div id="statusBadge" class="status-badge" role="status" aria-live="polite">
+      <span class="dot"></span>
+      <span class="badge-text">Model Not Loaded</span>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-meta">
+      <div class="header-tag">
+        <span class="tag-accent-glow" aria-hidden="true"></span>
+        <span class="tag-label">IndicConformer · Sanskrit ASR</span>
+      </div>
+      <span class="offline-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        100% Client-Side
+      </span>
+    </div>
+
+    <div class="title-wrap">
+      <h1>
+        <span class="dev-glyph">सुश्रोता</span>
+        <span class="title-sep" aria-hidden="true">·</span>
+        <span class="title-en">Su-śrotā</span>
+      </h1>
+    </div>
+
+    <div class="invoc-callout">
+      <span class="invoc-shloka">॥ भद्रं कर्णेभिः शृणुयाम ॥</span>
+      <span class="invoc-sep" aria-hidden="true">—</span>
+      <span class="invoc-meaning">“May we hear what is auspicious”</span>
+    </div>
+
+    <p class="subtitle">
+      Scholar-grade Sanskrit speech recognition powered by IndicConformer-CTC and ONNX Runtime WebAssembly. Audio never leaves your device.
+    </p>
+
+    <div class="tech-pills" aria-label="Technical Highlights">
+      <span class="tech-pill">WebML-Kit</span>
+      <span class="tech-pill">115M Conformer-CTC</span>
+      <span class="tech-pill">WASM SIMD Multi-threaded</span>
+      <span class="tech-pill">INT8 Quantized</span>
+      <span class="tech-pill">Local Cache Storage</span>
+    </div>
+  </header>
+
+  <!-- Initial Model Download Card -->
+  <section id="loadCard" class="card" aria-label="Model Loading">
+    <div class="load-card-content">
+      <div class="load-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+      </div>
+      <h2 class="load-title">Initialize Sanskrit ASR Model</h2>
+      <p class="load-desc">
+        Loads the INT8 quantized Conformer-CTC acoustic network (~178 MB) and mel-filterbank preprocessor via WebML-Kit. Persistent browser caching ensures instant startup on return visits.
+      </p>
+      <button id="btnLoadModel" class="btn btn-primary">
+        Initialize Model (~178 MB)
+      </button>
+      <div id="cacheStatusWrap" class="cache-status-wrap" hidden>
+        <div class="cache-pill">
+          <span class="cache-dot"></span>
+          <span id="cacheStatusText">Model cached locally · Instant load</span>
+        </div>
+        <button id="btnClearCache" class="btn-text-sm" type="button">Clear Local Cache</button>
+      </div>
+      <div id="progressBar" class="progress-container" hidden>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText" class="progress-text">Starting download...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Application Deck (Shown after loading) -->
+  <main id="mainApp" hidden>
+    <!-- Audio Input Deck -->
+    <section class="card" aria-label="Audio Input">
+      <!-- Live Microphone -->
+      <div class="record-box">
+        <button id="btnRecord" class="btn btn-record">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          Start Recording
+        </button>
+        <span id="recordTimeLabel" class="record-meta">00:00</span>
+        <canvas id="canvasWaveform" class="waveform-canvas" width="600" height="60" hidden></canvas>
+      </div>
+
+      <!-- Quick Test Samples -->
+      <div class="section-heading">Or Try Authentic Sanskrit Recitations</div>
+      <div class="samples-grid">
+        <button class="sample-chip" data-sample="./samples/sarvamula_katha_shanti.wav?v=1" type="button" title="Kaṭhopaniṣad Śānti Mantra (Sarvamūla Vāṇī)">
+          <span class="sample-icon">🕊️</span>
+          <div class="sample-info">
+            <span class="sample-name">Kaṭhopaniṣad Śānti</span>
+            <span class="sample-sub">ॐ सह नाववतु</span>
+          </div>
+          <div class="sample-eq" aria-hidden="true">
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+          </div>
+        </button>
+
+        <button class="sample-chip" data-sample="./samples/sarvamula_isha_shanti.wav?v=1" type="button" title="Īśāvāsyopaniṣad Śānti Mantra (Sarvamūla Vāṇī)">
+          <span class="sample-icon">🌿</span>
+          <div class="sample-info">
+            <span class="sample-name">Īśāvāsyopaniṣad Śānti</span>
+            <span class="sample-sub">ॐ पूर्णमदः पूर्णमिदम्</span>
+          </div>
+          <div class="sample-eq" aria-hidden="true">
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+          </div>
+        </button>
+
+        <button class="sample-chip" data-sample="./samples/sarvamula_gita_4_7.wav?v=1" type="button" title="Bhagavad Gītā 4.7 (Sarvamūla Vāṇī)">
+          <span class="sample-icon">⚔️</span>
+          <div class="sample-info">
+            <span class="sample-name">Bhagavad Gītā (4.7)</span>
+            <span class="sample-sub">यदा यदा हि धर्मस्य</span>
+          </div>
+          <div class="sample-eq" aria-hidden="true">
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+            <span class="sample-eq-bar"></span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Drop Zone -->
+      <div id="dropZone" class="drop-zone">
+        <div class="drop-text">Drop an audio file here or click to browse</div>
+        <div class="drop-sub">Supports .wav, .mp3, .ogg, .m4a (automatically resampled to 16 kHz)</div>
+        <input type="file" id="fileInput" accept="audio/*" hidden>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultSection" class="card result-card" hidden aria-label="Transcription Output">
+      <div class="result-header">
+        <div class="result-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Transcription Result
+        </div>
+      </div>
+
+      <!-- Devānagarī Output -->
+      <div id="devanagariOutput" class="dev-output-box" aria-live="polite"></div>
+
+      <!-- IAST Romanization Output -->
+      <div id="iastOutput" class="iast-output-box"></div>
+
+      <!-- Performance Metrics HUD -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-label">Inference Latency</span>
+          <span id="statLatency" class="stat-val highlight">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Audio Duration</span>
+          <span id="statDuration" class="stat-val">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Speed</span>
+          <span id="statRtf" class="stat-val">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Backend</span>
+          <span id="statBackend" class="stat-val">WASM SIMD</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-bar">
+        <button id="btnCopyDev" class="btn btn-secondary">Copy Devānagarī</button>
+        <button id="btnCopyIast" class="btn btn-secondary">Copy IAST</button>
+        <button id="btnExportJson" class="btn btn-secondary">Export JSON</button>
+      </div>
+
+      <!-- Audio Playback -->
+      <audio id="audioPlayer" controls hidden></audio>
+    </section>
+
+    <!-- History Drawer -->
+    <section class="card" aria-label="Recent Transcriptions">
+      <div class="section-heading">Recent Transcriptions</div>
+      <div id="historyEmpty" class="history-empty">Transcriptions from this session will appear here.</div>
+      <div id="historyList"></div>
+    </section>
+
+    <!-- Architecture & Model Details -->
+    <section class="card arch-card" aria-label="Technical Details">
+      <h3>About Su-śrotā (सुश्रोता)</h3>
+      <p>
+        <strong>Su-śrotā</strong> is a Conformer-CTC speech recognition model originally trained by Prathosh AP's lab at the Indian Institute of Science (IISc). This web edition runs 100% client-side via <a href="https://github.com/hemanth/webml-kit" target="_blank" rel="noreferrer">WebML-Kit</a> and ONNX Runtime WebAssembly with SIMD acceleration.
+      </p>
+      <p>
+        The 115M-parameter acoustic network is dynamically quantized to INT8 (~178 MB), and mel-filterbank feature extraction is executed in a dedicated ONNX preprocessor graph. Model weights are cached locally in your browser's Cache Storage for instant offline use.
+      </p>
+      <p>
+        Model weights are available at <a href="https://huggingface.co/gnumanth/sushrota-sanskrit-asr-onnx" target="_blank" rel="noopener">huggingface.co/gnumanth/sushrota-sanskrit-asr-onnx</a>. Source code and export scripts are open source on <a href="https://github.com/prathoshap/sushrota-sanskrit-asr/pull/8" target="_blank" rel="noopener">GitHub</a>.
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <strong>Su-śrotā (सुश्रोता)</strong> was developed by 
+      <a href="https://huggingface.co/prathoshap/sushrota-sanskrit-asr" target="_blank" rel="noreferrer">Prof. Prathosh A P</a> 
+      at the <em>Indian Institute of Science (IISc), Bengaluru</em>.
+    </p>
+    <p>
+      In-browser ONNX &amp; INT8 quantization exports by 
+      <a href="https://huggingface.co/gnumanth/sushrota-sanskrit-asr-onnx" target="_blank" rel="noreferrer">gnumanth</a>.
+      Powered by <a href="https://github.com/hemanth/webml-kit" target="_blank" rel="noreferrer">WebML-Kit</a> &amp; <a href="https://onnxruntime.ai/" target="_blank" rel="noreferrer">ONNX Runtime Web</a>.
+    </p>
+    <p>
+      Crafted by <a href="https://h3manth.com">Hemanth HM</a> · Recitations courtesy of <a href="https://sarvamulavani.com" target="_blank" rel="noopener">Sarvamūla Vāṇī</a>.
+    </p>
+  </footer>
+</div>
+
+<script type="module" src="./app.js?v=5"></script>
+</body>
+</html>
