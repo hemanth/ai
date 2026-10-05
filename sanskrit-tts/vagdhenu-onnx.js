@@ -214,7 +214,7 @@ export function stitchSegments(segs, gaps, fric = false, halant = false, tailThr
   return merged;
 }
 
-export function encodeWavBlob(samples, sampleRate = SR) {
+export function encodeWavBuffer(samples, sampleRate = SR) {
   const numSamples = samples.length;
   const buffer = new ArrayBuffer(44 + numSamples * 2);
   const view = new DataView(buffer);
@@ -245,7 +245,49 @@ export function encodeWavBlob(samples, sampleRate = SR) {
     view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
     offset += 2;
   }
+  return buffer;
+}
+
+export function encodeWavBlob(samples, sampleRate = SR) {
+  const buffer = encodeWavBuffer(samples, sampleRate);
   return new Blob([buffer], { type: "audio/wav" });
+}
+
+const ORT_CDN_URL = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/ort.all.min.js";
+let ortLoadPromise = null;
+
+export async function resolveOrt() {
+  if (typeof globalThis !== "undefined" && globalThis.ort) {
+    return globalThis.ort;
+  }
+  try {
+    const pkgName = "onnxruntime-web";
+    const mod = await import(/* @vite-ignore */ pkgName);
+    const resolved = mod?.default?.InferenceSession ? mod.default : mod;
+    if (resolved?.InferenceSession) {
+      if (typeof globalThis !== "undefined" && !globalThis.ort) {
+        globalThis.ort = resolved;
+      }
+      return resolved;
+    }
+  } catch {
+    // Fall back to CDN script injection in browser environments
+  }
+  if (typeof document !== "undefined") {
+    if (!ortLoadPromise) {
+      ortLoadPromise = new Promise((resolve, reject) => {
+        if (globalThis.ort) return resolve(globalThis.ort);
+        const s = document.createElement("script");
+        s.src = ORT_CDN_URL;
+        s.async = true;
+        s.onload = () => (globalThis.ort ? resolve(globalThis.ort) : reject(new Error("ort missing after script load")));
+        s.onerror = () => reject(new Error(`Failed to load ONNX Runtime Web from ${ORT_CDN_URL}`));
+        document.head.appendChild(s);
+      });
+    }
+    return ortLoadPromise;
+  }
+  throw new Error("ONNX Runtime Web (onnxruntime-web) is not available.");
 }
 
 // ── Mobile & Constrained Device Detection ──
@@ -357,12 +399,29 @@ async function fetchWithCache(url, onProgress, { skipCacheWrite = false } = {}) 
 
 const HF_MODEL_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-web/resolve/main";
 
-export class VagdhenuWebEngine {
-  constructor(baseUrl = null) {
+export function resolveModelBaseUrl(baseUrl = null) {
+  if (!baseUrl) {
     const isLocal =
       typeof window !== "undefined" &&
       (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
-    const resolvedBase = baseUrl || (isLocal ? "./models" : HF_MODEL_BASE);
+    return isLocal ? "./models" : HF_MODEL_BASE;
+  }
+  if (
+    typeof baseUrl === "string" &&
+    !baseUrl.startsWith("http://") &&
+    !baseUrl.startsWith("https://") &&
+    !baseUrl.startsWith(".") &&
+    !baseUrl.startsWith("/") &&
+    /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(baseUrl)
+  ) {
+    return `https://huggingface.co/${baseUrl}/resolve/main`;
+  }
+  return baseUrl;
+}
+
+export class VagdhenuWebEngine {
+  constructor(baseUrl = null) {
+    const resolvedBase = resolveModelBaseUrl(baseUrl);
     this.baseUrl = resolvedBase.replace(/\/$/, "");
     this.bankManifest = null;
     this.bankBin = null;
@@ -373,6 +432,7 @@ export class VagdhenuWebEngine {
     this.isMobile = isMobileDevice();
     this.isWarmedUp = false;
     this.initPromise = null;
+    this.ort = null;
   }
 
   async loadBank(onProgress) {
@@ -404,10 +464,8 @@ export class VagdhenuWebEngine {
   }
 
   async _doInitOnnxSessions(onStatus) {
-    const ort = window.ort;
-    if (!ort) {
-      throw new Error("ONNX Runtime Web (ort) is not loaded on window.");
-    }
+    const ort = await resolveOrt();
+    this.ort = ort;
     this.isMobile = isMobileDevice();
 
     await this.loadBank((loaded, total, cached) => {
@@ -592,7 +650,7 @@ export class VagdhenuWebEngine {
     onProgress
   ) {
     await this.initOnnxSessions(onProgress);
-    const ort = window.ort;
+    const ort = this.ort || (await resolveOrt());
 
     const { padas, pieces: rawPieces } = preparePieces(text, noSandhi);
     if (!rawPieces.length) throw new Error("Please enter a Sanskrit verse.");
@@ -988,13 +1046,18 @@ export class VagdhenuWebEngine {
       finalSamples.set(p, pos);
       pos += p.length;
     }
-    const wavBlob = encodeWavBlob(finalSamples, SR);
+    const wavBuffer = encodeWavBuffer(finalSamples, SR);
+    const wavBlob = typeof Blob !== "undefined" ? new Blob([wavBuffer], { type: "audio/wav" }) : null;
+    const url = wavBlob && typeof URL !== "undefined" && URL.createObjectURL ? URL.createObjectURL(wavBlob) : null;
 
     return {
+      wav: wavBuffer,
+      audio: finalSamples,
       blob: wavBlob,
-      url: URL.createObjectURL(wavBlob),
+      url,
       durationSec: finalSamples.length / SR,
       sampleRate: SR,
+      sampling_rate: SR,
       meter: resolvedMeter,
       pieces,
     };
