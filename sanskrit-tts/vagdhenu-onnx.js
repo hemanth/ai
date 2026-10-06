@@ -399,15 +399,15 @@ async function fetchWithCache(url, onProgress, { skipCacheWrite = false } = {}) 
 
 export const HF_WASM_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-wasm/resolve/main";
 export const HF_ONNX_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-onnx/resolve/main";
-const HF_MODEL_BASE = HF_WASM_BASE;
+const HF_MODEL_BASE = HF_ONNX_BASE;
 
-export function resolveModelBaseUrl(baseUrl = null, backendMode = "wasm") {
+export function resolveModelBaseUrl(baseUrl = null, backendMode = "onnx") {
   if (!baseUrl) {
     const isLocal =
       typeof window !== "undefined" &&
       (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
     if (isLocal) return "./models";
-    return backendMode === "onnx" ? HF_ONNX_BASE : HF_WASM_BASE;
+    return backendMode === "wasm" ? HF_WASM_BASE : HF_ONNX_BASE;
   }
   if (baseUrl === "wasm") return HF_WASM_BASE;
   if (baseUrl === "onnx" || baseUrl === "webgpu") return HF_ONNX_BASE;
@@ -425,9 +425,9 @@ export function resolveModelBaseUrl(baseUrl = null, backendMode = "wasm") {
 }
 
 export class VagdhenuWebEngine {
-  constructor(baseUrl = null, backendMode = "wasm") {
+  constructor(baseUrl = null, backendMode = "onnx") {
     this.customBaseUrl = baseUrl;
-    this.backendMode = backendMode === "onnx" ? "onnx" : "wasm";
+    this.backendMode = backendMode === "wasm" ? "wasm" : "onnx";
     const resolvedBase = resolveModelBaseUrl(baseUrl, this.backendMode);
     this.baseUrl = resolvedBase.replace(/\/$/, "");
     this.bankManifest = null;
@@ -443,7 +443,7 @@ export class VagdhenuWebEngine {
   }
 
   setBackendMode(mode) {
-    const normalized = mode === "onnx" ? "onnx" : "wasm";
+    const normalized = mode === "wasm" ? "wasm" : "onnx";
     if (normalized === this.backendMode && this.condSession && this.stepSession) {
       return;
     }
@@ -469,15 +469,15 @@ export class VagdhenuWebEngine {
   async loadBank(onProgress) {
     if (this.bankManifest && this.bankBin) return this.bankManifest;
     try {
-      const probe = await fetch(`${this.baseUrl}/baked_bank.json?v=22`);
+      const probe = await fetch(`${this.baseUrl}/baked_bank.json?v=23`);
       if (!probe.ok) throw new Error(`HTTP ${probe.status}`);
       this.bankManifest = await probe.json();
     } catch {
-      this.baseUrl = this.backendMode === "onnx" ? HF_ONNX_BASE : HF_WASM_BASE;
-      const fallbackResp = await fetch(`${this.baseUrl}/baked_bank.json?v=22`);
+      this.baseUrl = this.backendMode === "wasm" ? HF_WASM_BASE : HF_ONNX_BASE;
+      const fallbackResp = await fetch(`${this.baseUrl}/baked_bank.json?v=23`);
       this.bankManifest = await fallbackResp.json();
     }
-    this.bankBin = await fetchWithCache(`${this.baseUrl}/baked_bank.bin?v=22`, onProgress);
+    this.bankBin = await fetchWithCache(`${this.baseUrl}/baked_bank.bin?v=23`, onProgress);
     return this.bankManifest;
   }
 
@@ -526,13 +526,22 @@ export class VagdhenuWebEngine {
     ort.env.wasm.numThreads = isIsolated ? Math.min(this.isMobile ? 4 : 8, navigator.hardwareConcurrency || 4) : 1;
     ort.env.wasm.simd = true;
 
+    // If running on WASM (either user selected 'wasm' or WebGPU is unavailable), use the fast MatMulInteger WASM weights
+    const useWasmWeights = this.provider === "wasm";
     const isLocalModels = this.baseUrl === "./models" || this.baseUrl.endsWith("/models");
+    const effectiveBaseUrl =
+      !isLocalModels && !this.customBaseUrl
+        ? useWasmWeights
+          ? HF_WASM_BASE
+          : HF_ONNX_BASE
+        : this.baseUrl;
+
     const stepFile =
-      this.backendMode === "wasm" && isLocalModels
+      useWasmWeights && isLocalModels
         ? "vagdhenu_dit_step_wasm_q8.onnx"
         : "vagdhenu_dit_step_q8.onnx";
     const condFile =
-      this.backendMode === "wasm" && isLocalModels
+      useWasmWeights && isLocalModels
         ? "vagdhenu_cond_wasm_q8.onnx"
         : "vagdhenu_cond_q8.onnx";
 
@@ -541,16 +550,16 @@ export class VagdhenuWebEngine {
       {
         key: "cond",
         file: condFile,
-        label: this.backendMode === "wasm" ? "WASM INT8 Static Conditioner" : "ONNX Static Conditioner",
+        label: useWasmWeights ? "WASM INT8 Static Conditioner" : "ONNX Static Conditioner",
         weight: 13,
-        sizeMB: this.backendMode === "wasm" ? 20 : 34,
+        sizeMB: useWasmWeights ? 20 : 19,
       },
       {
         key: "step",
         file: stepFile,
-        label: this.backendMode === "wasm" ? "WASM MatMulInteger DiT Backbone" : "ONNX WebGPU DiT Backbone",
+        label: useWasmWeights ? "WASM MatMulInteger DiT Backbone" : "ONNX WebGPU DiT Backbone",
         weight: 65,
-        sizeMB: 192,
+        sizeMB: useWasmWeights ? 199 : 184,
       },
     ];
 
@@ -561,7 +570,7 @@ export class VagdhenuWebEngine {
         continue;
       }
       let buf = await fetchWithCache(
-        `${this.baseUrl}/${item.file}`,
+        `${effectiveBaseUrl}/${item.file}`,
         (loaded, total, cached) => {
           if (onStatus) {
             const frac = total ? loaded / total : 0.5;
@@ -588,7 +597,7 @@ export class VagdhenuWebEngine {
 
       // WASM MatMulInteger uses native uint8 weights without ConstantFolding expansion (~270ms init, ~280MB RAM).
       // ONNX Cast(INT8)->FP16 disables ConstantFolding on mobile to avoid 2.6GB RAM spike.
-      const optLevel = this.backendMode === "onnx" && this.isMobile ? "disabled" : "all";
+      const optLevel = !useWasmWeights && this.isMobile ? "disabled" : "all";
       const memOpts = this.isMobile
         ? { enableCpuMemArena: false, enableMemPattern: false }
         : {};
@@ -750,10 +759,11 @@ export class VagdhenuWebEngine {
     let tSteps;
     let stepModes;
     let tailThr = 0.018;
-    const effectiveNfe = this.isMobile ? Math.min(nfe, 6) : nfe;
+    const isWasmOrMobile = this.isMobile || this.provider === "wasm";
+    const effectiveNfe = isWasmOrMobile ? Math.min(nfe, 6) : nfe;
     if (effectiveNfe <= 6) {
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[4], t12[7], t12[10], 1.0]);
-      stepModes = this.isMobile
+      stepModes = isWasmOrMobile
         ? ["cfg", "cfg", "cfg", "b1", "b1", "b1"]
         : ["cfg", "cfg", "cfg", "cfg", "cfg", "b1"];
       tailThr = 0.018;
@@ -798,6 +808,8 @@ export class VagdhenuWebEngine {
     let streamedTotalLen = 0;
     let part0VoicedRms = null;
 
+    const isProxyWasm = Boolean(ort?.env?.wasm?.proxy);
+
     // Helper: prepare inputs and run StaticConditioner for piece pIdx
     const preparePieceState = async (pIdx) => {
       const piece = pieces[pIdx];
@@ -831,12 +843,14 @@ export class VagdhenuWebEngine {
       safeDisposeTensor(tCondMel);
       safeDisposeTensor(tTextIn);
 
+      const useSplitCfg = this.isMobile || this.provider === "wasm";
       const staticBias2B = new Float32Array(condOut.static_bias.data);
       const staticBiasCond = staticBias2B.slice(0, dur * 1024);
-      const staticBiasNull = this.isMobile ? staticBias2B.slice(dur * 1024, 2 * dur * 1024) : null;
-      const sbTensor2B = this.isMobile ? null : new ort.Tensor("float32", staticBias2B, [2, dur, 1024]);
-      const sbTensor1B = new ort.Tensor("float32", staticBiasCond, [1, dur, 1024]);
-      const sbTensorNull1B = this.isMobile ? new ort.Tensor("float32", staticBiasNull, [1, dur, 1024]) : null;
+      const staticBiasNull = useSplitCfg ? staticBias2B.slice(dur * 1024, 2 * dur * 1024) : null;
+      const sbTensor2B = useSplitCfg || isProxyWasm ? null : new ort.Tensor("float32", staticBias2B, [2, dur, 1024]);
+      const sbTensor1B = isProxyWasm ? null : new ort.Tensor("float32", staticBiasCond, [1, dur, 1024]);
+      const sbTensorNull1B =
+        !useSplitCfg || isProxyWasm ? null : new ort.Tensor("float32", staticBiasNull, [1, dur, 1024]);
 
       const rcSlice = new Float32Array(condOut.rope_cos.data.slice(0, dur * 64));
       const rsSlice = new Float32Array(condOut.rope_sin.data.slice(0, dur * 64));
@@ -844,18 +858,24 @@ export class VagdhenuWebEngine {
       safeDisposeTensor(condOut.rope_cos);
       safeDisposeTensor(condOut.rope_sin);
 
-      const ropeCos = new ort.Tensor("float32", rcSlice, [1, dur, 64]);
-      const ropeSin = new ort.Tensor("float32", rsSlice, [1, dur, 64]);
+      const ropeCos = isProxyWasm ? null : new ort.Tensor("float32", rcSlice, [1, dur, 64]);
+      const ropeSin = isProxyWasm ? null : new ort.Tensor("float32", rsSlice, [1, dur, 64]);
 
       const x =
         seed === 60 && y0Meta && dur <= y0Meta.frames
           ? decodeFp16Buffer(this.bankBin, y0Meta.byte_offset, dur, 100)
           : randnArray(dur * 100, seed);
-      const xBoth = this.isMobile ? null : new Float32Array(2 * dur * 100);
+      const xBoth = useSplitCfg ? null : new Float32Array(2 * dur * 100);
 
       return {
         pIdx,
         dur,
+        useSplitCfg,
+        staticBias2B,
+        staticBiasCond,
+        staticBiasNull,
+        rcSlice,
+        rsSlice,
         sbTensor2B,
         sbTensor1B,
         sbTensorNull1B,
@@ -877,7 +897,22 @@ export class VagdhenuWebEngine {
 
     // Helper: run a single ODE step s on state st
     const runSingleOdeStep = async (st, s) => {
-      const { dur, sbTensor2B, sbTensor1B, sbTensorNull1B, ropeCos, ropeSin, x, xBoth } = st;
+      const {
+        dur,
+        useSplitCfg,
+        staticBias2B,
+        staticBiasCond,
+        staticBiasNull,
+        rcSlice,
+        rsSlice,
+        sbTensor2B,
+        sbTensor1B,
+        sbTensorNull1B,
+        ropeCos,
+        ropeSin,
+        x,
+        xBoth,
+      } = st;
       const tCurr = tSteps[s];
       const dt = tSteps[s + 1] - tCurr;
       const mode = cfg > 1e-5 ? stepModes[s] : "b1";
@@ -891,17 +926,33 @@ export class VagdhenuWebEngine {
         });
       }
 
-      if (mode === "cfg" && !this.isMobile) {
-        xBoth.set(x, 0);
-        xBoth.set(x, dur * 100);
-        const tX = new ort.Tensor("float32", xBoth, [2, dur, 100]);
+      if (useSplitCfg) {
+        // Let the browser paint the progress update and timer before WASM execution
+        await new Promise((r) => setTimeout(r, 12));
+      }
+
+      if (mode === "cfg" && !useSplitCfg) {
+        let xBuf;
+        if (isProxyWasm) {
+          xBuf = new Float32Array(2 * dur * 100);
+          xBuf.set(x, 0);
+          xBuf.set(x, dur * 100);
+        } else {
+          xBoth.set(x, 0);
+          xBoth.set(x, dur * 100);
+          xBuf = xBoth;
+        }
+        const tX = new ort.Tensor("float32", xBuf, [2, dur, 100]);
         const tT = new ort.Tensor("float32", new Float32Array([tCurr, tCurr]), [2]);
+        const tSb = isProxyWasm ? new ort.Tensor("float32", staticBias2B.slice(), [2, dur, 1024]) : sbTensor2B;
+        const tRc = isProxyWasm ? new ort.Tensor("float32", rcSlice.slice(), [1, dur, 64]) : ropeCos;
+        const tRs = isProxyWasm ? new ort.Tensor("float32", rsSlice.slice(), [1, dur, 64]) : ropeSin;
         const stepOut = await this.stepSession.run({
           x: tX,
-          static_bias: sbTensor2B,
+          static_bias: tSb,
           t: tT,
-          rope_cos: ropeCos,
-          rope_sin: ropeSin,
+          rope_cos: tRc,
+          rope_sin: tRs,
         });
         const vData = stepOut.v_out.data;
         const offset = dur * 100;
@@ -913,32 +964,48 @@ export class VagdhenuWebEngine {
         safeDisposeTensor(stepOut.v_out);
         safeDisposeTensor(tX);
         safeDisposeTensor(tT);
-      } else if (mode === "cfg" && this.isMobile) {
-        // Mobile Low-Memory Split-CFG: run two B=1 passes instead of B=2 to halve activation RAM
-        const tX1 = new ort.Tensor("float32", x, [1, dur, 100]);
+        if (isProxyWasm) {
+          safeDisposeTensor(tSb);
+          safeDisposeTensor(tRc);
+          safeDisposeTensor(tRs);
+        }
+      } else if (mode === "cfg" && useSplitCfg) {
+        // Low-Memory / Responsive Split-CFG: run two B=1 passes with an event-loop yield between them
+        const tX1 = new ort.Tensor("float32", isProxyWasm ? x.slice() : x, [1, dur, 100]);
         const tT1 = new ort.Tensor("float32", new Float32Array([tCurr]), [1]);
+        const tSb1 = isProxyWasm ? new ort.Tensor("float32", staticBiasCond.slice(), [1, dur, 1024]) : sbTensor1B;
+        const tRc1 = isProxyWasm ? new ort.Tensor("float32", rcSlice.slice(), [1, dur, 64]) : ropeCos;
+        const tRs1 = isProxyWasm ? new ort.Tensor("float32", rsSlice.slice(), [1, dur, 64]) : ropeSin;
         const condStep = await this.stepSession.run({
           x: tX1,
-          static_bias: sbTensor1B,
+          static_bias: tSb1,
           t: tT1,
-          rope_cos: ropeCos,
-          rope_sin: ropeSin,
+          rope_cos: tRc1,
+          rope_sin: tRs1,
         });
         const vCond = new Float32Array(condStep.v_out.data);
         safeDisposeTensor(condStep.v_out);
         safeDisposeTensor(tX1);
         safeDisposeTensor(tT1);
+        if (isProxyWasm) {
+          safeDisposeTensor(tSb1);
+          safeDisposeTensor(tRc1);
+          safeDisposeTensor(tRs1);
+        }
 
-        await new Promise((r) => setTimeout(r, 8));
+        await new Promise((r) => setTimeout(r, 12));
 
-        const tX2 = new ort.Tensor("float32", x, [1, dur, 100]);
+        const tX2 = new ort.Tensor("float32", isProxyWasm ? x.slice() : x, [1, dur, 100]);
         const tT2 = new ort.Tensor("float32", new Float32Array([tCurr]), [1]);
+        const tSb2 = isProxyWasm ? new ort.Tensor("float32", staticBiasNull.slice(), [1, dur, 1024]) : sbTensorNull1B;
+        const tRc2 = isProxyWasm ? new ort.Tensor("float32", rcSlice.slice(), [1, dur, 64]) : ropeCos;
+        const tRs2 = isProxyWasm ? new ort.Tensor("float32", rsSlice.slice(), [1, dur, 64]) : ropeSin;
         const nullStep = await this.stepSession.run({
           x: tX2,
-          static_bias: sbTensorNull1B,
+          static_bias: tSb2,
           t: tT2,
-          rope_cos: ropeCos,
-          rope_sin: ropeSin,
+          rope_cos: tRc2,
+          rope_sin: tRs2,
         });
         const vNull = nullStep.v_out.data;
         const len = dur * 100;
@@ -950,15 +1017,23 @@ export class VagdhenuWebEngine {
         safeDisposeTensor(nullStep.v_out);
         safeDisposeTensor(tX2);
         safeDisposeTensor(tT2);
+        if (isProxyWasm) {
+          safeDisposeTensor(tSb2);
+          safeDisposeTensor(tRc2);
+          safeDisposeTensor(tRs2);
+        }
       } else {
-        const tX = new ort.Tensor("float32", x, [1, dur, 100]);
+        const tX = new ort.Tensor("float32", isProxyWasm ? x.slice() : x, [1, dur, 100]);
         const tT = new ort.Tensor("float32", new Float32Array([tCurr]), [1]);
+        const tSb = isProxyWasm ? new ort.Tensor("float32", staticBiasCond.slice(), [1, dur, 1024]) : sbTensor1B;
+        const tRc = isProxyWasm ? new ort.Tensor("float32", rcSlice.slice(), [1, dur, 64]) : ropeCos;
+        const tRs = isProxyWasm ? new ort.Tensor("float32", rsSlice.slice(), [1, dur, 64]) : ropeSin;
         const stepOut = await this.stepSession.run({
           x: tX,
-          static_bias: sbTensor1B,
+          static_bias: tSb,
           t: tT,
-          rope_cos: ropeCos,
-          rope_sin: ropeSin,
+          rope_cos: tRc,
+          rope_sin: tRs,
         });
         const vData = stepOut.v_out.data;
         for (let i = 0; i < dur * 100; i++) {
@@ -967,6 +1042,11 @@ export class VagdhenuWebEngine {
         safeDisposeTensor(stepOut.v_out);
         safeDisposeTensor(tX);
         safeDisposeTensor(tT);
+        if (isProxyWasm) {
+          safeDisposeTensor(tSb);
+          safeDisposeTensor(tRc);
+          safeDisposeTensor(tRs);
+        }
       }
       st.nextStep = s + 1;
       completedSteps++;
@@ -1055,13 +1135,14 @@ export class VagdhenuWebEngine {
           progress: Math.round((completedSteps / totalSteps) * 100),
         });
       }
+      await new Promise((resolve) => setTimeout(resolve, 12));
       const currState = await preparePieceState(pIdx);
 
       for (let s = 0; s < activeSteps; s++) {
         await runSingleOdeStep(currState, s);
-        if (pIdx > 0 || this.isMobile) {
-          // Yield so mobile browser UI & Web Audio hardware thread stay 100% glitch-free
-          await new Promise((resolve) => setTimeout(resolve, this.isMobile ? 12 : 4));
+        if (pIdx > 0 || this.isMobile || this.provider === "wasm") {
+          // Yield so browser UI & Web Audio hardware thread stay 100% glitch-free
+          await new Promise((resolve) => setTimeout(resolve, this.isMobile || this.provider === "wasm" ? 16 : 4));
         }
       }
 

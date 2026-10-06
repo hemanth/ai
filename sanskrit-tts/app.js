@@ -1,5 +1,5 @@
-import { analyzeVerse } from "./vagdhenu-text.js?v=22";
-import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=22";
+import { analyzeVerse } from "./vagdhenu-text.js?v=23";
+import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=23";
 
 const PRESETS = [
   {
@@ -52,7 +52,7 @@ const PRESETS = [
   },
 ];
 
-const webEngine = new VagdhenuWebEngine(null, "wasm");
+const webEngine = new VagdhenuWebEngine(null, "onnx");
 if (typeof window !== "undefined") {
   window.webEngine = webEngine;
 }
@@ -94,22 +94,22 @@ function updateHardwareBadge() {
     typeof window !== "undefined" && window.crossOriginIsolated
       ? Math.min(8, navigator.hardwareConcurrency || 4)
       : 1;
-  const mode = backendSelect ? backendSelect.value : webEngine.backendMode || "wasm";
+  const mode = backendSelect ? backendSelect.value : webEngine.backendMode || "onnx";
 
   if (mode === "onnx") {
     if (runtimeProviderBadge) {
       runtimeProviderBadge.textContent = hasWebGpu
         ? `ONNX WebGPU + ${threads}T WASM · 260 MB`
-        : `ONNX FP16-Cast · ${threads}T WASM · 260 MB`;
+        : `WASM MatMulInteger Fallback · 277 MB`;
     }
-    if (condPillLabel) condPillLabel.textContent = "Cond (ONNX FP16-Cast · 19 MB)";
-    if (ditPillLabel) ditPillLabel.textContent = "DiT Step (ONNX WebGPU · 184 MB)";
+    if (condPillLabel) condPillLabel.innerHTML = "<strong>Conditioner:</strong> 18.8 MB ONNX FP16-Cast";
+    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 184 MB ONNX WebGPU";
   } else {
     if (runtimeProviderBadge) {
-      runtimeProviderBadge.textContent = `${threads}T WASM SIMD · MatMulInteger · 277 MB`;
+      runtimeProviderBadge.textContent = `${threads}T WASM SIMD Worker · MatMulInteger · 277 MB`;
     }
-    if (condPillLabel) condPillLabel.textContent = "Cond (WASM QUInt8 · 20 MB)";
-    if (ditPillLabel) ditPillLabel.textContent = "DiT Step (WASM MatMulInteger · 199 MB)";
+    if (condPillLabel) condPillLabel.innerHTML = "<strong>Conditioner:</strong> 19.8 MB WASM QUInt8";
+    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 199 MB WASM MatMulInteger";
   }
 }
 
@@ -371,7 +371,7 @@ chantBtn.addEventListener("click", async () => {
 
           if (activeStreamCtx) {
             if (activeStreamCtx.state === "suspended" || activeStreamCtx.state === "interrupted") {
-              await activeStreamCtx.resume().catch(() => {});
+              activeStreamCtx.resume().catch(() => {});
             }
             const totalChunkLen = chunk.gatedSamples.length + chunk.gapSamples.length;
             const audioBuf = activeStreamCtx.createBuffer(1, totalChunkLen, chunk.sampleRate);
