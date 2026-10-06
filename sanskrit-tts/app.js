@@ -1,5 +1,5 @@
-import { analyzeVerse } from "./vagdhenu-text.js?v=25";
-import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=25";
+import { analyzeVerse } from "./vagdhenu-text.js?v=26";
+import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=26";
 
 const PRESETS = [
   {
