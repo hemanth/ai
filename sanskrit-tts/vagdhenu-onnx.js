@@ -14,6 +14,8 @@
 
 import {
   preparePieces,
+  splitPadas,
+  toDeva,
   nAksharas,
   aksharas,
   repDepths,
@@ -22,9 +24,32 @@ import {
   detectMeterKey,
 } from "./vagdhenu-text.js";
 
+function splitHemistichAtCaesura(line) {
+  const words = line.trim().split(/\s+/);
+  if (words.length < 2) return [line];
+  const totalSylls = nAksharas(toDeva(line));
+  if (totalSylls < 14) return [line];
+  const target = Math.round(totalSylls / 2);
+  let bestIdx = -1;
+  let bestDiff = 999;
+  let acc = 0;
+  for (let i = 0; i < words.length - 1; i++) {
+    acc += nAksharas(toDeva(words[i]));
+    const diff = Math.abs(acc - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIdx = i;
+    }
+  }
+  if (bestIdx >= 0 && bestDiff <= 2) {
+    return [words.slice(0, bestIdx + 1).join(" "), words.slice(bestIdx + 1).join(" ")];
+  }
+  return [line];
+}
+
 const SR = 24000;
 const HOP = 256;
-const CACHE_NAME = "vagdhenu-models-v7";
+const CACHE_NAME = "vagdhenu-models-v9";
 
 // ── IEEE-754 Float16 -> Float32 fast conversion table ──
 const FP16_TO_FP32 = new Float32Array(65536);
@@ -527,7 +552,9 @@ export class VagdhenuWebEngine {
 
     const isIsolated = typeof window !== "undefined" && Boolean(window.crossOriginIsolated);
     this.provider = this.backendMode === "onnx" && hasWebGpu ? "webgpu" : "wasm";
-    ort.env.wasm.numThreads = isIsolated ? Math.min(this.isMobile ? 4 : 8, navigator.hardwareConcurrency || 4) : 1;
+    const hc = (typeof navigator !== "undefined" && navigator.hardwareConcurrency) || 4;
+    const optimalThreads = hc <= 12 ? Math.min(4, hc) : 6;
+    ort.env.wasm.numThreads = isIsolated ? optimalThreads : 1;
     ort.env.wasm.simd = true;
 
     // If running on WASM (either user selected 'wasm' or WebGPU is unavailable), use the fast MatMulInteger WASM weights
@@ -722,17 +749,21 @@ export class VagdhenuWebEngine {
     await this.initOnnxSessions(onProgress);
     const ort = this.ort || (await resolveOrt());
 
-    const { padas, pieces: rawPieces } = preparePieces(text, noSandhi);
+    const basePadas = Array.isArray(text) ? text : splitPadas(text);
+    if (!basePadas.length) throw new Error("Please enter a Sanskrit verse.");
+
+    const { padas, pieces: rawPieces } = preparePieces(basePadas, noSandhi);
     if (!rawPieces.length) throw new Error("Please enter a Sanskrit verse.");
 
-    // On Desktop (WebGPU or 8T WASM), group 4-pāda verses into 2 canonical Sanskrit hemistichs (P1+P2, P3+P4)
-    // so the 443..608-frame reference prompt is only processed 2x instead of 4x.
-    // On Mobile, stream individual pādas so each chunk uses 2.5x less RAM.
-    const usePadaStreaming = this.isMobile;
-    const pieces =
-      !usePadaStreaming && rawPieces.length === 4
-        ? [`${rawPieces[0]} ${rawPieces[1]}`, `${rawPieces[2]} ${rawPieces[3]}`]
-        : rawPieces;
+    // Group 4 pādas into 2 canonical hemistichs unless on mobile with very long meters (>28 syllables per hemistich)
+    let pieces;
+    if (rawPieces.length === 4) {
+      const h1 = `${rawPieces[0]} ${rawPieces[1]}`;
+      const h2 = `${rawPieces[2]} ${rawPieces[3]}`;
+      pieces = this.isMobile && nAksharas(h1) > 28 ? rawPieces : [h1, h2];
+    } else {
+      pieces = rawPieces;
+    }
     const unitLabel = pieces.length > 2 ? "Pāda" : "Hemistich";
 
     const resolvedMeter = !meter || meter === "auto" ? detectMeterKey(text) || "vasantatilaka" : meter;
@@ -764,9 +795,9 @@ export class VagdhenuWebEngine {
     let stepModes;
     let tailThr = 0.018;
     const isWasmOrMobile = this.isMobile || this.provider === "wasm";
-    const effectiveNfe = this.provider === "wasm" && !this.isMobile ? 5 : isWasmOrMobile ? Math.min(nfe, 6) : nfe;
+    const effectiveNfe = isWasmOrMobile ? Math.min(nfe, 5) : nfe;
     if (effectiveNfe <= 5) {
-      // Fast 5-step Sway schedule [0,1,2,5,8,12] CCCBB: 0.983 cosine similarity to 9-pass reference
+      // Fast 5-step Sway schedule [0,1,2,5,8,12] CCCBB: 0.9943 cosine similarity to 7-step reference
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[5], t12[8], 1.0]);
       stepModes = ["cfg", "cfg", "cfg", "b1", "b1"];
       tailThr = 0.018;
@@ -806,7 +837,8 @@ export class VagdhenuWebEngine {
 
     // Natural breath pauses (0.16s intra-hemistich pause between odd/even pādas, 0.38s mid-verse caesura)
     const gaps = pieces.map((p, idx) => {
-      const isIntraHemistich = pieces.length === 4 && idx % 2 === 0;
+      const isIntraHemistich =
+        (pieces.length === 4 && idx % 2 === 0) || (pieces.length === 3 && idx === 0);
       const baseGap = isIntraHemistich ? 0.16 : 0.38;
       return new Float32Array(Math.floor(baseGap * SR) + (endsHalant(p) ? Math.floor(0.10 * SR) : 0));
     });
@@ -852,8 +884,8 @@ export class VagdhenuWebEngine {
       safeDisposeTensor(tCondMel);
       safeDisposeTensor(tTextIn);
 
-      // Use Split-CFG (B=1) only on mobile to save RAM; on Desktop 8T WASM, B=2 batched CFG is 25% faster
-      const useSplitCfg = this.isMobile;
+      // Use batched B=2 CFG for standard sequences (<=1100 frames); only split on mobile for long meters (>1100 frames)
+      const useSplitCfg = this.isMobile && dur > 1100;
       const staticBias2B = new Float32Array(condOut.static_bias.data);
       const staticBiasCond = staticBias2B.slice(0, dur * 1024);
       const staticBiasNull = useSplitCfg ? staticBias2B.slice(dur * 1024, 2 * dur * 1024) : null;
@@ -1098,7 +1130,17 @@ export class VagdhenuWebEngine {
         keep: isLast ? 0.07 : 0.12,
       });
 
-      // Cross-chunk vocal energy continuity: align Part 2+ voiced RMS smoothly to Part 1
+      // Soft-knee transient limiter so 1-sample boundary spikes never attenuate the whole hemistich
+      for (let i = 0; i < gatedChunk.length; i++) {
+        const v = gatedChunk[i];
+        const a = Math.abs(v);
+        if (a > 0.82) {
+          const s = 0.82 + 0.14 * Math.tanh((a - 0.82) / 0.14);
+          gatedChunk[i] = v < 0 ? -s : s;
+        }
+      }
+
+      // Cross-chunk vocal energy continuity: align voiced RMS smoothly across hemistichs
       let sumSq = 0;
       let countVoiced = 0;
       for (let i = 0; i < gatedChunk.length; i++) {
@@ -1108,26 +1150,19 @@ export class VagdhenuWebEngine {
           countVoiced++;
         }
       }
-      const chunkVoicedRms = countVoiced > 0 ? Math.sqrt(sumSq / countVoiced) : 0.08;
-      if (pIdx === 0) {
-        part0VoicedRms = chunkVoicedRms;
-      } else if (part0VoicedRms && chunkVoicedRms > 1e-4) {
-        const rawRatio = part0VoicedRms / chunkVoicedRms;
-        const smoothGain = Math.max(0.85, Math.min(1.18, 0.75 * rawRatio + 0.25));
+      const chunkVoicedRms = countVoiced > 0 ? Math.sqrt(sumSq / countVoiced) : 0.12;
+      const targetVoicedRms = part0VoicedRms || Math.max(chunkVoicedRms, 0.125);
+      if (chunkVoicedRms > 1e-4) {
+        const rawRatio = targetVoicedRms / chunkVoicedRms;
+        const smoothGain = Math.max(0.85, Math.min(1.45, 0.8 * rawRatio + 0.2));
         for (let i = 0; i < gatedChunk.length; i++) {
-          gatedChunk[i] *= smoothGain;
+          const v = gatedChunk[i] * smoothGain;
+          const a = Math.abs(v);
+          gatedChunk[i] = a > 0.84 ? (v < 0 ? -(0.84 + 0.12 * Math.tanh((a - 0.84) / 0.12)) : 0.84 + 0.12 * Math.tanh((a - 0.84) / 0.12)) : v;
         }
       }
-
-      // Peak safety normalization
-      let mx = 0;
-      for (let i = 0; i < gatedChunk.length; i++) {
-        const a = Math.abs(gatedChunk[i]);
-        if (a > mx) mx = a;
-      }
-      if (mx > 0.98) {
-        const norm = 0.96 / mx;
-        for (let i = 0; i < gatedChunk.length; i++) gatedChunk[i] *= norm;
+      if (pIdx === 0) {
+        part0VoicedRms = targetVoicedRms;
       }
       waves[pIdx] = gatedChunk;
 

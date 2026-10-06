@@ -1,5 +1,5 @@
-import { analyzeVerse } from "./vagdhenu-text.js?v=23";
-import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=23";
+import { analyzeVerse } from "./vagdhenu-text.js?v=25";
+import { VagdhenuWebEngine, isMobileDevice } from "./vagdhenu-onnx.js?v=25";
 
 const PRESETS = [
   {
@@ -90,26 +90,28 @@ const slp1Preview = document.getElementById("slp1Preview");
 
 function updateHardwareBadge() {
   const hasWebGpu = typeof navigator !== "undefined" && "gpu" in navigator;
+  const hc = (typeof navigator !== "undefined" && navigator.hardwareConcurrency) || 4;
+  const pCoreThreads = hc <= 12 ? Math.min(4, hc) : 6;
   const threads =
     typeof window !== "undefined" && window.crossOriginIsolated
-      ? Math.min(8, navigator.hardwareConcurrency || 4)
+      ? pCoreThreads
       : 1;
   const mode = backendSelect ? backendSelect.value : webEngine.backendMode || "onnx";
 
   if (mode === "onnx") {
     if (runtimeProviderBadge) {
       runtimeProviderBadge.textContent = hasWebGpu
-        ? `ONNX WebGPU + ${threads}T WASM · 260 MB`
-        : `WASM MatMulInteger Fallback · 277 MB`;
+        ? `ONNX WebGPU + ${threads}T WASM · 265 MB`
+        : `${threads}T WASM MatMulInteger Fallback · 279 MB`;
     }
     if (condPillLabel) condPillLabel.innerHTML = "<strong>Conditioner:</strong> 18.8 MB ONNX FP16-Cast";
-    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 184 MB ONNX WebGPU";
+    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 191 MB ONNX WebGPU";
   } else {
     if (runtimeProviderBadge) {
-      runtimeProviderBadge.textContent = `${threads}T WASM SIMD Worker · MatMulInteger · 277 MB`;
+      runtimeProviderBadge.textContent = `${threads}T WASM SIMD · MatMulInteger · 279 MB`;
     }
     if (condPillLabel) condPillLabel.innerHTML = "<strong>Conditioner:</strong> 19.8 MB WASM QUInt8";
-    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 199 MB WASM MatMulInteger";
+    if (ditPillLabel) ditPillLabel.innerHTML = "<strong>22-Block DiT:</strong> 203 MB WASM MatMulInteger";
   }
 }
 
@@ -443,6 +445,23 @@ function initScrollReveal() {
 }
 
 async function detectBestBackendAndPrewarm() {
+  if (
+    typeof window !== "undefined" &&
+    !window.crossOriginIsolated &&
+    "serviceWorker" in navigator &&
+    window.isSecureContext
+  ) {
+    try {
+      const reg = await navigator.serviceWorker.register("./coi-sw.js");
+      if (reg && !sessionStorage.getItem("vagdhenu_coi_reloaded")) {
+        sessionStorage.setItem("vagdhenu_coi_reloaded", "1");
+        window.location.reload();
+        return;
+      }
+    } catch {
+      // Ignore if Service Worker registration is blocked in iframe
+    }
+  }
   let hasWebGpu = false;
   if (typeof navigator !== "undefined" && navigator.gpu) {
     try {
