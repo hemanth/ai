@@ -458,7 +458,13 @@ async function detectBestBackendAndPrewarm() {
   }
 
   if (!hasWebGpu) {
-    if (backendSelect) backendSelect.value = "wasm";
+    if (backendSelect) {
+      backendSelect.value = "wasm";
+      const onnxOpt = backendSelect.querySelector('option[value="onnx"]');
+      if (onnxOpt) {
+        onnxOpt.textContent = "🖥️ ONNX WebGPU (No GPU detected · auto-falls back to WASM)";
+      }
+    }
     await webEngine.setBackendMode("wasm");
   }
   updateHardwareBadge();
