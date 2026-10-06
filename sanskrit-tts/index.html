@@ -153,10 +153,10 @@
 
           <div class="controls-grid">
             <div class="control-field">
-              <label for="backendSelect">Browser Engine (ONNX WebGPU / WASM)</label>
+              <label for="backendSelect">Browser Engine (GPU vs CPU)</label>
               <select id="backendSelect" class="select-input">
-                <option value="onnx" selected>🖥️ ONNX WebGPU · Shader-FP16 (Fastest · Default · ~4s)</option>
-                <option value="wasm">⚡ WASM SIMD · MatMulInteger Worker (sanskrit-tts-wasm)</option>
+                <option value="onnx" selected>🖥️ ONNX WebGPU · GPU Accelerated (Fastest · Default · ~4s)</option>
+                <option value="wasm">⚡ WASM SIMD · CPU-Only Fallback (No GPU · sanskrit-tts-wasm)</option>
               </select>
             </div>
 

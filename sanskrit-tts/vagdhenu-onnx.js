@@ -725,10 +725,10 @@ export class VagdhenuWebEngine {
     const { padas, pieces: rawPieces } = preparePieces(text, noSandhi);
     if (!rawPieces.length) throw new Error("Please enter a Sanskrit verse.");
 
-    // On Desktop WebGPU, group 4-pāda verses into 2 canonical Sanskrit hemistichs (P1+P2, P3+P4).
-    // On Mobile or WASM, stream individual pādas so each chunk is 2x shorter (cutting O(N^2) attention
-    // memory by 2.5x and cutting time-to-first-audio in half on mobile devices).
-    const usePadaStreaming = this.isMobile || this.provider === "wasm";
+    // On Desktop (WebGPU or 8T WASM), group 4-pāda verses into 2 canonical Sanskrit hemistichs (P1+P2, P3+P4)
+    // so the 443..608-frame reference prompt is only processed 2x instead of 4x.
+    // On Mobile, stream individual pādas so each chunk uses 2.5x less RAM.
+    const usePadaStreaming = this.isMobile;
     const pieces =
       !usePadaStreaming && rawPieces.length === 4
         ? [`${rawPieces[0]} ${rawPieces[1]}`, `${rawPieces[2]} ${rawPieces[3]}`]
@@ -764,8 +764,13 @@ export class VagdhenuWebEngine {
     let stepModes;
     let tailThr = 0.018;
     const isWasmOrMobile = this.isMobile || this.provider === "wasm";
-    const effectiveNfe = isWasmOrMobile ? Math.min(nfe, 6) : nfe;
-    if (effectiveNfe <= 6) {
+    const effectiveNfe = this.provider === "wasm" && !this.isMobile ? 5 : isWasmOrMobile ? Math.min(nfe, 6) : nfe;
+    if (effectiveNfe <= 5) {
+      // Fast 5-step Sway schedule [0,1,2,5,8,12] CCCBB: 0.983 cosine similarity to 9-pass reference
+      tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[5], t12[8], 1.0]);
+      stepModes = ["cfg", "cfg", "cfg", "b1", "b1"];
+      tailThr = 0.018;
+    } else if (effectiveNfe <= 6) {
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[4], t12[7], t12[10], 1.0]);
       stepModes = isWasmOrMobile
         ? ["cfg", "cfg", "cfg", "b1", "b1", "b1"]
@@ -847,7 +852,8 @@ export class VagdhenuWebEngine {
       safeDisposeTensor(tCondMel);
       safeDisposeTensor(tTextIn);
 
-      const useSplitCfg = this.isMobile || this.provider === "wasm";
+      // Use Split-CFG (B=1) only on mobile to save RAM; on Desktop 8T WASM, B=2 batched CFG is 25% faster
+      const useSplitCfg = this.isMobile;
       const staticBias2B = new Float32Array(condOut.static_bias.data);
       const staticBiasCond = staticBias2B.slice(0, dur * 1024);
       const staticBiasNull = useSplitCfg ? staticBias2B.slice(dur * 1024, 2 * dur * 1024) : null;
@@ -930,7 +936,7 @@ export class VagdhenuWebEngine {
         });
       }
 
-      if (useSplitCfg) {
+      if (useSplitCfg || this.provider === "wasm") {
         // Let the browser paint the progress update and timer before WASM execution
         await new Promise((r) => setTimeout(r, 12));
       }
