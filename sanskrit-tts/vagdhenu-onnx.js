@@ -49,7 +49,7 @@ function splitHemistichAtCaesura(line) {
 
 const SR = 24000;
 const HOP = 256;
-const CACHE_NAME = "vagdhenu-models-v9";
+const CACHE_NAME = "vagdhenu-models-v10";
 
 // ── IEEE-754 Float16 -> Float32 fast conversion table ──
 const FP16_TO_FP32 = new Float32Array(65536);
@@ -571,19 +571,16 @@ export class VagdhenuWebEngine {
       useWasmWeights && isLocalModels
         ? "vagdhenu_dit_step_wasm_q8.onnx"
         : "vagdhenu_dit_step_q8.onnx";
-    const condFile =
-      useWasmWeights && isLocalModels
-        ? "vagdhenu_cond_wasm_q8.onnx"
-        : "vagdhenu_cond_q8.onnx";
+    const condFile = "vagdhenu_cond_q8.onnx";
 
     const files = [
       { key: "vocos", file: "vagdhenu_vocos_q8.onnx", label: "Vocos Neural Vocoder", weight: 12, sizeMB: 56 },
       {
         key: "cond",
         file: condFile,
-        label: useWasmWeights ? "WASM INT8 Static Conditioner" : "ONNX Static Conditioner",
+        label: "ONNX Static Conditioner",
         weight: 13,
-        sizeMB: useWasmWeights ? 20 : 19,
+        sizeMB: 19,
       },
       {
         key: "step",
@@ -627,12 +624,9 @@ export class VagdhenuWebEngine {
       }
 
       // WASM MatMulInteger uses native uint8 weights without ConstantFolding expansion (~270ms init, ~280MB RAM).
-      // ONNX Cast(INT8)->FP16 disables ConstantFolding on mobile to avoid 2.6GB RAM spike.
-      const optLevel = !useWasmWeights && this.isMobile ? "disabled" : "all";
-      const memOpts =
-        !useWasmWeights && this.isMobile
-          ? { enableCpuMemArena: false, enableMemPattern: false }
-          : {};
+      // WebGPU requires ConstantFolding ('all') so Cast(INT8 -> FP16) * scale is folded once into GPU FP16 buffers
+      // at session creation rather than falling back to CPU Cast + H2D copy on all 88 linear layers every ODE step.
+      const optLevel = "all";
 
       let sess = null;
       if (useGpuForModel) {
@@ -640,7 +634,6 @@ export class VagdhenuWebEngine {
           sess = await ort.InferenceSession.create(buf, {
             executionProviders: ["webgpu", "wasm"],
             graphOptimizationLevel: optLevel,
-            ...memOpts,
           });
           this.provider = "webgpu";
         } catch (gpuErr) {
@@ -652,7 +645,6 @@ export class VagdhenuWebEngine {
         sess = await ort.InferenceSession.create(buf, {
           executionProviders: ["wasm"],
           graphOptimizationLevel: optLevel,
-          ...memOpts,
         });
       }
       // Release JS ArrayBuffer reference immediately so GC can reclaim 192 MB before next model
@@ -753,30 +745,14 @@ export class VagdhenuWebEngine {
     const basePadas = Array.isArray(text) ? text : splitPadas(text);
     if (!basePadas.length) throw new Error("Please enter a Sanskrit verse.");
 
-    const isWasmOrMobile = this.isMobile || this.provider === "wasm";
-
-    // On CPU/WASM and Mobile, pair the 1-pāda tail reference prompt with Pāda-1-First chunking
-    // so First Audio (dur=404 vs 932) starts 2.5x sooner and total frames drop by 22%!
-    let expandedPadas = basePadas;
-    if (basePadas.length === 2 && isWasmOrMobile) {
-      if (this.isMobile && nAksharas(toDeva(basePadas[1])) > 24) {
-        expandedPadas = [...splitHemistichAtCaesura(basePadas[0]), ...splitHemistichAtCaesura(basePadas[1])];
-      } else {
-        expandedPadas = [...splitHemistichAtCaesura(basePadas[0]), basePadas[1]];
-      }
-    }
-
-    const { padas, pieces: rawPieces } = preparePieces(expandedPadas, noSandhi);
+    const { padas, pieces: rawPieces } = preparePieces(basePadas, noSandhi);
     if (!rawPieces.length) throw new Error("Please enter a Sanskrit verse.");
 
-    let pieces;
-    if (isWasmOrMobile && rawPieces.length === 4 && !(this.isMobile && nAksharas(rawPieces[2]) > 12)) {
-      pieces = [rawPieces[0], rawPieces[1], `${rawPieces[2]} ${rawPieces[3]}`];
-    } else if (!isWasmOrMobile && rawPieces.length === 4) {
-      pieces = [`${rawPieces[0]} ${rawPieces[1]}`, `${rawPieces[2]} ${rawPieces[3]}`];
-    } else {
-      pieces = rawPieces;
-    }
+    // Synthesize full hemistichs (2 pieces per standard verse) to preserve natural sandhi & prosodic breath contour
+    const pieces =
+      rawPieces.length === 4
+        ? [`${rawPieces[0]} ${rawPieces[1]}`, `${rawPieces[2]} ${rawPieces[3]}`]
+        : rawPieces;
     const unitLabel = pieces.length > 2 ? "Pāda" : "Hemistich";
 
     const resolvedMeter = !meter || meter === "auto" ? detectMeterKey(text) || "vasantatilaka" : meter;
@@ -789,59 +765,14 @@ export class VagdhenuWebEngine {
     }
 
     const entry = this.getRefEntry(resolvedMeter, monoMax, diMax);
-    const fullRefMel = decodeFp16Buffer(this.bankBin, entry.byte_offset, entry.mel_frames, 100);
+    const refMel = decodeFp16Buffer(this.bankBin, entry.byte_offset, entry.mel_frames, 100);
+    const refMelFrames = entry.mel_frames;
+    const refAudioLen = entry.ref_audio_len;
+    const refLenSec = entry.ref_len_sec;
+    const refTokens = entry.ref_tokens;
     const sps = entry.sec_per_syll;
     const vmap = this.bankManifest.vocab_char_map;
     const y0Meta = this.bankManifest.y0_seed60;
-
-    // On CPU/WASM and Mobile, slice the 2-pāda reference prompt at its exact mid-verse breath silence
-    // into a clean 1-pāda tail prompt (~161f instead of 444f), cutting sequence length by 30-45% with zero splice artifact
-    let refMel = fullRefMel;
-    let refMelFrames = entry.mel_frames;
-    let refAudioLen = entry.ref_audio_len;
-    let refLenSec = entry.ref_len_sec;
-    let refTokens = entry.ref_tokens;
-
-    if (isWasmOrMobile && entry.mel_frames > 260 && entry.ref_tokens.length > 26) {
-      const n = entry.mel_frames;
-      const toks = entry.ref_tokens;
-      const nt = toks.length;
-      const spaceTok = vmap[" "];
-      const searchLen = Math.max(1, nt - 4);
-      const targetIdx = searchLen * (n > 750 ? 0.68 : 0.52);
-      let bestSp = -1;
-      let bestDist = 1e9;
-      for (let i = Math.floor(searchLen * 0.25); i < Math.ceil(searchLen * 0.85); i++) {
-        if (toks[i] === spaceTok) {
-          const dist = Math.abs(i - targetIdx);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestSp = i;
-          }
-        }
-      }
-      if (bestSp < 0) bestSp = Math.floor(searchLen * 0.5);
-      const tokRatio = (bestSp + 1) / searchLen;
-      const centerF = Math.floor(n * tokRatio);
-      const lo = Math.max(Math.floor(n * 0.35), centerF - Math.floor(n * 0.14));
-      const hi = Math.min(Math.floor(n * 0.78), centerF + Math.floor(n * 0.14));
-      let minF = centerF;
-      let minVal = 1e9;
-      for (let f = lo; f < hi; f++) {
-        let sum = 0;
-        const base = f * 100;
-        for (let c = 0; c < 100; c++) sum += fullRefMel[base + c];
-        if (sum < minVal) {
-          minVal = sum;
-          minF = f;
-        }
-      }
-      refMel = fullRefMel.subarray(minF * 100, n * 100);
-      refMelFrames = n - minF;
-      refAudioLen = Math.max(10, entry.ref_audio_len - minF);
-      refLenSec = (refAudioLen * HOP) / SR;
-      refTokens = toks.slice(bestSp + 1);
-    }
 
     // Precompute canonical NFE=12 sway grid for smooth multi-stage trajectory integration
     const t12 = new Float32Array(13);
@@ -850,31 +781,24 @@ export class VagdhenuWebEngine {
       t12[i] = u - 1.0 * (Math.cos((Math.PI / 2) * u) - 1.0 + u);
     }
 
-    // Build smooth ODE time schedule & step modes
+    // Build smooth ODE time schedule & step modes (default NFE=7: 24.12 dB Mel SNR, 0.9981 cosine similarity)
     let tSteps;
     let stepModes;
-    let tailThr = 0.018;
-    const effectiveNfe = isWasmOrMobile ? Math.min(nfe, 5) : nfe;
+    const tailThr = 0.035;
+    const effectiveNfe = Math.max(5, nfe || 7);
     if (effectiveNfe <= 5) {
-      // Fast 5-step Sway schedule [0,1,2,5,8,12] CCCBB: 0.9943 cosine similarity to 7-step reference
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[5], t12[8], 1.0]);
       stepModes = ["cfg", "cfg", "cfg", "b1", "b1"];
-      tailThr = 0.018;
     } else if (effectiveNfe <= 6) {
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[4], t12[7], t12[10], 1.0]);
-      stepModes = isWasmOrMobile
-        ? ["cfg", "cfg", "cfg", "b1", "b1", "b1"]
-        : ["cfg", "cfg", "cfg", "cfg", "cfg", "b1"];
-      tailThr = 0.018;
+      stepModes = ["cfg", "cfg", "cfg", "cfg", "cfg", "b1"];
     } else if (effectiveNfe === 7) {
-      // Smooth 7-step sway [0,1,2,3,5,8,10,12] FFFFFBB: 28.38 dB Mel SNR, 28.99 dB HF SNR
+      // Smooth 7-step sway [0,1,2,3,5,8,10,12] FFFFFBB: 24.12 dB Mel SNR, 0.9981 cosine similarity
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[3], t12[5], t12[8], t12[10], 1.0]);
       stepModes = ["cfg", "cfg", "cfg", "cfg", "cfg", "b1", "b1"];
-      tailThr = 0.018;
     } else if (effectiveNfe === 8 || effectiveNfe === 9) {
       tSteps = new Float32Array([t12[0], t12[1], t12[2], t12[3], t12[4], t12[6], t12[9], t12[11], 1.0]);
       stepModes = ["cfg", "cfg", "cfg", "cfg", "cfg", "cfg", "b1", "b1"];
-      tailThr = 0.018;
     } else {
       tSteps = new Float32Array(effectiveNfe + 1);
       stepModes = [];
@@ -886,7 +810,6 @@ export class VagdhenuWebEngine {
           stepModes.push(cfg > 1e-5 && (tSteps[i] <= 0.75 || i < minCfgSteps) ? "cfg" : "b1");
         }
       }
-      tailThr = 0.018;
     }
 
     const activeSteps = stepModes.length;
@@ -894,19 +817,15 @@ export class VagdhenuWebEngine {
     const totalSteps = pieces.length * activeSteps;
     let completedSteps = 0;
 
-    // Natural breath pauses (0.16s intra-hemistich pause between odd/even pādas, 0.38s mid-verse caesura)
-    const gaps = pieces.map((p, idx) => {
-      const isIntraHemistich =
-        (pieces.length === 4 && idx % 2 === 0) || (pieces.length === 3 && idx === 0);
-      const baseGap = isIntraHemistich ? 0.16 : 0.38;
-      return new Float32Array(Math.floor(baseGap * SR) + (endsHalant(p) ? Math.floor(0.10 * SR) : 0));
-    });
+    // Studio mid-verse caesura pause matching src/render_core.py (gap=0.55s, gap_halant=0.20s)
+    const gaps = pieces.map(
+      (p) => new Float32Array(Math.floor(0.55 * SR) + (endsHalant(p) ? Math.floor(0.20 * SR) : 0))
+    );
     const slp0 = alignSlp1(padas[0]);
     const fric = Boolean(slp0) && ["S", "z", "s", "h"].includes(slp0[0]);
     const halant = endsHalant(pieces[pieces.length - 1]);
     const streamedParts = [];
     let streamedTotalLen = 0;
-    let part0VoicedRms = null;
 
     const isProxyWasm = Boolean(ort?.env?.wasm?.proxy);
 
@@ -1174,55 +1093,28 @@ export class VagdhenuWebEngine {
       safeDisposeTensor(tMel);
 
       const scale = entry.ref_rms < entry.target_rms ? entry.ref_rms / entry.target_rms : 1.0;
+      let maxAbs = 0;
       for (let i = 0; i < y.length; i++) {
         y[i] *= scale;
+        const a = Math.abs(y[i]);
+        if (a > maxAbs) maxAbs = a;
+      }
+      if (maxAbs > 1.0) {
+        const norm = 0.97 / maxAbs;
+        for (let i = 0; i < y.length; i++) {
+          y[i] *= norm;
+        }
       }
 
       const isLast = pIdx === pieces.length - 1;
-      // Preserve natural vowel resonance decay across mid-verse caesura (fout=0.10s, keep=0.12s)
       const gatedChunk = gateAudio(y, {
         fric: fric && pIdx === 0,
         halant: halant && isLast,
-        tailThr: isLast ? tailThr : 0.014,
-        fin: pIdx === 0 ? 0.015 : 0.028,
-        fout: isLast ? 0.045 : 0.10,
-        keep: isLast ? 0.07 : 0.12,
+        tailThr,
+        fin: 0.015,
+        fout: 0.04,
+        keep: 0.06,
       });
-
-      // Soft-knee transient limiter so 1-sample boundary spikes never attenuate the whole hemistich
-      for (let i = 0; i < gatedChunk.length; i++) {
-        const v = gatedChunk[i];
-        const a = Math.abs(v);
-        if (a > 0.82) {
-          const s = 0.82 + 0.14 * Math.tanh((a - 0.82) / 0.14);
-          gatedChunk[i] = v < 0 ? -s : s;
-        }
-      }
-
-      // Cross-chunk vocal energy continuity: align voiced RMS smoothly across hemistichs
-      let sumSq = 0;
-      let countVoiced = 0;
-      for (let i = 0; i < gatedChunk.length; i++) {
-        const v = gatedChunk[i];
-        if (Math.abs(v) > 0.015) {
-          sumSq += v * v;
-          countVoiced++;
-        }
-      }
-      const chunkVoicedRms = countVoiced > 0 ? Math.sqrt(sumSq / countVoiced) : 0.12;
-      const targetVoicedRms = part0VoicedRms || Math.max(chunkVoicedRms, 0.125);
-      if (chunkVoicedRms > 1e-4) {
-        const rawRatio = targetVoicedRms / chunkVoicedRms;
-        const smoothGain = Math.max(0.85, Math.min(1.45, 0.8 * rawRatio + 0.2));
-        for (let i = 0; i < gatedChunk.length; i++) {
-          const v = gatedChunk[i] * smoothGain;
-          const a = Math.abs(v);
-          gatedChunk[i] = a > 0.84 ? (v < 0 ? -(0.84 + 0.12 * Math.tanh((a - 0.84) / 0.12)) : 0.84 + 0.12 * Math.tanh((a - 0.84) / 0.12)) : v;
-        }
-      }
-      if (pIdx === 0) {
-        part0VoicedRms = targetVoicedRms;
-      }
       waves[pIdx] = gatedChunk;
 
       const gapChunk = !isLast ? gaps[pIdx] : new Float32Array(0);

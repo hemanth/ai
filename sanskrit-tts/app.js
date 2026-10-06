@@ -296,11 +296,12 @@ chantBtn.addEventListener("click", async () => {
     }
   }
 
-  // Initialize & unlock AudioContext synchronously inside user tap gesture (required for iOS Safari)
+  // Initialize & unlock AudioContext synchronously inside user tap gesture (required for iOS/Android)
+  // Use native hardware sampleRate + 'playback' latencyHint so mobile DACs never crackle; createBuffer handles 24kHz.
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!activeStreamCtx && AudioCtx) {
     try {
-      activeStreamCtx = new AudioCtx({ sampleRate: 24000 });
+      activeStreamCtx = new AudioCtx({ latencyHint: "playback" });
     } catch {
       activeStreamCtx = new AudioCtx();
     }
@@ -310,7 +311,7 @@ chantBtn.addEventListener("click", async () => {
       activeStreamCtx.resume().catch(() => {});
     }
     try {
-      const silentBuf = activeStreamCtx.createBuffer(1, 1, 22050);
+      const silentBuf = activeStreamCtx.createBuffer(1, 1, 24000);
       const silentSrc = activeStreamCtx.createBufferSource();
       silentSrc.buffer = silentBuf;
       silentSrc.connect(activeStreamCtx.destination);
@@ -326,6 +327,7 @@ chantBtn.addEventListener("click", async () => {
   let startTime = performance.now();
   let firstAudioSec = null;
   let nextPlayTime = 0;
+  let streamedLive = false;
   const chantBtnLabel = chantBtn.querySelector(".chant-btn-label");
 
   let timerInterval = setInterval(() => {
@@ -351,7 +353,7 @@ chantBtn.addEventListener("click", async () => {
     });
     startTime = performance.now();
 
-    // 100% Client-Side Browser ONNX Execution with Live Audio Streaming
+    // 100% Client-Side Browser ONNX Execution with Adaptive Gapless Audio Streaming
     const res = await webEngine.synthesizeInBrowser(
       text,
       {
@@ -360,18 +362,26 @@ chantBtn.addEventListener("click", async () => {
         nfe,
         speed,
         onChunk: async (chunk) => {
+          const chunkElapsedMs = performance.now() - startTime;
           if (firstAudioSec === null) {
-            firstAudioSec = ((performance.now() - startTime) / 1000).toFixed(2);
+            firstAudioSec = (chunkElapsedMs / 1000).toFixed(2);
             statusTimer.textContent = `${firstAudioSec}s`;
           }
           if (chantBtnLabel && chunk.chunkIndex + 1 < chunk.totalChunks) {
-            chantBtnLabel.textContent = `🔊 Playing ${chunk.chunkIndex + 1}/${chunk.totalChunks} · Streaming ${chunk.chunkIndex + 2}...`;
+            chantBtnLabel.textContent = `Synthesized ${chunk.chunkIndex + 1}/${chunk.totalChunks} · Rendering ${chunk.chunkIndex + 2}...`;
           }
           playerCard.hidden = false;
           const frac = (chunk.chunkIndex + 1) / chunk.totalChunks;
           drawWaveformFromSamples(chunk.samplesSoFar, frac);
 
-          if (activeStreamCtx) {
+          // Stream immediately if Chunk 1 finished faster than its playback duration (~4.8s) or if single-chunk;
+          // otherwise buffer until complete so heavy mobile CPU/GPU compute never starves or stalls mid-shloka.
+          if (chunk.chunkIndex === 0) {
+            const chunkDurMs = ((chunk.gatedSamples.length + chunk.gapSamples.length) / chunk.sampleRate) * 1000;
+            streamedLive = chunk.totalChunks === 1 || chunkElapsedMs <= chunkDurMs * 1.15;
+          }
+
+          if (streamedLive && activeStreamCtx) {
             if (activeStreamCtx.state === "suspended" || activeStreamCtx.state === "interrupted") {
               activeStreamCtx.resume().catch(() => {});
             }
@@ -393,7 +403,7 @@ chantBtn.addEventListener("click", async () => {
         },
       },
       (st) => {
-        const prefix = firstAudioSec
+        const prefix = firstAudioSec && streamedLive
           ? `🔊 Playing live (started in ${firstAudioSec}s) · `
           : "";
         statusText.textContent = prefix + st.message;
@@ -404,10 +414,26 @@ chantBtn.addEventListener("click", async () => {
     const ttfa = firstAudioSec || elapsed;
     statusTimer.textContent = `${ttfa}s`;
     progressFill.style.width = "100%";
-    statusText.textContent = `100% In-Browser (${webEngine.provider.toUpperCase()}) · Streamed live in ${ttfa}s · Meter: ${res.meter} (${res.durationSec.toFixed(1)}s audio)`;
+    statusText.textContent = `100% In-Browser (${webEngine.provider.toUpperCase()}) · First chunk ${ttfa}s (Total ${elapsed}s) · Meter: ${res.meter} (${res.durationSec.toFixed(1)}s audio)`;
     playerCard.hidden = false;
     audioPlayer.src = res.url;
     downloadLink.href = res.url;
+    if (!streamedLive) {
+      if (activeStreamCtx) {
+        if (activeStreamCtx.state === "suspended" || activeStreamCtx.state === "interrupted") {
+          activeStreamCtx.resume().catch(() => {});
+        }
+        const audioBuf = activeStreamCtx.createBuffer(1, res.audio.length, res.sampleRate);
+        audioBuf.getChannelData(0).set(res.audio);
+        const src = activeStreamCtx.createBufferSource();
+        src.buffer = audioBuf;
+        src.connect(activeStreamCtx.destination);
+        src.start(activeStreamCtx.currentTime + 0.05);
+        activeStreamSources.push(src);
+      } else {
+        audioPlayer.play().catch(() => {});
+      }
+    }
   } catch (err) {
     statusText.textContent = `In-browser synthesis failed: ${err.message || err}`;
     progressFill.style.width = "0%";
