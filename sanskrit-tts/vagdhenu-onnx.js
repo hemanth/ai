@@ -397,7 +397,7 @@ async function fetchWithCache(url, onProgress, { skipCacheWrite = false } = {}) 
   return full.buffer;
 }
 
-const HF_MODEL_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-web/resolve/main";
+const HF_MODEL_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-onnx/resolve/main";
 
 export function resolveModelBaseUrl(baseUrl = null) {
   if (!baseUrl) {

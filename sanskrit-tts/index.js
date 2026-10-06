@@ -46,7 +46,7 @@ const devanagariToSlp1 = devaToSlp1;
 /**
  * Create an in-browser Sanskrit TTS voice instance.
  *
- * @param {string | object} [sourceOrOptions] - HF repo slug ('gnumanth/sanskrit-tts-web'), URL/path ('./models'), or options object
+ * @param {string | object} [sourceOrOptions] - HF repo slug ('gnumanth/sanskrit-tts-onnx'), URL/path ('./models'), or options object
  * @param {object} [maybeOptions] - Default synthesis options ({ meter, nfe, cfg, speed, seed, lazy, onProgress })
  */
 export async function sanskritTts(sourceOrOptions = null, maybeOptions = {}) {

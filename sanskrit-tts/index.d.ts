@@ -120,7 +120,7 @@ export declare class VagdhenuWebEngine {
 /**
  * Initialize the in-browser Sanskrit śloka-to-chant neural engine.
  *
- * @param sourceOrOptions - Optional HF repo ('gnumanth/sanskrit-tts-web'), base URL, or options object
+ * @param sourceOrOptions - Optional HF repo ('gnumanth/sanskrit-tts-onnx'), base URL, or options object
  * @param options - Synthesis & initialization options
  */
 export declare function sanskritTts(
