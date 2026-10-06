@@ -140,18 +140,26 @@
 
           <div class="engine-block">
             <div class="field-label-row">
-              <span class="field-label">Client-Side ONNX Pipeline</span>
-              <span class="field-hint" id="cacheStatusHint">Cached in browser Cache API (vagdhenu-models-v7)</span>
+              <span class="field-label">Client-Side Neural Pipeline</span>
+              <span class="field-hint" id="cacheStatusHint">Default: WASM SIMD MatMulInteger (<a href="https://huggingface.co/gnumanth/sanskrit-tts-wasm" target="_blank" rel="noopener" style="color: var(--crimson); text-decoration: underline;">sanskrit-tts-wasm</a>) · Also supports <a href="https://huggingface.co/gnumanth/sanskrit-tts-onnx" target="_blank" rel="noopener" style="color: var(--crimson); text-decoration: underline;">sanskrit-tts-onnx</a></span>
             </div>
             <div class="runtime-pills" aria-label="Active In-Browser Neural Modules">
               <span class="rt-pill"><strong>Bank:</strong> 2.84 MB FP16</span>
-              <span class="rt-pill"><strong>Conditioner:</strong> 19.3 MB INT8</span>
-              <span class="rt-pill"><strong>22-Block DiT:</strong> 191.6 MB WebGPU FP16/W8</span>
-              <span class="rt-pill"><strong>Vocos:</strong> 18.4 MB W8/FP32</span>
+              <span class="rt-pill" id="condPillLabel"><strong>Conditioner:</strong> 19.8 MB WASM INT8</span>
+              <span class="rt-pill" id="ditPillLabel"><strong>22-Block DiT:</strong> 199 MB WASM MatMulInteger</span>
+              <span class="rt-pill"><strong>Vocos:</strong> 55.6 MB Fourier-Hann</span>
             </div>
           </div>
 
           <div class="controls-grid">
+            <div class="control-field">
+              <label for="backendSelect">Browser Engine (WASM / ONNX)</label>
+              <select id="backendSelect" class="select-input">
+                <option value="wasm" selected>⚡ WASM SIMD · MatMulInteger (Fastest · Default)</option>
+                <option value="onnx">🖥️ ONNX WebGPU · Shader-FP16 (sanskrit-tts-onnx)</option>
+              </select>
+            </div>
+
             <div class="control-field">
               <label for="meterSelect">Chandas (Vṛtta)</label>
               <select id="meterSelect" class="select-input">

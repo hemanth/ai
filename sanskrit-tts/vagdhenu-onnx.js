@@ -397,15 +397,20 @@ async function fetchWithCache(url, onProgress, { skipCacheWrite = false } = {}) 
   return full.buffer;
 }
 
-const HF_MODEL_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-onnx/resolve/main";
+export const HF_WASM_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-wasm/resolve/main";
+export const HF_ONNX_BASE = "https://huggingface.co/gnumanth/sanskrit-tts-onnx/resolve/main";
+const HF_MODEL_BASE = HF_WASM_BASE;
 
-export function resolveModelBaseUrl(baseUrl = null) {
+export function resolveModelBaseUrl(baseUrl = null, backendMode = "wasm") {
   if (!baseUrl) {
     const isLocal =
       typeof window !== "undefined" &&
       (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
-    return isLocal ? "./models" : HF_MODEL_BASE;
+    if (isLocal) return "./models";
+    return backendMode === "onnx" ? HF_ONNX_BASE : HF_WASM_BASE;
   }
+  if (baseUrl === "wasm") return HF_WASM_BASE;
+  if (baseUrl === "onnx" || baseUrl === "webgpu") return HF_ONNX_BASE;
   if (
     typeof baseUrl === "string" &&
     !baseUrl.startsWith("http://") &&
@@ -420,8 +425,10 @@ export function resolveModelBaseUrl(baseUrl = null) {
 }
 
 export class VagdhenuWebEngine {
-  constructor(baseUrl = null) {
-    const resolvedBase = resolveModelBaseUrl(baseUrl);
+  constructor(baseUrl = null, backendMode = "wasm") {
+    this.customBaseUrl = baseUrl;
+    this.backendMode = backendMode === "onnx" ? "onnx" : "wasm";
+    const resolvedBase = resolveModelBaseUrl(baseUrl, this.backendMode);
     this.baseUrl = resolvedBase.replace(/\/$/, "");
     this.bankManifest = null;
     this.bankBin = null;
@@ -435,18 +442,42 @@ export class VagdhenuWebEngine {
     this.ort = null;
   }
 
+  setBackendMode(mode) {
+    const normalized = mode === "onnx" ? "onnx" : "wasm";
+    if (normalized === this.backendMode && this.condSession && this.stepSession) {
+      return;
+    }
+    this.backendMode = normalized;
+    const resolvedBase = resolveModelBaseUrl(this.customBaseUrl, this.backendMode);
+    this.baseUrl = resolvedBase.replace(/\/$/, "");
+    if (this.condSession) {
+      try {
+        this.condSession.release?.();
+      } catch {}
+      this.condSession = null;
+    }
+    if (this.stepSession) {
+      try {
+        this.stepSession.release?.();
+      } catch {}
+      this.stepSession = null;
+    }
+    this.isWarmedUp = false;
+    this.initPromise = null;
+  }
+
   async loadBank(onProgress) {
     if (this.bankManifest && this.bankBin) return this.bankManifest;
     try {
-      const probe = await fetch(`${this.baseUrl}/baked_bank.json?v=21`);
+      const probe = await fetch(`${this.baseUrl}/baked_bank.json?v=22`);
       if (!probe.ok) throw new Error(`HTTP ${probe.status}`);
       this.bankManifest = await probe.json();
     } catch {
-      this.baseUrl = HF_MODEL_BASE;
-      const fallbackResp = await fetch(`${this.baseUrl}/baked_bank.json?v=21`);
+      this.baseUrl = this.backendMode === "onnx" ? HF_ONNX_BASE : HF_WASM_BASE;
+      const fallbackResp = await fetch(`${this.baseUrl}/baked_bank.json?v=22`);
       this.bankManifest = await fallbackResp.json();
     }
-    this.bankBin = await fetchWithCache(`${this.baseUrl}/baked_bank.bin?v=21`, onProgress);
+    this.bankBin = await fetchWithCache(`${this.baseUrl}/baked_bank.bin?v=22`, onProgress);
     return this.bankManifest;
   }
 
@@ -481,7 +512,7 @@ export class VagdhenuWebEngine {
     });
 
     let hasWebGpu = false;
-    if (typeof navigator !== "undefined" && navigator.gpu) {
+    if (this.backendMode === "onnx" && typeof navigator !== "undefined" && navigator.gpu) {
       try {
         const adapter = await navigator.gpu.requestAdapter();
         hasWebGpu = Boolean(adapter);
@@ -491,18 +522,44 @@ export class VagdhenuWebEngine {
     }
 
     const isIsolated = typeof window !== "undefined" && Boolean(window.crossOriginIsolated);
-    this.provider = hasWebGpu ? "webgpu" : "wasm";
+    this.provider = this.backendMode === "onnx" && hasWebGpu ? "webgpu" : "wasm";
     ort.env.wasm.numThreads = isIsolated ? Math.min(this.isMobile ? 4 : 8, navigator.hardwareConcurrency || 4) : 1;
     ort.env.wasm.simd = true;
 
+    const isLocalModels = this.baseUrl === "./models" || this.baseUrl.endsWith("/models");
+    const stepFile =
+      this.backendMode === "wasm" && isLocalModels
+        ? "vagdhenu_dit_step_wasm_q8.onnx"
+        : "vagdhenu_dit_step_q8.onnx";
+    const condFile =
+      this.backendMode === "wasm" && isLocalModels
+        ? "vagdhenu_cond_wasm_q8.onnx"
+        : "vagdhenu_cond_q8.onnx";
+
     const files = [
       { key: "vocos", file: "vagdhenu_vocos_q8.onnx", label: "Vocos Neural Vocoder", weight: 12, sizeMB: 56 },
-      { key: "cond", file: "vagdhenu_cond_q8.onnx", label: "Static Conditioner", weight: 13, sizeMB: 34 },
-      { key: "step", file: "vagdhenu_dit_step_q8.onnx", label: "WebGPU W8 DiT Backbone", weight: 65, sizeMB: 192 },
+      {
+        key: "cond",
+        file: condFile,
+        label: this.backendMode === "wasm" ? "WASM INT8 Static Conditioner" : "ONNX Static Conditioner",
+        weight: 13,
+        sizeMB: this.backendMode === "wasm" ? 20 : 34,
+      },
+      {
+        key: "step",
+        file: stepFile,
+        label: this.backendMode === "wasm" ? "WASM MatMulInteger DiT Backbone" : "ONNX WebGPU DiT Backbone",
+        weight: 65,
+        sizeMB: 192,
+      },
     ];
 
     let basePct = 5;
     for (const item of files) {
+      if (item.key === "vocos" && this.vocosSession) {
+        basePct += item.weight;
+        continue;
+      }
       let buf = await fetchWithCache(
         `${this.baseUrl}/${item.file}`,
         (loaded, total, cached) => {
@@ -520,18 +577,18 @@ export class VagdhenuWebEngine {
         { skipCacheWrite: this.isMobile && item.sizeMB > 40 }
       );
 
-      const useGpuForModel = item.key === "step" && hasWebGpu;
+      const useGpuForModel = this.backendMode === "onnx" && item.key === "step" && hasWebGpu;
       if (onStatus) {
         onStatus({
           stage: `compile_${item.key}`,
-          message: `Initializing ${item.label} (${useGpuForModel ? "WEBGPU" : `WASM ${ort.env.wasm.numThreads}T`})...`,
+          message: `Initializing ${item.label} (${useGpuForModel ? "ONNX WEBGPU" : `WASM SIMD ${ort.env.wasm.numThreads}T`})...`,
           progress: Math.min(94, basePct + item.weight),
         });
       }
 
-      // On mobile, disable ORT_ENABLE_ALL constant folding on the 192MB W8 DiT step graph
-      // so ONNX Runtime does not expand 137 INT8 weight matrices into 2.0+ GB of RAM during init.
-      const optLevel = this.isMobile ? "disabled" : "all";
+      // WASM MatMulInteger uses native uint8 weights without ConstantFolding expansion (~270ms init, ~280MB RAM).
+      // ONNX Cast(INT8)->FP16 disables ConstantFolding on mobile to avoid 2.6GB RAM spike.
+      const optLevel = this.backendMode === "onnx" && this.isMobile ? "disabled" : "all";
       const memOpts = this.isMobile
         ? { enableCpuMemArena: false, enableMemPattern: false }
         : {};
