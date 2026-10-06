@@ -515,7 +515,11 @@ export class VagdhenuWebEngine {
     if (this.backendMode === "onnx" && typeof navigator !== "undefined" && navigator.gpu) {
       try {
         const adapter = await navigator.gpu.requestAdapter();
-        hasWebGpu = Boolean(adapter);
+        if (adapter) {
+          const device = await adapter.requestDevice();
+          hasWebGpu = Boolean(device);
+          device?.destroy?.();
+        }
       } catch {
         hasWebGpu = false;
       }

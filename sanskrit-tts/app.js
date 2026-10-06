@@ -442,8 +442,27 @@ function initScrollReveal() {
   });
 }
 
-// Pre-warm sessions on desktop; on mobile, defer 285MB model download until user taps Chant
-function prewarmBrowserEngine() {
+async function detectBestBackendAndPrewarm() {
+  let hasWebGpu = false;
+  if (typeof navigator !== "undefined" && navigator.gpu) {
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (adapter) {
+        const device = await adapter.requestDevice();
+        hasWebGpu = Boolean(device);
+        device?.destroy?.();
+      }
+    } catch {
+      hasWebGpu = false;
+    }
+  }
+
+  if (!hasWebGpu) {
+    if (backendSelect) backendSelect.value = "wasm";
+    await webEngine.setBackendMode("wasm");
+  }
+  updateHardwareBadge();
+
   if (typeof window !== "undefined" && window.location.search.includes("noprewarm=1")) return;
   if (isMobileDevice()) {
     if (nfeRange && nfeVal) {
@@ -478,4 +497,4 @@ updateHardwareBadge();
 renderPresets();
 updateLiveAnalysis();
 initScrollReveal();
-prewarmBrowserEngine();
+detectBestBackendAndPrewarm();
