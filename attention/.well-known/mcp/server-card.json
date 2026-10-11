@@ -1,0 +1,15 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server-card/v1.json",
+  "name": "attention-3d-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server Card for Attention 3D (DistilGPT-2 ONNX Transformer visualizer)",
+  "transport": {
+    "type": "sse",
+    "endpoint": "https://h3manth.com/ai/attention/api/infer"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": false
+  }
+}

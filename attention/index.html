@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Metadata -->
+  <title>From a Sentence to Attention — Interactive 3D Transformer First Principles</title>
+  <meta name="title" content="From a Sentence to Attention — Interactive 3D Transformer First Principles" />
+  <meta name="description" content="Interactive 3D WebGL visual explainer of Transformer Self-Attention powered by live DistilGPT-2 ONNX neural inference. Type any sentence to inspect BPE token IDs, 768-D embeddings, Rotary Position Embeddings, Q/K/V projections, Causal Softmax, and 50,257-vocabulary next-token logits." />
+  <meta name="keywords" content="transformer attention, self-attention 3d, three.js transformer, distilgpt2 onnx, bpe tokenizer, rotary position embedding, rope, query key value, causal softmax, llm explainability" />
+  <meta name="author" content="Hemanth HM" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#05070d" />
+  <link rel="canonical" href="https://h3manth.com/ai/attention/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://h3manth.com/ai/attention/" />
+  <meta property="og:title" content="From a Sentence to Attention — Interactive 3D Transformer First Principles" />
+  <meta property="og:description" content="Type any sentence to watch a real DistilGPT-2 ONNX Transformer slice words into BPE token IDs, rotate 768-D vectors, align Query & Key beams, and predict the next token in 3D WebGL." />
+  <meta property="og:image" content="https://h3manth.com/ai/attention/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="Hemanth HM · AI Experiments" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@gnumanth" />
+  <meta name="twitter:creator" content="@gnumanth" />
+  <meta name="twitter:url" content="https://h3manth.com/ai/attention/" />
+  <meta name="twitter:title" content="From a Sentence to Attention — Interactive 3D Transformer First Principles" />
+  <meta name="twitter:description" content="Type any sentence to watch a real DistilGPT-2 ONNX Transformer slice words into BPE token IDs, rotate 768-D vectors, align Query & Key beams, and predict the next token in 3D WebGL." />
+  <meta name="twitter:image" content="https://h3manth.com/ai/attention/og-image.png" />
+
+  <!-- Agent-Ready Level 5 Discovery Links (RFC 9727 / SEP-1649 / A2A / Agent Skills / llms.txt) -->
+  <link rel="api-catalog" href="/ai/attention/.well-known/api-catalog" type="application/linkset+json" />
+  <link rel="service-desc" href="/ai/attention/.well-known/agent-skills/index.json" type="application/json" />
+  <link rel="describedby" href="/ai/attention/.well-known/mcp/server-card.json" type="application/json" />
+  <link rel="describedby" href="/ai/attention/.well-known/agent-card.json" type="application/json" />
+  <link rel="describedby" href="/ai/attention/llms.txt" type="text/plain" />
+  <link rel="ai-catalog" href="/ai/attention/.well-known/ai-catalog.json" type="application/json" />
+  <link rel="alternate" type="text/markdown" href="/ai/attention/index.md" title="Markdown Representation for AI Agents" />
+
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=2" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "From a Sentence to Attention — 3D Transformer First Principles",
+    "url": "https://h3manth.com/ai/attention/",
+    "image": "https://h3manth.com/ai/attention/og-image.png",
+    "description": "Interactive 3D WebGL visual explainer of Transformer Self-Attention powered by live DistilGPT-2 ONNX neural inference.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web Browser (WebGL + WebAssembly / WebGPU)",
+    "author": {
+      "@type": "Person",
+      "name": "Hemanth HM",
+      "url": "https://h3manth.com"
+    }
+  }
+  </script>
+
+  <!-- WebMCP Runtime Declaration for In-Browser AI Agents -->
+  <script type="module">
+    function registerWebMcpTools() {
+      if (typeof navigator === 'undefined' || !('modelContext' in navigator) || !navigator.modelContext) return;
+      try {
+        navigator.modelContext.registerTool({
+          name: 'inspect_transformer_attention',
+          description: 'Run a sentence through the live DistilGPT-2 (6L, 12H, 768d) ONNX Transformer and return BPE token IDs, causal attention Softmax matrix, 3D Layer-0 embedding coordinates, and top-4 next-token vocabulary logits.',
+          parameters: {
+            type: 'object',
+            properties: {
+              sentence: { type: 'string', description: 'Input sentence to analyze (up to 7 words)' },
+              focusIdx: { type: 'number', description: 'Optional 0-based token index to focus' }
+            },
+            required: ['sentence']
+          },
+          handler: async ({ sentence, focusIdx }) => {
+            if (window.__attentionInspector) {
+              return await window.__attentionInspector.setSentence(sentence, focusIdx ?? null);
+            }
+            return { error: 'Inspector initializing' };
+          }
+        });
+      } catch {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerWebMcpTools);
+    } else {
+      registerWebMcpTools();
+    }
+  </script>
+
+  <script src="vendor/three.min.js"></script>
+</head>
+<body>
+  <nav class="progress-rail" id="progress-rail" aria-label="Step Progress"></nav>
+
+  <div class="split-layout">
+    <!-- ================================================================== -->
+    <!-- LEFT COLUMN: LIVE SENTENCE INPUT + CONCISE EXPLANATIONS            -->
+    <!-- ================================================================== -->
+    <main class="explain-column" id="explain-column">
+      <!-- Persistent Sticky Live Sentence Bar -->
+      <div class="sentence-dock">
+        <div class="dock-header">
+          <span id="model-telemetry" class="telemetry-indicator">
+            <span class="telemetry-dot"></span>
+            LIVE ONNX · DistilGPT-2 (6L · 12H · 768d)
+          </span>
+          <div class="dock-presets">
+            <button type="button" class="preset-chip" data-sentence="River water flooded the bank">Shoreline</button>
+            <button type="button" class="preset-chip" data-sentence="Vault guards locked the bank">Vault</button>
+            <button type="button" class="preset-chip" data-sentence="cat is on the">Cat on the…</button>
+            <button type="button" class="preset-chip" data-sentence="Astronauts landed on the">Astronauts…</button>
+          </div>
+        </div>
+        <div class="sentence-input-wrap">
+          <input
+            id="custom-sentence-input"
+            class="sentence-input"
+            type="text"
+            value="River water flooded the bank"
+            placeholder="Type any sentence (real DistilGPT-2 inference)..."
+            aria-label="Type your own sentence"
+            maxlength="64"
+          />
+        </div>
+        <div class="token-bar" id="token-bar"></div>
+      </div>
+
+      <!-- 01 -->
+      <section class="step-screen active" id="screen-1" data-step="0">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 01 / 10 · THE SENTENCE</div>
+          <h1 class="step-title">Start with <em>your sentence.</em></h1>
+          <p class="step-desc" id="s1-desc">
+            Type any sentence above or click a token to focus it. In <strong id="s1-sentence">“River water flooded the bank”</strong>, <strong id="s1-focus">“bank”</strong> is ambiguous until it connects to the words around it.
+          </p>
+          <div class="formula-pill" id="s1-pill">"River water flooded the bank"</div>
+        </div>
+        <div class="scroll-cue">↓ Scroll one screen at a time</div>
+      </section>
+
+      <!-- 02 -->
+      <section class="step-screen" id="screen-2" data-step="1">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 02 / 10 · TOKENS</div>
+          <h2 class="step-title">Slice words into <em>token IDs.</em></h2>
+          <p class="step-desc">
+            Silicon only computes on numbers. A tokenizer splits your sentence into <strong id="s2-count">5 atomic tokens</strong> and looks up each one's integer ID in a fixed vocabulary.
+          </p>
+          <div class="formula-pill" id="s2-pill">[42204, 1660, 21050, 262, 3331]</div>
+        </div>
+      </section>
+
+      <!-- 03 -->
+      <section class="step-screen" id="screen-3" data-step="2">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 03 / 10 · EMBEDDINGS</div>
+          <h2 class="step-title">Turn each ID into a <em>3D vector.</em></h2>
+          <p class="step-desc">
+            Each token ID becomes an arrow in high-dimensional space. Because lookup is static, <strong id="s3-focus">“bank”</strong> starts without any context from its neighbors.
+          </p>
+          <div class="formula-pill">xᵢ = E[tᵢ] ∈ ℝᵈ</div>
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section class="step-screen" id="screen-4" data-step="3">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 04 / 10 · POSITION</div>
+          <h2 class="step-title">Rotate vectors by <em>word order.</em></h2>
+          <p class="step-desc">
+            Processing all words in parallel erases sequence order. <strong>Rotary Position Embedding (RoPE)</strong> twists each vector along a 3D helix according to its slot <strong id="s4-slots">0 → 4</strong>.
+          </p>
+          <div class="formula-pill">R(m) · xₘ = xₘ e^(i m θ)</div>
+        </div>
+      </section>
+
+      <!-- 05 -->
+      <section class="step-screen" id="screen-5" data-step="4">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 05 / 10 · Q, K, V</div>
+          <h2 class="step-title">Split one token into <em>three roles.</em></h2>
+          <p class="step-desc">
+            Three learned matrices project <strong id="s5-focus">“bank”</strong> into a <strong>Query</strong> (what it seeks), a <strong>Key</strong> (what it advertises), and a <strong>Value</strong> (the meaning it carries).
+          </p>
+          <div class="formula-pill">q = W_Q x,  k = W_K x,  v = W_V x</div>
+        </div>
+      </section>
+
+      <!-- 06 -->
+      <section class="step-screen" id="screen-6" data-step="5">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 06 / 10 · ALIGNMENT</div>
+          <h2 class="step-title">Score relevance by <em>3D angle.</em></h2>
+          <p class="step-desc">
+            <strong id="s6-focus">“bank”</strong> compares its Query against every token's Key using a dot product. Aligned arrows score high; dividing by <strong>√dₖ</strong> keeps large dimensions stable.
+          </p>
+          <div class="formula-pill">sᵢⱼ = (qᵢ · kⱼ) / √dₖ</div>
+        </div>
+      </section>
+
+      <!-- 07 -->
+      <section class="step-screen" id="screen-7" data-step="6">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 07 / 10 · SOFTMAX</div>
+          <h2 class="step-title">Focus a <em>100% spotlight.</em></h2>
+          <p class="step-desc">
+            <strong>Softmax</strong> turns raw scores into weights that sum to 100%, while the <strong>Causal Mask</strong> hides future words (<strong>−∞</strong>) so tokens only look backward.
+          </p>
+          <div class="formula-pill">αᵢⱼ = softmax(Q Kᵀ / √dₖ + M)</div>
+        </div>
+      </section>
+
+      <!-- 08 -->
+      <section class="step-screen" id="screen-8" data-step="7">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 08 / 10 · CONTEXT SHIFT</div>
+          <h2 class="step-title">Pull meaning into <em>focus.</em></h2>
+          <p class="step-desc">
+            Each token adds up the <strong>Value</strong> vectors weighted by its attention. Upstream words physically pull <strong id="s8-focus">“bank”</strong> into its contextualized meaning.
+          </p>
+          <div class="formula-pill" id="s8-pill">x'_bank = x_bank + ∑ αⱼ vⱼ</div>
+        </div>
+      </section>
+
+      <!-- 09 -->
+      <section class="step-screen" id="screen-9" data-step="8">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 09 / 10 · TRANSFORMER BLOCK</div>
+          <h2 class="step-title">Run parallel heads on a <em>highway.</em></h2>
+          <p class="step-desc">
+            Multiple attention heads track nouns, verbs, and syntax simultaneously, adding their updates onto the <strong>Residual Stream</strong> before a <strong>4d MLP</strong> extracts facts.
+          </p>
+          <div class="formula-pill">y = x + MHA(x) + MLP(x)</div>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section class="step-screen" id="screen-10" data-step="9">
+        <div class="step-inner">
+          <div class="step-kicker"><span class="dot"></span> 10 / 10 · EMERGENCE</div>
+          <h2 class="step-title">Stack layers to <em>predict the next word.</em></h2>
+          <p class="step-desc">
+            Stacking Transformer blocks refines your sequence from raw bytes into deep context. The final layer projects onto the 50,257-token vocabulary, predicts <strong id="s10-pred">“river”</strong>, and loops it back in.
+          </p>
+          <div class="formula-pill">P(next) = softmax(W_U · Block_L(x))</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================================================================== -->
+    <!-- RIGHT COLUMN: THREE.JS 3D WEBGL STAGE + PROJECTED 3D LABELS        -->
+    <!-- ================================================================== -->
+    <aside class="animate-column" id="animate-column">
+      <div id="webgl-container"></div>
+      <div id="labels-layer"></div>
+      <div class="stage-badge">3D WebGL · Type any sentence or drag to orbit</div>
+    </aside>
+  </div>
+
+  <script type="module" src="app.mjs?v=2"></script>
+</body>
+</html>

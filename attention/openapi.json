@@ -1,0 +1,58 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Attention 3D Live DistilGPT-2 ONNX API",
+    "version": "1.0.0",
+    "description": "Live Transformer neural network inference (Xenova/distilgpt2) returning BPE token IDs, 768-D embeddings projected into 3D, Leave-One-Out causal attention weights, and 50,257-vocabulary next-token logits."
+  },
+  "servers": [
+    {
+      "url": "https://h3manth.com/ai/attention"
+    }
+  ],
+  "paths": {
+    "/api/infer": {
+      "get": {
+        "operationId": "inferAttention",
+        "summary": "Compute real DistilGPT-2 BPE tokens, causal Softmax weights, and next-token logits",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "Astronauts landed on the" }
+          },
+          {
+            "name": "focusIdx",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "example": 3 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transformer tensor visualization payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isRealModel": { "type": "boolean" },
+                    "modelName": { "type": "string" },
+                    "latencyMs": { "type": "number" },
+                    "sentence": { "type": "string" },
+                    "tokens": { "type": "array", "items": { "type": "string" } },
+                    "tokenIds": { "type": "array", "items": { "type": "string" } },
+                    "focusIdx": { "type": "integer" },
+                    "dotScores": { "type": "array", "items": { "type": "number" } },
+                    "weights": { "type": "array", "items": { "type": "number" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

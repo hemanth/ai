@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "skills": [
+    {
+      "name": "inspect-attention",
+      "description": "Inspect GPT-2 BPE token IDs, 768-D embeddings, Leave-One-Out causal attention Softmax weights, and top-4 next-token vocabulary logits for any sentence.",
+      "entrypoint": "/ai/attention/.well-known/agent-skills/inspect-attention/SKILL.md",
+      "sha256": "76b648473439d4e94c2e4347f8fb44c373534b826590ebaef38ec53d860329c9"
+    }
+  ]
+}

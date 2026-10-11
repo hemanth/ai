@@ -1,0 +1,18 @@
+# From a Sentence to Attention — Interactive 3D Transformer First Principles
+
+> Interactive 3D WebGL (`Three.js`) visual explainer of Transformer Self-Attention powered by live `Xenova/distilgpt2` (6 layers, 12 heads, 768 dimensions, 50,257 BPE vocabulary) ONNX Runtime inference.
+
+- Canonical URL: https://h3manth.com/ai/attention/
+- Markdown Representation: https://h3manth.com/ai/attention/index.md
+- OpenAPI Specification: https://h3manth.com/ai/attention/openapi.json
+- API Catalog (RFC 9727): https://h3manth.com/ai/attention/.well-known/api-catalog
+- A2A Agent Card: https://h3manth.com/ai/attention/.well-known/agent-card.json
+- MCP Server Card: https://h3manth.com/ai/attention/.well-known/mcp/server-card.json
+- Agent Skills Index: https://h3manth.com/ai/attention/.well-known/agent-skills/index.json
+
+## Core Capabilities
+- **Live BPE Tokenization**: Encodes any user sentence into exact GPT-2 BPE subword token IDs.
+- **3D Embedding & RoPE Visualization**: Projects 768-D Layer-0 and Layer-5 hidden states into interactive Three.js 3D space.
+- **Leave-One-Out Causal Attention Attribution**: Measures exact output logit shifts (`Δlogit`) when masking each upstream word's BPE span alongside multi-head Key/Value cosine similarity.
+- **50,257-Vocabulary Next-Token Logits**: Decodes top semantic next-token predictions with raw logits, softmax probabilities, and BPE IDs.
+- **WebMCP Integration**: Exposes `inspect_transformer_attention` via `navigator.modelContext.registerTool` for browser-native AI agents.

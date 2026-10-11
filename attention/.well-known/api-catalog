@@ -1,0 +1,22 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://h3manth.com/ai/attention/",
+      "rel": "service-desc",
+      "href": "https://h3manth.com/ai/attention/openapi.json",
+      "type": "application/json"
+    },
+    {
+      "anchor": "https://h3manth.com/ai/attention/",
+      "rel": "api-catalog",
+      "href": "https://h3manth.com/ai/attention/.well-known/api-catalog",
+      "type": "application/linkset+json"
+    },
+    {
+      "anchor": "https://h3manth.com/ai/attention/",
+      "rel": "describedby",
+      "href": "https://h3manth.com/ai/attention/llms.txt",
+      "type": "text/plain"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "name": "From a Sentence to Attention — 3D Transformer First Principles",
+  "url": "https://h3manth.com/ai/attention/",
+  "llmsTxt": "https://h3manth.com/ai/attention/llms.txt",
+  "markdown": "https://h3manth.com/ai/attention/index.md",
+  "openapi": "https://h3manth.com/ai/attention/openapi.json",
+  "agentCard": "https://h3manth.com/ai/attention/.well-known/agent-card.json",
+  "mcpServerCard": "https://h3manth.com/ai/attention/.well-known/mcp/server-card.json",
+  "agentSkills": "https://h3manth.com/ai/attention/.well-known/agent-skills/index.json"
+}

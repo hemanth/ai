@@ -1,0 +1,30 @@
+{
+  "$schema": "https://a2a-protocol.org/schemas/agent-card/v1.0.0.json",
+  "schemaVersion": "1.0.0",
+  "name": "Attention 3D Transformer Agent",
+  "description": "Interactive 3D WebGL & live DistilGPT-2 ONNX Transformer attention inspector.",
+  "url": "https://h3manth.com/ai/attention/",
+  "version": "1.0.0",
+  "capabilities": {
+    "tools": [
+      {
+        "name": "inspect_transformer_attention",
+        "description": "Run a sentence through DistilGPT-2 (6L, 12H, 768d) and return BPE token IDs, causal Softmax weights, and top-4 vocabulary logits.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "sentence": { "type": "string" },
+            "focusIdx": { "type": "integer" }
+          },
+          "required": ["sentence"]
+        }
+      }
+    ]
+  },
+  "communication": {
+    "preferredChannel": "https",
+    "endpoints": {
+      "query": "https://h3manth.com/ai/attention/api/infer"
+    }
+  }
+}

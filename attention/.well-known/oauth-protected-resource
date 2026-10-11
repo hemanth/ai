@@ -1,0 +1,8 @@
+{
+  "resource": "https://h3manth.com/ai/attention/",
+  "authorization_servers": [
+    "https://h3manth.com"
+  ],
+  "scopes_supported": ["read", "infer"],
+  "bearer_methods_supported": ["header"]
+}

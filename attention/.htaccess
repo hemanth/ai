@@ -1,0 +1,45 @@
+Options -Indexes
+DirectoryIndex index.html
+
+AddType application/javascript .mjs
+AddType text/markdown .md
+
+<IfModule mod_headers.c>
+  Header always set Link "</ai/attention/.well-known/api-catalog>; rel=\"api-catalog\", </ai/attention/.well-known/agent-skills/index.json>; rel=\"service-desc\", </ai/attention/.well-known/mcp/server-card.json>; rel=\"describedby\", </ai/attention/.well-known/agent-card.json>; rel=\"describedby\", </ai/attention/llms.txt>; rel=\"describedby\", </ai/attention/.well-known/ai-catalog.json>; rel=\"ai-catalog\""
+  Header always set content-signal "ai-train=yes, search=yes, ai-input=yes"
+  Header always append Vary "Accept"
+
+  <Files "api-catalog">
+    ForceType application/linkset+json
+    Header set Content-Type "application/linkset+json; charset=utf-8"
+  </Files>
+
+  <Files "http-message-signatures-directory">
+    ForceType application/json
+    Header set Content-Type "application/json; charset=utf-8"
+  </Files>
+
+  <Files "oauth-protected-resource">
+    ForceType application/json
+    Header set Content-Type "application/json; charset=utf-8"
+  </Files>
+
+  <Files "index.md">
+    Header set Content-Type "text/markdown; charset=utf-8"
+    Header set x-markdown-tokens "690"
+    Header set x-original-tokens "2450"
+  </Files>
+
+  <FilesMatch "\.(html|js|mjs|css)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /ai/attention/
+
+  # Markdown Content Negotiation for AI Agents (Accept: text/markdown)
+  RewriteCond %{HTTP_ACCEPT} text/markdown [NC]
+  RewriteRule ^(index\.html)?$ index.md [L]
+</IfModule>
