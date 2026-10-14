@@ -1,18 +1,22 @@
 :root {
-  --bg: #05070d;
-  --bg-panel: #080b14;
-  --text: #f3f5f9;
-  --muted: #94a0b8;
-  --dim: #525d73;
-  --border: rgba(255, 255, 255, 0.08);
-  --cyan: #38bdf8;
-  --amber: #f59e0b;
-  --emerald: #34d399;
-  --rose: #fb7185;
-  --violet: #a78bfa;
+  /* Tactile Studio Monochrome Carbon + Single Signal Accent (Zero AI-Slop Rainbow) */
+  --bg: #09090b;
+  --bg-panel: #0d0d10;
+  --surface: #141418;
+  --surface-elevated: #1c1c21;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --dim: #71717a;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --signal: #e84e36;
+  --signal-soft: rgba(232, 78, 54, 0.14);
+  --ivory: #f4f4f5;
   --serif: 'Instrument Serif', Georgia, serif;
   --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono', monospace;
+  --mobile-dock-h: 136px;
+  --mobile-stage-h: 38vh;
 }
 
 * {
@@ -33,12 +37,14 @@ html {
 body {
   background: var(--bg);
   overflow-x: hidden;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* Two-Column Split Layout: Left Explains (100vh snap screens), Right 3D Stage (Sticky 100vh) */
 .split-layout {
   display: grid;
-  grid-template-columns: minmax(340px, 41vw) 1fr;
+  grid-template-columns: minmax(360px, 41vw) 1fr;
   width: 100%;
   position: relative;
 }
@@ -48,7 +54,7 @@ body {
   position: relative;
   z-index: 10;
   border-right: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(5, 7, 13, 0.97), rgba(8, 11, 20, 0.97));
+  background: var(--bg);
 }
 
 /* Sticky Live Sentence Input Dock at top of Left Column */
@@ -56,9 +62,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 25;
-  padding: 14px clamp(24px, 4vw, 56px) 12px;
-  background: rgba(5, 7, 13, 0.88);
-  backdrop-filter: blur(14px);
+  padding: 14px clamp(20px, 3.5vw, 52px) 12px;
+  background: rgba(9, 9, 11, 0.94);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -70,26 +76,27 @@ body {
   align-items: center;
   justify-content: space-between;
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
   color: var(--muted);
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .telemetry-indicator {
-  color: var(--emerald);
+  color: var(--text);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .telemetry-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--emerald);
-  box-shadow: 0 0 8px var(--emerald);
+  background: var(--signal);
   flex-shrink: 0;
 }
 
@@ -101,20 +108,21 @@ body {
 
 .preset-chip {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2px 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 9px;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
 }
 
 .preset-chip:hover {
   color: var(--text);
-  border-color: rgba(56, 189, 248, 0.45);
-  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--border-strong);
+  background: var(--surface-elevated);
 }
 
 .sentence-input-wrap {
@@ -125,21 +133,25 @@ body {
 
 .sentence-input {
   width: 100%;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  border-radius: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
   padding: 9px 12px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--text);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.sentence-input::placeholder {
+  color: var(--dim);
 }
 
 .sentence-input:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  border-color: var(--text);
+  background: var(--surface-elevated);
 }
 
 .token-bar {
@@ -151,55 +163,57 @@ body {
 
 .token-bar-label {
   font-family: var(--mono);
-  font-size: 10px;
-  color: var(--dim);
+  font-size: 10.5px;
+  color: var(--muted);
   margin-right: 2px;
+  white-space: nowrap;
 }
 
 .token-chip {
   font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
 }
 
 .token-chip:hover {
   color: var(--text);
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: var(--border-strong);
 }
 
 .token-chip.focused {
-  background: rgba(251, 113, 133, 0.15);
-  border-color: var(--rose);
-  color: #fda4af;
-  box-shadow: 0 0 10px rgba(251, 113, 133, 0.22);
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: 600;
 }
 
 .step-screen {
-  height: 100vh;
+  min-height: 100vh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 64px clamp(24px, 4vw, 56px) 0;
+  padding: 64px clamp(20px, 3.5vw, 52px) 32px;
   position: relative;
 }
 
 .step-inner {
-  max-width: 410px;
+  max-width: 42ch;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  opacity: 0.25;
-  transform: translateY(14px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  gap: 14px;
+  opacity: 0.32;
+  transform: translateY(10px);
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .step-screen.active .step-inner {
@@ -210,42 +224,46 @@ body {
 .step-kicker {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--amber);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
 .step-kicker .dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--amber);
-  box-shadow: 0 0 10px var(--amber);
+  background: var(--signal);
 }
 
 .step-title {
   font-family: var(--serif);
-  font-size: clamp(34px, 3.5vw, 50px);
+  font-size: clamp(32px, 3.4vw, 48px);
   font-weight: 400;
-  line-height: 1.04;
-  letter-spacing: -0.01em;
+  line-height: 1.06;
+  letter-spacing: -0.015em;
   color: var(--text);
+  text-wrap: balance;
 }
 
 .step-title em {
   font-style: italic;
-  color: var(--cyan);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--signal);
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1.5px;
 }
 
 .step-desc {
-  font-size: clamp(14.5px, 1.18vw, 16.5px);
+  font-size: clamp(14.5px, 1.15vw, 16px);
   line-height: 1.62;
   color: var(--muted);
   font-weight: 400;
+  text-wrap: pretty;
 }
 
 .step-desc strong {
@@ -256,45 +274,42 @@ body {
 .formula-pill {
   align-self: flex-start;
   font-family: var(--mono);
-  font-size: 12.5px;
-  color: var(--cyan);
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.26);
-  padding: 8px 14px;
-  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  padding: 7px 12px;
+  border-radius: 6px;
   margin-top: 2px;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
   white-space: nowrap;
 }
 
 .scroll-cue {
   position: absolute;
   bottom: 24px;
-  left: clamp(24px, 4vw, 56px);
+  left: clamp(20px, 3.5vw, 52px);
   font-family: var(--mono);
   font-size: 11px;
   color: var(--dim);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Right Column: Full-Screen Sticky Three.js 3D Viewport */
+/* Right Column: Full-Screen Sticky Three.js 3D Viewport (Matte Carbon Studio) */
 .animate-column {
   position: sticky;
   top: 0;
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 52% 46%, rgba(56, 189, 248, 0.08), transparent 65%),
-    radial-gradient(circle at 24% 80%, rgba(245, 158, 11, 0.05), transparent 55%),
-    var(--bg-panel);
+  background: var(--bg-panel);
   cursor: grab;
   user-select: none;
+  touch-action: pan-y;
 }
 
 .animate-column:active {
@@ -314,7 +329,7 @@ body {
   display: block;
 }
 
-/* Projected 3D Labels Overlay */
+/* Projected 3D Labels Overlay — Tactile Monochrome + Focal Inversion */
 #labels-layer {
   position: absolute;
   inset: 0;
@@ -329,123 +344,314 @@ body {
   left: 0;
   transform: translate(-50%, -50%);
   font-family: var(--mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 7px;
-  background: rgba(8, 11, 20, 0.88);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: rgba(13, 13, 16, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: var(--text);
   white-space: nowrap;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  transition: opacity 0.18s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.16s ease;
   pointer-events: none;
 }
 
 .label-3d .sub {
   display: block;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 9.5px;
+  font-weight: 400;
   color: var(--muted);
   margin-top: 2px;
 }
 
-.label-3d.cyan {
-  border-color: rgba(56, 189, 248, 0.55);
-  color: #7dd3fc;
+/* Signature Inverted Focal Label (High-Contrast Studio Alabaster on Carbon) */
+.label-3d.focal {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: 600;
 }
-.label-3d.amber {
-  border-color: rgba(245, 158, 11, 0.55);
-  color: #fcd34d;
+
+.label-3d.focal .sub {
+  color: #3f3f46;
 }
-.label-3d.emerald {
-  border-color: rgba(52, 211, 153, 0.6);
-  color: #6ee7b7;
+
+/* Signal Accent Label (Active Focused Token / Causal Boundary) */
+.label-3d.signal {
+  background: rgba(20, 20, 24, 0.95);
+  border-color: var(--signal);
+  color: var(--text);
 }
-.label-3d.rose {
-  border-color: rgba(251, 113, 133, 0.6);
-  color: #fda4af;
+
+.label-3d.signal .sub {
+  color: #fca5a5;
 }
-.label-3d.violet {
-  border-color: rgba(167, 139, 250, 0.55);
-  color: #c4b5fd;
+
+/* Primary Data Label */
+.label-3d.primary {
+  background: rgba(20, 20, 24, 0.92);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--text);
+}
+
+/* Muted / Baseline Label */
+.label-3d.muted {
+  background: rgba(13, 13, 16, 0.84);
+  border-color: rgba(255, 255, 255, 0.09);
+  color: var(--muted);
 }
 
 /* Subtle 3D Camera Hint Badge */
 .stage-badge {
   position: absolute;
-  bottom: 20px;
-  left: 24px;
+  bottom: 18px;
+  left: 20px;
   z-index: 8;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: rgba(148, 160, 184, 0.65);
-  background: rgba(8, 11, 20, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 6px 12px;
-  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(13, 13, 16, 0.85);
+  border: 1px solid var(--border);
+  padding: 5px 11px;
+  border-radius: 6px;
   pointer-events: none;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 /* Minimal Vertical Progress Dots on Far Right Edge */
 .progress-rail {
   position: fixed;
-  right: 18px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 30;
+  z-index: 35;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 6px;
 }
 
 .rail-pip {
-  width: 7px;
-  height: 7px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.rail-pip.active {
-  background: var(--amber);
-  transform: scale(1.45);
-  box-shadow: 0 0 10px var(--amber);
+.rail-pip::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
+.rail-pip.active::after {
+  background: var(--text);
+  transform: scale(1.5);
+}
+
+/* ================================================================== */
+/* MOBILE & TABLET PORTRAIT ADAPTATION                                */
+/* ================================================================== */
 @media (max-width: 900px) {
-  .split-layout {
-    grid-template-columns: 1fr;
+  html {
+    scroll-padding-top: calc(var(--mobile-dock-h) + var(--mobile-stage-h));
   }
-  .animate-column {
+
+  .split-layout {
+    display: block;
+    width: 100%;
+  }
+
+  /* 1. Fixed Top Sentence Dock on Mobile */
+  .sentence-dock {
     position: fixed;
     top: 0;
     left: 0;
+    right: 0;
+    height: var(--mobile-dock-h);
+    z-index: 30;
+    padding: 7px 12px;
+    gap: 5px;
+    justify-content: center;
+    background: rgba(9, 9, 11, 0.96);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dock-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .telemetry-indicator {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  .dock-presets {
+    display: flex;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 5px;
+  }
+
+  .dock-presets::-webkit-scrollbar {
+    display: none;
+  }
+
+  .preset-chip {
+    padding: 3px 8px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* 16px font-size prevents iOS Safari auto-zoom on input focus */
+  .sentence-input {
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+
+  .token-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 5px;
+    padding-bottom: 2px;
+    padding-right: 6px;
+  }
+
+  .token-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .token-bar-label {
+    font-size: 9.5px;
+    margin-right: 1px;
+    flex-shrink: 0;
+  }
+
+  .token-chip {
+    padding: 3px 7px;
+    font-size: 10.5px;
+    flex-shrink: 0;
+  }
+
+  /* 2. Fixed Middle 3D WebGL Stage on Mobile */
+  .animate-column {
+    position: fixed;
+    top: var(--mobile-dock-h);
+    left: 0;
     width: 100vw;
-    height: 48vh;
+    height: var(--mobile-stage-h);
     z-index: 20;
     border-bottom: 1px solid var(--border);
   }
+
+  .label-3d {
+    font-size: 9.5px;
+    padding: 3px 6px;
+    border-radius: 4px;
+  }
+
+  .label-3d .sub {
+    font-size: 8.5px;
+    margin-top: 1px;
+  }
+
+  .label-3d.mobile-hide {
+    display: none;
+  }
+
+  .stage-badge {
+    display: none;
+  }
+
+  /* 3. Scrollable Bottom Story Cards on Mobile */
   .explain-column {
-    margin-top: 48vh;
+    margin-top: calc(var(--mobile-dock-h) + var(--mobile-stage-h));
     border-right: none;
   }
-  .sentence-dock {
-    top: 48vh;
-  }
+
   .step-screen {
-    height: 52vh;
-    padding: 20px 24px;
+    min-height: calc(100vh - var(--mobile-dock-h) - var(--mobile-stage-h));
+    min-height: calc(100dvh - var(--mobile-dock-h) - var(--mobile-stage-h));
+    padding: 22px 18px 28px;
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--border);
   }
+
+  .step-inner {
+    max-width: 100%;
+    gap: 10px;
+    opacity: 0.45;
+    transform: none;
+  }
+
   .step-title {
-    font-size: 28px;
+    font-size: clamp(24px, 6.2vw, 30px);
+    line-height: 1.1;
   }
+
   .step-desc {
     font-size: 14px;
+    line-height: 1.54;
+  }
+
+  .formula-pill {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .scroll-cue {
+    position: static;
+    margin-top: 6px;
+    font-size: 10px;
+  }
+
+  .progress-rail {
+    right: 6px;
+    top: auto;
+    bottom: 14px;
+    transform: none;
+    gap: 2px;
+    background: rgba(13, 13, 16, 0.85);
+    border: 1px solid var(--border);
+    padding: 4px 2px;
+    border-radius: 999px;
+  }
+
+  .rail-pip {
+    width: 14px;
+    height: 14px;
+  }
+
+  .rail-pip::after {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .step-inner,
+  .preset-chip,
+  .token-chip,
+  .label-3d,
+  .rail-pip::after {
+    transition: none !important;
   }
 }
