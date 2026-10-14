@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XKCD-Bench Evaluation &amp; Retrieval Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #ffffff;
+      --paper-2: #fafafa;
+      --ink: #000000;
+      --muted: #555555;
+      --soft: #777777;
+      --rule: rgba(0, 0, 0, 0.12);
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Geist Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      padding: 32px;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .diagram-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: var(--paper);
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 0.85fr;
+      gap: 16px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    @keyframes march-flow {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -16; }
+    }
+    .flow-dashed {
+      stroke-dasharray: 4, 4;
+      animation: march-flow 1.6s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .flow-dashed { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">SYSTEMS ARCHITECTURE BLUEPRINT · XKCD-BENCH V1</p>
+  <h1>Two-Track Multimodal Evaluation &amp; Hybrid Retrieval Topology</h1>
+  <p class="subtitle">How 891 cross-joined Hugging Face comics flow through blind multimodal inference, TypeSafe System One (Noul) + deterministic reference grading, and tri-modal Reciprocal Rank Fusion.</p>
+
+  <div class="diagram-wrap">
+    <svg role="img" aria-labelledby="xkcd-arch-title xkcd-arch-desc" viewBox="0 0 1080 540" width="100%" style="display:block;width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+      <title id="xkcd-arch-title">XKCD-Bench Two-Track Evaluation and Retrieval Architecture</title>
+      <desc id="xkcd-arch-desc">Architecture diagram showing 891 Hugging Face XKCD comics feeding Track 1 blind multimodal LLM evaluation judged by a hybrid TypeSafe Noul and ExplainXKCD rubric, and Track 2 reverse comic search powered by BM25F, 64-bit dHash, and TypeSafe Jev reranking.</desc>
+      <defs>
+        <marker id="arch-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <polygon points="0 0, 8 4, 0 8" fill="#000000"/>
+        </marker>
+        <marker id="arch-arrow-dashed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <polygon points="0 0, 8 4, 0 8" fill="#555555"/>
+        </marker>
+      </defs>
+
+      <!-- 1. Clean Paper Background -->
+      <rect x="0" y="0" width="1080" height="540" fill="#ffffff"/>
+
+      <!-- 2. Structural Zone Enclosures -->
+      <!-- Zone 1: Corpus & Blind Inputs (Dashed External Pool) -->
+      <rect x="32" y="56" width="216" height="396" rx="8" fill="#fafafa" stroke="#000000" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="44" y="40" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">01 · CORPUS &amp; BLIND INPUTS</text>
+
+      <!-- Zone 2: Evaluation & Search Core (Solid Core Gateway) -->
+      <rect x="344" y="56" width="392" height="396" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+      <text x="356" y="40" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">02 · EVALUATION &amp; RETRIEVAL CORE</text>
+
+      <!-- Zone 3: Telemetry & Interactive Views (Dashed Output Pool) -->
+      <rect x="832" y="56" width="216" height="396" rx="8" fill="#fafafa" stroke="#000000" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="844" y="40" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">03 · TELEMETRY &amp; WORKSPACES</text>
+
+      <!-- 3. Connectors (Drawn BEFORE Node Boxes for Clean Z-Order) -->
+      <!-- Vertical inside Zone 1: Node 2 (Corpus) -> Node 1 (Blind Prompt) -->
+      <line x1="140" y1="212" x2="140" y2="176" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+      <!-- Vertical inside Zone 1: Node 2 (Corpus) -> Node 3 (Reverse Queries) -->
+      <line x1="140" y1="300" x2="140" y2="336" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Horizontal Row 1: Node 1 (Blind Prompt) -> Node 4 (15 Frontier LLMs) -->
+      <line x1="232" y1="132" x2="368" y2="132" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Horizontal Row 2: Node 2 (HF Corpus) -> Node 5 (Hybrid 4-Pillar Judge) -->
+      <line x1="232" y1="256" x2="368" y2="256" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Horizontal Row 3: Node 3 (30 Queries) -> Node 6 (Tri-Modal Search) -->
+      <line x1="232" y1="380" x2="368" y2="380" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Vertical inside Zone 2: Node 4 (15 LLMs) -> Node 5 (Hybrid Judge) -->
+      <line x1="540" y1="176" x2="540" y2="212" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Orthogonal Elbow: Node 5 (Hybrid Judge, y=240) -> Node 7 (Live Eval JSON, y=132) -->
+      <path d="M 712,240 H 772 Q 780,240 780,232 V 140 Q 780,132 788,132 H 848" fill="none" stroke="#000000" stroke-width="1.2" class="flow-dashed" marker-end="url(#arch-arrow)"/>
+
+      <!-- Horizontal Row 2 Right: Node 5 (Hybrid Judge, y=268) -> Node 8 (Track 1 Leaderboard, y=268) -->
+      <line x1="712" y1="268" x2="848" y2="268" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Horizontal Row 3 Right: Node 6 (Tri-Modal Search, y=380) -> Node 9 (Track 2 Search UI, y=380) -->
+      <line x1="712" y1="380" x2="848" y2="380" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+
+      <!-- Vertical inside Zone 3: Node 7 (Live Eval JSON) -> Node 8 (Track 1 Leaderboard) -->
+      <line x1="940" y1="176" x2="940" y2="212" stroke="#555555" stroke-width="1" class="flow-dashed" marker-end="url(#arch-arrow-dashed)"/>
+
+      <!-- 4. Connector Label Masks & Text (≥8px gap from connector strokes, clear of all node boxes) -->
+      <!-- Label on Row 1 Left (y=132, mask bottom=124 -> 8px gap) -->
+      <rect x="260" y="108" width="80" height="16" rx="4" fill="#ffffff"/>
+      <text x="300" y="120" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PNG + ALT</text>
+
+      <!-- Label on Row 2 Left (y=256, mask bottom=248 -> 8px gap) -->
+      <rect x="256" y="232" width="88" height="16" rx="4" fill="#ffffff"/>
+      <text x="300" y="244" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EXPLAIN REF</text>
+
+      <!-- Label on Row 3 Left (y=380, mask bottom=372 -> 8px gap) -->
+      <rect x="260" y="356" width="80" height="16" rx="4" fill="#ffffff"/>
+      <text x="300" y="368" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">30 QUERIES</text>
+
+      <!-- Label on Row 2 Right (y=268, mask bottom=260 -> 8px gap) -->
+      <rect x="740" y="244" width="80" height="16" rx="4" fill="#ffffff"/>
+      <text x="780" y="256" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">4 PILLARS</text>
+
+      <!-- Label on Row 3 Right (y=380, mask bottom=372 -> 8px gap) -->
+      <rect x="740" y="356" width="80" height="16" rx="4" fill="#ffffff"/>
+      <text x="780" y="368" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HIT@1 · MRR</text>
+
+      <!-- 5. Node Boxes (Strictly 9 Nodes, 4px Grid Aligned) -->
+      <!-- Node 1: Blind Comic Prompt -->
+      <g>
+        <rect x="48" y="88" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="56" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="98" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BLIND INPUT</text>
+        <text x="140" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Raw Strip + Hover Text</text>
+        <text x="140" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">8 Canonical Comics · No Spoilers</text>
+      </g>
+
+      <!-- Node 2: HF 891-Comic Corpus -->
+      <g>
+        <rect x="48" y="212" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="56" y="220" width="80" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="96" y="232" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HF CORPUS</text>
+        <text x="140" y="260" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">891 Cross-Joined Strips</text>
+        <text x="140" y="280" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">ExplainXKCD × AltTitle Topics</text>
+      </g>
+
+      <!-- Node 3: 30 Reverse Queries -->
+      <g>
+        <rect x="48" y="336" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="56" y="344" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="98" y="356" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SEARCH EVAL</text>
+        <text x="140" y="384" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">30 Retrieval Queries</text>
+        <text x="140" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Memory · Concept · PNG Upload</text>
+      </g>
+
+      <!-- Node 4: 15 Frontier LLMs -->
+      <g>
+        <rect x="368" y="88" width="344" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="376" y="96" width="108" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="430" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VISION + TEXT GEN</text>
+        <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">15 Frontier Multimodal &amp; Reasoning Models</text>
+        <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Gemini 4 Argon · Opus 5.5 · Fable 5.1 · Gemma 4 · 4096 Tok</text>
+      </g>
+
+      <!-- Node 5: FOCAL INVERTED BLACK HERO NODE (Hybrid 4-Pillar Rubric Judge) -->
+      <g>
+        <rect x="368" y="212" width="344" height="88" rx="8" fill="#000000" stroke="#000000" stroke-width="1.2"/>
+        <rect x="376" y="220" width="124" height="16" rx="4" fill="#000000" stroke="#ffffff" stroke-width="0.8"/>
+        <text x="438" y="232" fill="#ffffff" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">HYBRID JUDGE CORE</text>
+        <text x="540" y="260" fill="#ffffff" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">40% TypeSafe Noul + 60% Deterministic Rubric</text>
+        <text x="540" y="280" fill="#cccccc" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Humor 30% · Domain 30% · Visual 25% · Alt 15% · Stem Recall</text>
+      </g>
+
+      <!-- Node 6: Tri-Modal Reverse Search RRF -->
+      <g>
+        <rect x="368" y="336" width="344" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="376" y="344" width="116" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="434" y="356" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRI-MODAL SEARCH</text>
+        <text x="540" y="384" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">BM25F Lexical + 64-Bit dHash + TypeSafe Jev</text>
+        <text x="540" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Field-Weighted Index · Hamming Similarity · Zero-Shot LLM</text>
+      </g>
+
+      <!-- Node 7: Empirical Telemetry Store -->
+      <g>
+        <rect x="848" y="88" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="856" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="898" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STATE STORE</text>
+        <text x="940" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Live Eval Telemetry</text>
+        <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 120 Runs</text>
+      </g>
+
+      <!-- Node 8: Track 1 Arena & Domain Podiums -->
+      <g>
+        <rect x="848" y="212" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="856" y="220" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="898" y="232" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRACK 1 VIEW</text>
+        <text x="940" y="260" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Leaderboards &amp; Arena</text>
+        <text x="940" y="280" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">6 Domains · SVG Medals · Matrix</text>
+      </g>
+
+      <!-- Node 9: Track 2 Reverse Search Lab -->
+      <g>
+        <rect x="848" y="336" width="184" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
+        <rect x="856" y="344" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
+        <text x="898" y="356" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRACK 2 VIEW</text>
+        <text x="940" y="384" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Reverse Search Lab</text>
+        <text x="940" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">93.3% Hit@1 · Live 30-Query Sweep</text>
+      </g>
+
+      <!-- 6. Horizontal Bottom Legend Strip -->
+      <line x1="32" y1="484" x2="1048" y2="484" stroke="#000000" stroke-width="1"/>
+      <text x="32" y="512" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+      <line x1="112" y1="508" x2="148" y2="508" stroke="#000000" stroke-width="1.2" marker-end="url(#arch-arrow)"/>
+      <text x="160" y="512" fill="#000000" font-size="12" font-family="'Geist', sans-serif">Synchronous Eval / Search Pipeline</text>
+
+      <rect x="404" y="500" width="16" height="16" rx="4" fill="#000000"/>
+      <text x="428" y="512" fill="#000000" font-size="12" font-family="'Geist', sans-serif">Focal Hybrid Rubric Judge (Noul + Deterministic)</text>
+
+      <line x1="744" y1="508" x2="780" y2="508" stroke="#000000" stroke-width="1.2" stroke-dasharray="4,4" marker-end="url(#arch-arrow)"/>
+      <text x="792" y="512" fill="#000000" font-size="12" font-family="'Geist', sans-serif">Telemetry Persistence &amp; Hydration</text>
+    </svg>
+  </div>
+</body>
+</html>
