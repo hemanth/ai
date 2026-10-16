@@ -30,15 +30,16 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertEqual(data["dataset"]["primary_hf"], "olivierdehaene/xkcd")
         self.assertIn("devparagiri/dataset-xkcd", data["dataset"]["secondary_hf"])
 
-        # Verify Track 1 Leaderboard has 15 frontier models, Gemini 4 Argon #1, and no Llama 4 Maverick
+        # Verify Track 1 Leaderboard has 16 frontier models, Gemini 4 Argon #1, and Nemotron 3.5 Super VL
         lb = data["explain_leaderboard"]
-        self.assertEqual(len(lb), 15)
+        self.assertEqual(len(lb), 16)
         self.assertEqual(lb[0]["id"], "gemini-4-argon")
         model_ids = {m["id"] for m in lb}
         self.assertIn("gemini-4-argon", model_ids)
         self.assertIn("claude-fable-5-1", model_ids)
         self.assertIn("gemini-3.7-flash", model_ids)
         self.assertIn("gemma-4-31b-it", model_ids)
+        self.assertIn("nvidia/nemotron-3.5-super-vl:free", model_ids)
         self.assertIn("nvidia/nemotron-3-ultra-550b-a55b:free", model_ids)
         self.assertNotIn("meta-llama/llama-4-maverick", model_ids)
 
@@ -49,11 +50,15 @@ class XKCDBenchTestSuite(unittest.TestCase):
             self.assertIn("AI & Machine Learning", m["domain_scores"])
             self.assertIn("Mathematics & Statistics", m["domain_scores"])
 
-        # Verify Per-Comic Matrix matches frontend contract across all 8 canonical comics
+        # Verify Per-Comic Matrix matches frontend contract across all 20 canonical comics
         matrix = data["live_eval_meta"]["comic_matrix"]
         self.assertIsInstance(matrix, dict)
         self.assertIn("gemini-4-argon", matrix)
-        for cid in ("327", "2347", "2630", "927", "386", "1838", "882", "1597"):
+        self.assertIn("nvidia/nemotron-3.5-super-vl:free", matrix)
+        for cid in (
+            "327", "2347", "2630", "927", "386", "1838", "882", "1597",
+            "149", "208", "303", "353", "552", "979", "1053", "1172", "1205", "1319", "1513", "2173",
+        ):
             self.assertIn(cid, matrix["gemini-4-argon"])
             cell = matrix["gemini-4-argon"][cid]
             self.assertGreater(cell["overall_score"], 0.0)
@@ -88,13 +93,13 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertIn("xkcd-arch-title", arch_resp.text)
 
     def test_comic_detail_live_telemetry_contract(self) -> None:
-        # On #2347 (Dependency), all 15 frontier models completed live blind evaluations
+        # On #2347 (Dependency), all 16 frontier models completed live blind evaluations
         resp_2347 = self.client.get("/api/comics/2347")
         self.assertEqual(resp_2347.status_code, 200)
         data_2347 = resp_2347.json()
         self.assertEqual(data_2347["comic"]["num"], 2347)
         evals_2347 = data_2347["model_evaluations"]
-        self.assertEqual(len(evals_2347), 15)
+        self.assertEqual(len(evals_2347), 16)
         for item in evals_2347:
             self.assertTrue(item["is_live_empirical"])
             self.assertTrue(item["verified_live"])

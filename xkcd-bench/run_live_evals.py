@@ -57,8 +57,11 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 LIVE_RESULTS_PATH = os.path.join(os.path.dirname(__file__), "comics", "live_eval_results.json")
 
-# Representative canonical evaluation set across all 6 XKCD domains (including Hard Math/Stats #882 & CS #1597)
-EVAL_COMIC_IDS = [327, 2347, 2630, 927, 386, 1838, 882, 1597]
+# Complete 20-comic canonical evaluation set across all 6 XKCD domains
+EVAL_COMIC_IDS = [
+    327, 2347, 2630, 927, 386, 1838, 882, 1597,
+    149, 208, 303, 353, 552, 979, 1053, 1172, 1205, 1319, 1513, 2173,
+]
 
 FRONTIER_MODELS: list[dict[str, Any]] = [
     {
@@ -166,9 +169,17 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
         "supports_vision": True,
     },
     {
+        "id": "nvidia/nemotron-3.5-super-vl:free",
+        "name": "NVIDIA Nemotron 3.5 Super VL",
+        "provider": "NVIDIA (120B-A12B Multimodal MoE)",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
         "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
         "name": "NVIDIA Nemotron 3 Ultra 550B",
-        "provider": "NVIDIA (550B MoE)",
+        "provider": "NVIDIA (550B MoE Open Weights)",
         "api_type": "openrouter",
         "modality": "Text + Transcript",
         "supports_vision": False,
@@ -236,12 +247,24 @@ async def call_model_blind_explanation(
                 if img_bytes:
                     contents.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
                 contents.append(prompt)
-                resp = await gclient.aio.models.generate_content(
-                    model=model_id,
-                    contents=contents,
-                    config=types.GenerateContentConfig(temperature=0.2),
-                )
-                text = (resp.text or "").strip()
+                text = ""
+                for attempt in range(3):
+                    try:
+                        resp = await asyncio.wait_for(
+                            gclient.aio.models.generate_content(
+                                model=model_id,
+                                contents=contents,
+                                config=types.GenerateContentConfig(temperature=0.2),
+                            ),
+                            timeout=65.0,
+                        )
+                        text = (resp.text or "").strip()
+                        if text:
+                            break
+                    except Exception as ge:
+                        if attempt == 2:
+                            raise ge
+                        await asyncio.sleep(2.5 * (attempt + 1))
 
             elif api_type == "anthropic":
                 content_blocks: list[dict[str, Any]] = []
@@ -254,45 +277,178 @@ async def call_model_blind_explanation(
                         }
                     )
                 content_blocks.append({"type": "text", "text": prompt})
+                text = ""
+                for attempt in range(3):
+                    r = await http_client.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers={
+                            "x-api-key": ANTHROPIC_API_KEY or "",
+                            "anthropic-version": "2023-06-01",
+                            "content-type": "application/json",
+                        },
+                        json={
+                            "model": model_id,
+                            "max_tokens": 4096,
+                            "messages": [{"role": "user", "content": content_blocks}],
+                        },
+                        timeout=90.0,
+                    )
+                    if r.status_code in (429, 500, 502, 503, 529) and attempt < 2:
+                        await asyncio.sleep(3.5 * (attempt + 1))
+                        continue
+                    r.raise_for_status()
+                    data = r.json()
+                    text = "\n".join(
+                        b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
+                    ).strip()
+                    if text:
+                        break
+
+            elif api_type == "vertex_sglang":
+                import subprocess
+
+                v_tok = os.getenv("VERTEX_ACCESS_TOKEN", "").strip()
+                if not v_tok:
+                    env = dict(os.environ)
+                    env["CLOUDSDK_METRICS_ENVIRONMENT"] = (
+                        f"{env.get('CLOUDSDK_METRICS_ENVIRONMENT', '')} datacloud.antigravity".strip()
+                    )
+                    v_tok = subprocess.check_output(
+                        ["gcloud", "auth", "print-access-token"], env=env, text=True
+                    ).strip()
+                v_headers = {
+                    "Authorization": f"Bearer {v_tok}",
+                    "x-goog-user-project": "hemanth-hm",
+                    "Content-Type": "application/json",
+                }
+                ep_name = os.getenv(
+                    "VERTEX_MUSE_ENDPOINT",
+                    "projects/1098994558182/locations/us-central1/endpoints/mg-endpoint-2761b19d-5030-423d-bfd0-523aaede266e",
+                )
+                ep_info = await http_client.get(
+                    f"https://us-central1-aiplatform.googleapis.com/v1beta1/{ep_name}",
+                    headers=v_headers,
+                    timeout=15.0,
+                )
+                ep_json = ep_info.json() if ep_info.status_code == 200 else {}
+                ded_dns = ep_json.get("dedicatedEndpointDns")
+                pred_url = (
+                    f"https://{ded_dns}/v1beta1/{ep_name}:predict"
+                    if ded_dns
+                    else f"https://us-central1-aiplatform.googleapis.com/v1beta1/{ep_name}:predict"
+                )
+                full_prompt = build_blind_prompt(comic, include_transcript=True)
+                atem_text = (
+                    "<|start|>system<|message|>You are a helpful AI assistant.\n"
+                    "Knowledge cutoff: 2026-01-04.\n\n"
+                    "Reasoning strength: low.\n\n"
+                    '# Valid recipients: "self", "user".<|eot|>'
+                    f"<|start|>user<|message|>{full_prompt}<|eot|>"
+                    "<|start|>assistant to=user<|message|>"
+                )
                 r = await http_client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={
-                        "x-api-key": ANTHROPIC_API_KEY or "",
-                        "anthropic-version": "2023-06-01",
-                        "content-type": "application/json",
-                    },
+                    pred_url,
+                    headers=v_headers,
                     json={
-                        "model": model_id,
-                        "max_tokens": 4096,
-                        "messages": [{"role": "user", "content": content_blocks}],
+                        "instances": [{"text": atem_text}],
+                        "parameters": {
+                            "sampling_params": {
+                                "max_new_tokens": 2048,
+                                "temperature": 0.3,
+                                "top_p": 0.95,
+                            }
+                        },
+                    },
+                    timeout=120.0,
+                )
+                r.raise_for_status()
+                preds = r.json().get("predictions") or []
+                raw_out = preds[0] if preds else ""
+                if isinstance(raw_out, dict):
+                    raw_out = raw_out.get("text") or raw_out.get("output") or json.dumps(raw_out)
+                raw_str = str(raw_out)
+                if "to=user<|message|>" in raw_str:
+                    raw_str = raw_str.split("to=user<|message|>")[-1]
+                elif "<|message|>" in raw_str:
+                    raw_str = raw_str.split("<|message|>")[-1]
+                for tok in ("<|eot|>", "<|eom|>", "<|start|>assistant"):
+                    raw_str = raw_str.replace(tok, "")
+                text = raw_str.strip()
+
+            elif api_type == "cf_ai":
+                wrangler_toml = os.path.expanduser("~/.wrangler/config/default.toml")
+                cf_tok = os.getenv("CLOUDFLARE_API_TOKEN", "")
+                if not cf_tok and os.path.exists(wrangler_toml):
+                    m_tok = re.search(r'oauth_token\s*=\s*"([^"]+)"', open(wrangler_toml).read())
+                    if m_tok:
+                        cf_tok = m_tok.group(1)
+                cf_acc = "0f6fb593710f5180ab2426f06c0eaa56"
+                cf_model = model_cfg.get("cf_model", model_id)
+                if img_bytes:
+                    b64 = base64.b64encode(img_bytes).decode()
+                    user_content: Any = [
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                        {"type": "text", "text": prompt},
+                    ]
+                else:
+                    user_content = prompt
+                r = await http_client.post(
+                    f"https://api.cloudflare.com/client/v4/accounts/{cf_acc}/ai/run/{cf_model}",
+                    headers={"Authorization": f"Bearer {cf_tok}"},
+                    json={
+                        "messages": [{"role": "user", "content": user_content}],
+                        "max_tokens": 1800,
+                        "temperature": 0.2,
+                        "chat_template_kwargs": {"enable_thinking": False},
                     },
                     timeout=90.0,
                 )
                 r.raise_for_status()
-                data = r.json()
-                text = "\n".join(
-                    b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
-                ).strip()
+                res_obj = r.json().get("result") or {}
+                msg_obj = (res_obj.get("choices") or [{}])[0].get("message") or {}
+                text = (msg_obj.get("content") or res_obj.get("response") or msg_obj.get("reasoning_content") or "").strip()
+                text = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
 
             else:  # openrouter
-                r = await http_client.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": model_id,
-                        "max_tokens": 4096,
-                        "temperature": 0.2,
-                        "messages": [{"role": "user", "content": prompt}],
-                    },
-                    timeout=90.0,
-                )
-                r.raise_for_status()
-                data = r.json()
-                msg_obj = data.get("choices", [{}])[0].get("message", {})
-                text = (msg_obj.get("content") or msg_obj.get("reasoning") or "").strip()
+                if img_bytes:
+                    b64 = base64.b64encode(img_bytes).decode()
+                    or_content: Any = [
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                        {"type": "text", "text": prompt},
+                    ]
+                else:
+                    or_content = prompt
+                text = ""
+                for attempt in range(4):
+                    try:
+                        r = await http_client.post(
+                            "https://openrouter.ai/api/v1/chat/completions",
+                            headers={
+                                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                                "Content-Type": "application/json",
+                            },
+                            json={
+                                "model": model_id,
+                                "max_tokens": 3600,
+                                "temperature": 0.2,
+                                "messages": [{"role": "user", "content": or_content}],
+                            },
+                            timeout=65.0,
+                        )
+                        if r.status_code in (429, 500, 502, 503, 529) and attempt < 3:
+                            await asyncio.sleep(3.5 * (attempt + 1))
+                            continue
+                        r.raise_for_status()
+                        data = r.json()
+                        msg_obj = (data.get("choices") or [{}])[0].get("message") or {}
+                        text = (msg_obj.get("content") or msg_obj.get("reasoning") or "").strip()
+                        text = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
+                        if text:
+                            break
+                    except Exception as oe:
+                        if attempt == 3:
+                            raise oe
+                    await asyncio.sleep(2.5 * (attempt + 1))
 
             latency_ms = round((time.perf_counter() - t0) * 1000, 1)
             print(f"  [GEN OK] {model_id:<28} | #{comic['num']:<4} | {latency_ms:>7.1f}ms | {len(text)} chars", flush=True)
@@ -495,7 +651,7 @@ async def evaluate_llm_zero_shot_reverse_search(
 
 async def main() -> None:
     print("=" * 82, flush=True)
-    print("RUNNING LIVE EMPIRICAL XKCD-BENCH EVALUATION (15 MODELS × 8 COMICS + 30 QUERIES)", flush=True)
+    print(f"RUNNING LIVE EMPIRICAL XKCD-BENCH EVALUATION ({len(FRONTIER_MODELS)} MODELS × {len(EVAL_COMIC_IDS)} COMICS + 30 QUERIES)", flush=True)
     print("=" * 82, flush=True)
     comics_all = get_comics_metadata(force_reload=True)
     eval_comics = [get_comic_by_id(cid) for cid in EVAL_COMIC_IDS if get_comic_by_id(cid)]
@@ -512,7 +668,12 @@ async def main() -> None:
             existing_cache = {}
             existing_retrieval = []
 
-    sem = asyncio.Semaphore(10)
+    sems = {
+        "gemini": asyncio.Semaphore(8),
+        "anthropic": asyncio.Semaphore(6),
+        "openrouter": asyncio.Semaphore(2),
+    }
+    default_sem = asyncio.Semaphore(4)
     ts_sem = asyncio.Semaphore(12)
 
     async with httpx.AsyncClient() as http_client:
@@ -521,20 +682,52 @@ async def main() -> None:
         cached_results = []
         for m in FRONTIER_MODELS:
             mid = m["id"]
+            m_sem = sems.get(m["api_type"], default_sem)
             for c in eval_comics:
                 cid = str(c["num"])
                 prev = existing_cache.get(cid, {}).get(mid)
                 if prev and prev.get("ok") and len((prev.get("explanation") or "").strip()) > 120:
+                    prev["comic_id"] = int(cid)
+                    prev["model_id"] = mid
                     cached_results.append(prev)
-                elif mid == "openai/gpt-6-luna":
-                    # Avoid 402 error on OpenRouter paid tier if not already cached
+                elif mid in ("openai/gpt-6-luna", "nvidia/nemotron-3-ultra-550b-a55b:free"):
+                    # Avoid 402/503 error on OpenRouter endpoints that are offline or out of credits
                     if prev:
+                        prev["comic_id"] = int(cid)
+                        prev["model_id"] = mid
                         cached_results.append(prev)
                 else:
-                    gen_tasks.append(call_model_blind_explanation(m, c, http_client, sem))
+                    gen_tasks.append(call_model_blind_explanation(m, c, http_client, m_sem))
 
         print(f"Reusing {len(cached_results)} cached live explanations; generating {len(gen_tasks)} new explanations...", flush=True)
-        new_results = await asyncio.gather(*gen_tasks) if gen_tasks else []
+        new_results = []
+        if gen_tasks:
+            done_cnt = 0
+            for coro in asyncio.as_completed(gen_tasks):
+                res = await coro
+                new_results.append(res)
+                if res.get("ok") and res.get("explanation"):
+                    cid_s = str(res["comic_id"])
+                    existing_cache.setdefault(cid_s, {})[res["model_id"]] = res
+                    done_cnt += 1
+                    if done_cnt % 12 == 0 or done_cnt == len(gen_tasks):
+                        try:
+                            with open(LIVE_RESULTS_PATH, "w", encoding="utf-8") as f:
+                                json.dump(
+                                    {
+                                        "evaluated_at": datetime.now(timezone.utc).isoformat(),
+                                        "evaluation_protocol": "Live Blind Multimodal Inference + TypeSafe System One (Noul) + ExplainXKCD Reference Grounding",
+                                        "evaluated_comic_ids": EVAL_COMIC_IDS,
+                                        "explain_leaderboard": loaded_json.get("explain_leaderboard", []) if "loaded_json" in locals() else [],
+                                        "retrieval_leaderboard": existing_retrieval,
+                                        "comic_evaluations": existing_cache,
+                                    },
+                                    f,
+                                    indent=2,
+                                    ensure_ascii=False,
+                                )
+                        except Exception:
+                            pass
         gen_results = cached_results + list(new_results)
 
         # Organize by comic_id -> model_id -> result
@@ -546,7 +739,7 @@ async def main() -> None:
             cid = str(res["comic_id"])
             mid = res["model_id"]
             by_comic_model.setdefault(cid, {})[mid] = res
-            comic_obj = get_comic_by_id(res["comic_id"])
+            comic_obj = get_comic_by_id(int(res["comic_id"]))
             # Reuse existing v3_analytical TypeSafe Noul evaluation if already computed on this exact explanation
             if (
                 res.get("evaluation")

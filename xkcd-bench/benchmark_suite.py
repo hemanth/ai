@@ -442,17 +442,26 @@ _live_eval_cache: dict[str, Any] = {}
 _live_eval_mtime: float = -1.0
 
 COMIC_DOMAIN_BY_ID: dict[str, str] = {
+    "149": "Computer Science & Security",
+    "208": "Computer Science & Security",
     "327": "Computer Science & Security",
+    "353": "Computer Science & Security",
+    "979": "Computer Science & Security",
+    "1513": "Computer Science & Security",
     "1597": "Computer Science & Security",
-    "2347": "Engineering & Workflow",
+    "303": "Engineering & Workflow",
     "927": "Engineering & Workflow",
     "1172": "Engineering & Workflow",
+    "1205": "Engineering & Workflow",
+    "1319": "Engineering & Workflow",
+    "2347": "Engineering & Workflow",
     "2630": "Physics & Aerospace",
     "386": "Science & Culture",
+    "1053": "Science & Culture",
     "1838": "AI & Machine Learning",
     "2173": "AI & Machine Learning",
-    "882": "Mathematics & Statistics",
     "552": "Mathematics & Statistics",
+    "882": "Mathematics & Statistics",
 }
 
 

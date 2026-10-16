@@ -1573,7 +1573,7 @@
                 </div>
                 <h1 class="hero-headline">Can AI actually get the joke, or just recite the punchline?</h1>
                 <p class="hero-subtext">
-                    We gave <strong>15 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Argon</strong>, <strong>Claude Opus 5.5</strong>, <strong>Claude Fable 5.1</strong>, <strong>Gemma 4 31B</strong>, and <strong>GPT-6 Luna</strong> break down the humor, or test reverse comic search across 891 strips.
+                    We gave <strong>16 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Argon</strong>, <strong>Claude Opus 5.5</strong>, <strong>Claude Fable 5.1</strong>, <strong>Muse Glimmer 30B</strong>, <strong>Nemotron 3.5 Super VL</strong>, and <strong>Gemma 4 31B</strong> break down the humor, or test reverse comic search across 891 strips.
                 </p>
                 <div style="display:flex;gap:0.6rem;margin-top:0.95rem;flex-wrap:wrap;">
                     <button type="button" class="btn-cta" onclick="switchView('arena')">
@@ -1602,8 +1602,8 @@
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Live Blind Evals</span>
-                    <span class="telemetry-val" id="stat-bench-count">120</span>
-                    <span class="telemetry-sub" id="stat-bench-sub">15 Models × 8 Comics + 30 Queries</span>
+                    <span class="telemetry-val" id="stat-bench-count">136</span>
+                    <span class="telemetry-sub" id="stat-bench-sub">17 Models × 8 Comics + 30 Queries</span>
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Top Explain (#1)</span>
@@ -1874,7 +1874,7 @@
                                     <h2 class="section-heading">Track 1: LLM Comic Explanation Leaderboard (Explain-Bench)</h2>
                                     <span class="meta-pill" style="color:var(--text);border-color:var(--border-strong);">LIVE BLIND PNG + ALT-TEXT EVAL</span>
                                 </div>
-                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 15 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across 8 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
+                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 16 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across 8 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
                             </div>
                             <div class="filter-pills" id="explain-domain-filters">
                                 <button type="button" class="filter-pill active" data-domain="all">All Domains</button>
@@ -1920,7 +1920,7 @@
                         </div>
                         <div class="table-scroll">
                             <table class="telemetry-table">
-                                <thead>
+                                <thead id="comic-matrix-thead">
                                     <tr>
                                         <th>Model</th>
                                         <th><span style="display:block;color:var(--text);">#327</span><span style="font-size:0.58rem;color:var(--text-muted);">Bobby Tables</span></th>
@@ -2134,7 +2134,7 @@
                                 <rect x="56" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="98" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BLIND INPUT</text>
                                 <text x="140" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Raw Strip + Hover Text</text>
-                                <text x="140" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">8 Canonical Comics · No Spoilers</text>
+                                <text x="140" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">20 Canonical Comics · No Spoilers</text>
                             </g>
 
                             <!-- Node 2: HF 891-Comic Corpus -->
@@ -2155,13 +2155,13 @@
                                 <text x="140" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Memory · Concept · PNG Upload</text>
                             </g>
 
-                            <!-- Node 4: 15 Frontier LLMs -->
+                            <!-- Node 4: 16 Frontier LLMs -->
                             <g>
                                 <rect x="368" y="88" width="344" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
                                 <rect x="376" y="96" width="108" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="430" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VISION + TEXT GEN</text>
-                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">15 Frontier Multimodal &amp; Reasoning Models</text>
-                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Gemini 4 Argon · Opus 5.5 · Fable 5.1 · Gemma 4 · 4096 Tok</text>
+                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">16 Frontier Multimodal &amp; Reasoning Models</text>
+                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Argon · Fable 5.1 · Opus 5.5 · Nemotron 3.5 VL · Gemma 4</text>
                             </g>
 
                             <!-- Node 5: FOCAL INVERTED BLACK HERO NODE (Hybrid 4-Pillar Rubric Judge) -->
@@ -2188,7 +2188,7 @@
                                 <rect x="856" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="898" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STATE STORE</text>
                                 <text x="940" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Live Eval Telemetry</text>
-                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 120 Runs</text>
+                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 320 Runs</text>
                             </g>
 
                             <!-- Node 8: Track 1 Arena & Domain Podiums -->
@@ -2287,11 +2287,11 @@
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-family:var(--font-mono);font-size:0.71rem;">
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">CS &amp; Security</div>
-                                <div style="color:var(--text-muted);">188 strips · #327, #1597</div>
+                                <div style="color:var(--text-muted);">188 strips · 7 canonical</div>
                             </div>
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">AI &amp; ML</div>
-                                <div style="color:var(--text-muted);">65 strips · #1838</div>
+                                <div style="color:var(--text-muted);">65 strips · #1838, #2173</div>
                             </div>
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">Physics &amp; Space</div>
@@ -2299,15 +2299,15 @@
                             </div>
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">Math &amp; Stats</div>
-                                <div style="color:var(--text-muted);">99 strips · #882</div>
+                                <div style="color:var(--text-muted);">99 strips · #552, #882</div>
                             </div>
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">Workflow</div>
-                                <div style="color:var(--text-muted);">121 strips · #2347, #927</div>
+                                <div style="color:var(--text-muted);">121 strips · 6 canonical</div>
                             </div>
                             <div style="padding:0.4rem 0.55rem;border:1px solid var(--border);border-radius:6px;">
                                 <div style="color:var(--text);font-weight:600;">Science &amp; Culture</div>
-                                <div style="color:var(--text-muted);">249 strips · #386</div>
+                                <div style="color:var(--text-muted);">249 strips · #386, #1053</div>
                             </div>
                         </div>
                     </div>
@@ -2322,12 +2322,12 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
                 <div>
                     <h3 style="font-size:1.02rem;font-weight:600;">API Keys &amp; Multi-Provider Runtime</h3>
-                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">15 Frontier Models + TypeSafe System One Judge</div>
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">16 Frontier Models + TypeSafe System One Judge</div>
                 </div>
                 <button type="button" class="icon-btn" id="close-keys-btn" style="padding:2px 8px;">Close</button>
             </div>
             <p style="font-size:0.79rem;color:var(--text-secondary);line-height:1.5;margin-bottom:1rem;">
-                Pre-computed live empirical evaluations for all 15 models are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
+                Pre-computed live empirical evaluations for all 16 models across 20 canonical comics are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
             </p>
 
             <div class="field-block">
@@ -2359,7 +2359,7 @@
 
             <div class="field-block">
                 <div class="field-label">
-                    <label for="input-openrouter-key">4. OpenRouter API Key (2 Models: GPT-6 Luna &amp; NVIDIA Nemotron 3 Ultra 550B)</label>
+                    <label for="input-openrouter-key">4. OpenRouter &amp; GCP Vertex AI (4 Models: Muse Glimmer 30B, Nemotron 3.5 VL / 3 Ultra, GPT-6 Luna)</label>
                     <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color:var(--text-secondary);font-size:0.72rem;">openrouter.ai/keys</a>
                 </div>
                 <input type="password" id="input-openrouter-key" class="text-input-mono" placeholder="sk-or-v1-..." autocomplete="off">
@@ -3333,13 +3333,13 @@
         // VIEW 3: LEADERBOARDS & LIVE SWEEP
         // -------------------------------------------------------------------
         const DOMAIN_DESCRIPTIONS = {
-            'all': 'Real empirical outputs across 15 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 8 canonical strips (#327, #2347, #2630, #927, #386, #1838, #882, #1597). Click any model row to inspect its explanations in the Arena.',
-            'Computer Science & Security': 'CS & Security Domain (188 corpus comics · Canonical Eval: #327 Exploits of a Mom & #1597 Git) — Tests SQL injection syntax, parser context-switching, and Git directed acyclic graph (DAG) topology vs. CLI memorization.',
-            'AI & Machine Learning': 'AI & ML Domain (65 corpus comics · Canonical Eval: #1838 Machine Learning) — Tests empirical ML training loops, linear algebra matrix transformations, loss optimization, and post-hoc statistical rationalization.',
+            'all': 'Real empirical outputs across 16 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.',
+            'Computer Science & Security': 'CS & Security Domain (188 corpus comics · 7 Canonical Eval Strips: #149 Sandwich, #208 Regex, #327 Exploits of a Mom, #353 Python, #979 Wisdom of the Ancients, #1513 Code Quality, #1597 Git) — Tests SQL injection, parser context-switching, regex engines, and Git DAG topology.',
+            'AI & Machine Learning': 'AI & ML Domain (65 corpus comics · 2 Canonical Eval Strips: #1838 Machine Learning, #2173 Trained a Neural Net) — Tests empirical ML training loops, linear algebra matrix transformations, loss optimization, and predictive curve-fitting satire.',
             'Physics & Aerospace': 'Physics & Space Domain (169 corpus comics · Canonical Eval: #2630 Shuttle Skeleton) — Tests comparative vertebrate osteology (cetacean vs. avian anatomy) mapped onto NASA Space Shuttle orbiter aerodynamics and paleontological reconstruction.',
-            'Mathematics & Statistics': 'Math & Stats Domain (99 corpus comics · Canonical Eval: #882 Significant) — Tests frequentist p-value thresholds (p < 0.05), family-wise error rate (FWER = 1 - 0.95^20 ≈ 64.2%), multiple-comparisons fallacy, and publication bias.',
-            'Engineering & Workflow': 'Workflow Domain (121 corpus comics · Canonical Eval: #2347 Dependency & #927 Standards) — Tests open-source software supply-chain fragility (Bus Factor = 1, ImageMagick/OpenSSL) and protocol standardization proliferation (N → N+1).',
-            'Science & Culture': 'Science & Culture Domain (249 corpus comics · Canonical Eval: #386 Duty Calls) — Tests internet epistemic friction, Cunningham\'s Law, and hyperbolic stick-figure minimalism.'
+            'Mathematics & Statistics': 'Math & Stats Domain (99 corpus comics · 2 Canonical Eval Strips: #552 Correlation, #882 Significant) — Tests frequentist p-value thresholds (p < 0.05), family-wise error rate (FWER = 1 - 0.95^20 ≈ 64.2%), causal inference, and publication bias.',
+            'Engineering & Workflow': 'Workflow Domain (121 corpus comics · 6 Canonical Eval Strips: #303 Compiling, #927 Standards, #1172 Workflow, #1205 Is It Worth the Time?, #1319 Automation, #2347 Dependency) — Tests open-source supply-chain fragility, 2D ROI lookup tables, and standardization proliferation (N → N+1).',
+            'Science & Culture': 'Science & Culture Domain (249 corpus comics · 2 Canonical Eval Strips: #386 Duty Calls, #1053 Ten Thousand) — Tests internet epistemic friction, Cunningham\'s Law, and back-of-the-envelope demographic math.'
         };
 
         function renderExplainLeaderboard(domainFilter) {
@@ -3404,11 +3404,35 @@
         }
 
         function renderComicMatrix() {
+            const thead = document.getElementById('comic-matrix-thead');
             const tbody = document.getElementById('comic-matrix-tbody');
             const matrix = overviewData?.live_eval_meta?.comic_matrix;
             if (!tbody || !matrix || !overviewData?.explain_leaderboard) return;
 
-            const comicIds = ['327', '2347', '2630', '927', '386', '1838', '882', '1597'];
+            const matrixRows = overviewData?.live_eval_meta?.comic_matrix_rows || [];
+            const comicIds = matrixRows.length > 0
+                ? matrixRows.map(r => String(r.comic_id))
+                : (overviewData?.live_eval_meta?.evaluated_comic_ids || [327, 2347, 2630, 927, 386, 1838, 882, 1597]).map(String);
+
+            const titleById = {};
+            matrixRows.forEach(r => {
+                titleById[String(r.comic_id)] = (r.title || '').slice(0, 12);
+            });
+
+            if (thead) {
+                const thCols = comicIds.map(cid => {
+                    const shortTitle = titleById[cid] || `#${cid}`;
+                    return `<th><span style="display:block;color:var(--text);">#${esc(cid)}</span><span style="font-size:0.58rem;color:var(--text-muted);white-space:nowrap;">${esc(shortTitle)}</span></th>`;
+                }).join('');
+                thead.innerHTML = `
+                    <tr>
+                        <th>Model</th>
+                        ${thCols}
+                        <th><span style="display:block;color:var(--text);">Mean</span><span style="font-size:0.58rem;color:var(--text-muted);">Composite</span></th>
+                    </tr>
+                `;
+            }
+
             tbody.innerHTML = overviewData.explain_leaderboard.map((m, idx) => {
                 const mScores = matrix[m.id] || {};
                 const cells = comicIds.map(cid => {

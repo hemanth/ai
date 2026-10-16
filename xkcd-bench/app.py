@@ -183,7 +183,10 @@ async def get_overview():
     retrieval_lb = get_retrieval_leaderboard()
     comic_evals = live_data.get("comic_evaluations", {})
 
-    default_eval_ids = [327, 2347, 2630, 927, 386, 1838, 882, 1597]
+    default_eval_ids = [
+        327, 2347, 2630, 927, 386, 1838, 882, 1597,
+        149, 208, 303, 353, 552, 979, 1053, 1172, 1205, 1319, 1513, 2173,
+    ]
     comic_matrix: dict[str, dict[str, dict[str, Any]]] = {}
     comic_matrix_rows: list[dict[str, Any]] = []
     for cid_val in live_data.get("evaluated_comic_ids", default_eval_ids):
