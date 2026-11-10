@@ -559,13 +559,13 @@ async def search_hybrid(
 # ---------------------------------------------------------------------------
 async def generate_live_explanation(
     comic: dict[str, Any],
-    model_name: str = "gemini-4-argon",
+    model_name: str = "gemini-4-carbon",
     use_vision: bool = True,
     gemini_api_key: str | None = None,
     anthropic_api_key: str | None = None,
     openrouter_api_key: str | None = None,
 ) -> dict[str, Any]:
-    """Generate a live comic explanation using Gemini 4 Argon / 3.8 / 3.7 / 3.1 / 2.5, Gemma 4, Claude 5.5 / 5.1 / 5 / 4.8 / 4.6, Nemotron 3, or GPT-6."""
+    """Generate a live comic explanation using Gemini 4 Carbon / Argon / 3.8 / 3.7 / 3.1 / 2.5, Gemma 4, Claude 5.5 / 5.1 / 5 / 4.8 / 4.6, Nemotron 3, or GPT-6."""
     t0 = time.perf_counter()
 
     prompt = (
@@ -627,7 +627,7 @@ async def generate_live_explanation(
         if img_bytes:
             contents.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
         contents.append(prompt)
-        target_model = model_name if model_name.startswith(("gemini", "gemma")) else "gemini-4-argon"
+        target_model = model_name if model_name.startswith(("gemini", "gemma")) else "gemini-4-carbon"
         resp = await client.aio.models.generate_content(
             model=target_model,
             contents=contents,

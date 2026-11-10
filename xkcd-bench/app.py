@@ -348,7 +348,7 @@ async def evaluate_explanation_endpoint(
     request: Request,
     comic_id: int = Form(...),
     mode: str = Form("model"),  # "model" | "live_gemini" | "custom"
-    model_id: str = Form("gemini-4-argon"),
+    model_id: str = Form("gemini-4-carbon"),
     use_vision: bool = Form(True),
     custom_text: str | None = Form(None),
 ):

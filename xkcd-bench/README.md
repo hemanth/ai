@@ -13,8 +13,8 @@ Evaluates how well language and vision-language models explain an XKCD comic com
 
 1. **Humor & Punchline (`30%`)** — Captures the comedic subversion, irony, or timing.
 2. **Domain & Technical Depth (`30%`)** — Identifies the exact computer science, physics, math, or statistical mechanism (e.g., SQL injection in `#327`, p-hacking with 20 jelly bean colors in `#882`, open-source supply chain fragility in `#2347`, cetacean comparative anatomy in `#2630`).
-3. **Visual & Panel Grounding (`20%`)** — Accurately references the visual layout, stick-figure actions, or diagrams without hallucination.
-4. **Alt-Text Synthesis (`20%`)** — Connects the secondary joke in the mouseover `title-text` (`alt`) to the main strip.
+3. **Visual & Panel Grounding (`25%`)** — Accurately references the visual layout, stick-figure actions, or diagrams without hallucination.
+4. **Alt-Text Synthesis (`15%`)** — Connects the secondary joke in the mouseover `title-text` (`alt`) to the main strip.
 
 Supports both **Deterministic Reference & Canonical Concept Recall Scoring** (zero API keys required) and **Calibrated AI Judge Verification** via **TypeSafe AI System One (`Jev`)** (`Noul` pillar probabilities) and **Gemini Multimodal Vision**.
 
@@ -28,30 +28,31 @@ Evaluates retrieval accuracy (`Hit@1`, `Hit@3`, `Hit@5`, `MRR@10`, `Calibration 
 
 ---
 
-## Live Benchmark Leaderboard (20 Canonical Iconic Comics · 16 Frontier Models)
+## Live Benchmark Leaderboard (20 Canonical Iconic Comics · 17 Frontier Models)
 
 Live studio: **[h3manth.com/ai/xkcd-bench](https://h3manth.com/ai/xkcd-bench/)** · Architecture Diagram: **[architecture-diagram.html](https://h3manth.com/ai/xkcd-bench/architecture-diagram.html)**
 
-Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #353, #386, #552, #882, #927, #979, #1053, #1172, #1205, #1319, #1513, #1597, #1838, #2173, #2347, #2630` — 320 live evaluations):
+Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #353, #386, #552, #882, #927, #979, #1053, #1172, #1205, #1319, #1513, #1597, #1838, #2173, #2347, #2630` — 340 live evaluations):
 
-| Rank | Model | Provider | Overall | Humor (30%) | Technical (30%) | Visual (20%) | Alt-Text (20%) | Latency |
-| ---: | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | **Gemini 4 Argon** | Google DeepMind | **85.2%** | 76.2% | 91.6% | 93.4% | 80.6% | 18,358ms |
-| 2 | **Claude Fable 5.1** | Anthropic | **85.1%** | 77.7% | 94.3% | 86.2% | 81.4% | 19,212ms |
-| 3 | **Claude Opus 5** | Anthropic | **84.9%** | 77.9% | 93.4% | 92.6% | 75.0% | 9,505ms |
-| 4 | **Claude Opus 5.5** | Anthropic | **84.5%** | 77.5% | 92.1% | 87.9% | 80.2% | 21,984ms |
-| 5 | **Claude Sonnet 5.5** | Anthropic | **83.9%** | 75.8% | 90.0% | 91.0% | 79.9% | 7,187ms |
-| 6 | **Gemini 3.1 Pro** | Google DeepMind | **82.1%** | 76.0% | 87.0% | 91.8% | 74.1% | 22,557ms |
-| 7 | **Gemini 3.8 Flash** | Google DeepMind | **82.0%** | 75.8% | 88.2% | 89.2% | 74.8% | 16,690ms |
-| 8 | **Gemini 3.7 Flash** | Google DeepMind | **82.0%** | 75.7% | 86.9% | 92.0% | 73.9% | 12,188ms |
-| 9 | **Claude Opus 4.6** | Anthropic | **81.2%** | 72.1% | 85.7% | 87.6% | 81.7% | 13,560ms |
-| 10 | **Claude Opus 4.8** | Anthropic | **81.0%** | 72.3% | 87.7% | 84.5% | 80.4% | 10,879ms |
-| 11 | **Gemini 2.5 Pro** | Google DeepMind | **80.3%** | 74.0% | 84.9% | 90.0% | 73.0% | 23,551ms |
-| 12 | **NVIDIA Nemotron 3.5 Super VL** *(Open)* | NVIDIA | **78.0%** | 73.0% | 83.2% | 87.1% | 68.7% | 32,747ms |
-| 13 | **Gemma 4 31B IT** *(Open)* | Google Open | **74.7%** | 71.0% | 81.0% | 82.8% | 62.6% | 27,828ms |
-| 14 | **Gemma 4 26B A4B MoE** *(Open)* | Google Open | **73.2%** | 69.8% | 78.6% | 81.0% | 62.4% | 20,762ms |
-| 15 | **NVIDIA Nemotron 3 Ultra 550B** *(Open)* | NVIDIA | **69.7%** | 68.2% | 74.3% | 74.9% | 59.8% | 28,950ms |
-| 16 | **GPT-6 Luna** | OpenAI (via OR) | **59.8%** | 65.1% | 65.5% | 52.8% | 50.5% | 19,225ms |
+| Rank | Model | Provider | Overall | Humor (30%) | Domain (30%) | Visual (25%) | Alt-Text (15%) | Concepts | Latency |
+| ---: | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | **Gemini 4 Carbon** | Google DeepMind | **87.2%** | 92.1% | 80.8% | 86.0% | 92.3% | 95.0% | 22,501ms |
+| 2 | **Gemini 4 Argon** | Google DeepMind | **85.2%** | 91.7% | 77.6% | 83.6% | 90.0% | 94.2% | 13,809ms |
+| 3 | **Claude Fable 5.1** | Anthropic | **85.1%** | 92.6% | 77.2% | 81.3% | 92.1% | 93.2% | 11,235ms |
+| 4 | **Claude Opus 5** | Anthropic | **84.9%** | 93.0% | 76.5% | 81.4% | 91.5% | 87.4% | 11,829ms |
+| 5 | **Claude Opus 5.5** | Anthropic | **84.5%** | 92.0% | 75.8% | 81.5% | 91.8% | 93.3% | 11,674ms |
+| 6 | **Claude Sonnet 5.5** | Anthropic | **83.9%** | 90.6% | 73.9% | 83.4% | 91.4% | 93.2% | 7,187ms |
+| 7 | **Gemini 3.1 Pro** | Google DeepMind | **82.1%** | 90.9% | 73.6% | 76.6% | 90.7% | 93.3% | 15,609ms |
+| 8 | **Gemini 3.8 Flash** | Google DeepMind | **82.0%** | 90.2% | 73.3% | 78.1% | 89.5% | 87.4% | 11,874ms |
+| 9 | **Gemini 3.7 Flash** | Google DeepMind | **82.0%** | 89.2% | 73.5% | 79.5% | 88.9% | 91.3% | 8,805ms |
+| 10 | **Claude Opus 4.6** | Anthropic | **81.2%** | 91.0% | 72.4% | 75.9% | 88.3% | 92.5% | 14,159ms |
+| 11 | **Claude Opus 4.8** | Anthropic | **81.0%** | 90.9% | 70.0% | 77.2% | 89.5% | 91.5% | 10,276ms |
+| 12 | **Gemini 2.5 Pro** | Google DeepMind | **80.3%** | 89.7% | 69.5% | 76.5% | 89.6% | 88.3% | 21,839ms |
+| 13 | **NVIDIA Nemotron 3.5 Super VL** *(Open)* | NVIDIA | **78.0%** | 89.1% | 64.5% | 74.0% | 89.2% | 85.5% | 17,886ms |
+| 14 | **Gemma 4 31B IT** *(Open)* | Google Open | **74.7%** | 87.3% | 64.0% | 64.2% | 88.1% | 81.9% | 39,805ms |
+| 15 | **Gemma 4 26B A4B MoE** *(Open)* | Google Open | **73.2%** | 86.8% | 61.6% | 63.2% | 86.2% | 81.6% | 35,949ms |
+| 16 | **NVIDIA Nemotron 3 Ultra 550B** *(Open)* | NVIDIA | **69.7%** | 82.1% | 63.5% | 63.1% | 68.0% | 82.6% | 10,785ms |
+| 17 | **GPT-6 Luna** | OpenAI (via OR) | **59.8%** | 74.5% | 53.4% | 54.6% | 52.1% | 78.3% | 7,665ms |
 
 ---
 
@@ -61,7 +62,7 @@ Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #
 # 1. Build/refresh the benchmark corpus from Hugging Face (20 Iconic + 50 Recent comics)
 .venv/bin/python fetch_xkcd.py 50
 
-# 2. Run the 20-comic live multimodal evaluation suite across all 16 models
+# 2. Run the 20-comic live multimodal evaluation suite across all 17 models
 .venv/bin/python run_live_evals.py
 
 # 3. Run the CLI evaluation suite & unit tests

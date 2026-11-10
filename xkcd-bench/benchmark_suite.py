@@ -263,6 +263,22 @@ REVERSE_SEARCH_BENCHMARK: list[dict[str, Any]] = [
 # ---------------------------------------------------------------------------
 DEFAULT_BENCHMARK_MODELS: list[dict[str, Any]] = [
     {
+        "id": "gemini-4-carbon",
+        "name": "Gemini 4 Carbon",
+        "provider": "Google DeepMind",
+        "modality": "Vision + Text",
+        "overall": 87.2,
+        "overall_score": 87.2,
+        "humor_score": 92.1,
+        "domain_score": 80.8,
+        "visual_score": 86.0,
+        "alt_text_score": 92.3,
+        "concept_recall": 95.0,
+        "hallucination_rate": 1.7,
+        "avg_latency_ms": 22501,
+        "verified_live": True,
+    },
+    {
         "id": "gemini-4-argon",
         "name": "Gemini 4 Argon",
         "provider": "Google DeepMind",
@@ -589,7 +605,7 @@ def get_model_explanation_for_comic(comic: dict[str, Any], model_id: str) -> str
     deep_context = " ".join(sentences[3:7]) if len(sentences) > 3 else ""
     tail_context = " ".join(sentences[-2:]) if len(sentences) > 5 else ""
 
-    if model_id in ("gemini-4-argon", "gemini-3.1-pro-preview", "gemini-2.5-pro"):
+    if model_id in ("gemini-4-carbon", "gemini-4-argon", "gemini-3.1-pro-preview", "gemini-2.5-pro"):
         parts = [
             f"### 1. Humor & Punchline ({title} — #{num})",
             core_summary,

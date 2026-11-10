@@ -39,7 +39,7 @@
     "description": "A collection of on-device AI experiments. Everything runs in your browser.",
     "url": "https://h3manth.com/ai/",
     "author": { "@type": "Person", "name": "Hemanth HM", "url": "https://h3manth.com" },
-    "numberOfItems": 36
+    "numberOfItems": 38
   }
   </script>
 
@@ -347,12 +347,26 @@
     <section class="section" aria-label="Featured projects">
       <h2 class="section__label">Featured</h2>
       <div class="featured-grid">
+        <a href="./ninada/" class="featured-card">
+          <div>
+            <div class="featured-card__name">Ninada (निनाद)</div>
+            <div class="featured-card__desc">Sub-second in-browser 24 kHz streaming TTS across Classical Sanskrit, English, and 10 Indian languages via 48 capability-routed HiFi-GAN &amp; iSTFTNet ONNX voices.</div>
+          </div>
+          <div class="featured-card__tag">ONNX · WebGPU &amp; WASM · 12 Languages</div>
+        </a>
+        <a href="./swanada/" class="featured-card">
+          <div>
+            <div class="featured-card__name">Swanada (स्वनद)</div>
+            <div class="featured-card__desc">Sub-second in-browser 16 kHz streaming speech-to-text across Classical Sanskrit, Indian English, and 10 Indian languages via shared Conformer INT8 + 515 KB CTC heads.</div>
+          </div>
+          <div class="featured-card__tag">ONNX · WASM SIMD · 12 Languages</div>
+        </a>
         <a href="./xkcd-bench/" class="featured-card">
           <div>
             <div class="featured-card__name">XKCD-Bench</div>
-            <div class="featured-card__desc">Blind multimodal humor &amp; reverse comic search benchmark across 15 frontier LLMs (Gemini 4 Argon, Opus 5.5, Fable 5.1, Gemma 4) and 891 strips.</div>
+            <div class="featured-card__desc">Blind multimodal humor &amp; reverse comic search benchmark across 17 frontier LLMs (Gemini 4 Carbon, Argon, Opus 5.5, Fable 5.1, Gemma 4) and 891 strips.</div>
           </div>
-          <div class="featured-card__tag">Eval · Gemini 4 Argon · TypeSafe</div>
+          <div class="featured-card__tag">Eval · Gemini 4 Carbon · TypeSafe</div>
         </a>
         <a href="./ddx/" class="featured-card">
           <div>
@@ -403,6 +417,14 @@
     <section class="section" aria-label="Voice and Language tools">
       <h2 class="section__label">Voice & Language</h2>
       <div class="app-grid">
+        <a href="./ninada/" class="app-card">
+          <div class="app-card__name">Ninada (निनाद)</div>
+          <div class="app-card__desc">Sub-second 24 kHz streaming text-to-speech across Sanskrit, English, and 10 Indian languages via 21.7 MB iSTFTNet &amp; 27.9 MB HiFi-GAN ONNX voices.</div>
+        </a>
+        <a href="./swanada/" class="app-card">
+          <div class="app-card__name">Swanada (स्वनद)</div>
+          <div class="app-card__desc">Sub-second 16 kHz streaming speech-to-text across Sanskrit, Indian English, and 10 Indian languages with ANC + Wiener noise cancellation and 0% prefix churn.</div>
+        </a>
         <a href="./sanskrit-tts/" class="app-card">
           <div class="app-card__name">Vāgdhenu (वाग्धेनु)</div>
           <div class="app-card__desc">100% in-browser Sanskrit śloka-to-chant synthesis via ONNX Runtime (WebGPU &amp; WASM) with Pāṇinian Chandas scansion.</div>

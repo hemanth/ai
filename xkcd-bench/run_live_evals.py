@@ -65,6 +65,14 @@ EVAL_COMIC_IDS = [
 
 FRONTIER_MODELS: list[dict[str, Any]] = [
     {
+        "id": "gemini-4-carbon",
+        "name": "Gemini 4 Carbon",
+        "provider": "Google DeepMind",
+        "api_type": "gemini",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
         "id": "gemini-4-argon",
         "name": "Gemini 4 Argon",
         "provider": "Google DeepMind",
@@ -243,6 +251,7 @@ async def call_model_blind_explanation(
         try:
             if api_type == "gemini":
                 gclient = genai.Client(api_key=GEMINI_API_KEY)
+                api_model_name = model_cfg.get("api_model", model_id)
                 contents: list[Any] = []
                 if img_bytes:
                     contents.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
@@ -252,7 +261,7 @@ async def call_model_blind_explanation(
                     try:
                         resp = await asyncio.wait_for(
                             gclient.aio.models.generate_content(
-                                model=model_id,
+                                model=api_model_name,
                                 contents=contents,
                                 config=types.GenerateContentConfig(temperature=0.2),
                             ),
@@ -570,7 +579,7 @@ async def evaluate_llm_zero_shot_reverse_search(
         if api_type == "gemini":
             gclient = genai.Client(api_key=GEMINI_API_KEY)
             resp = await gclient.aio.models.generate_content(
-                model=model_id,
+                model=model_cfg.get("api_model", model_id),
                 contents=prompt,
                 config=types.GenerateContentConfig(temperature=0.0),
             )
@@ -805,7 +814,7 @@ async def main() -> None:
 
         explain_leaderboard.sort(key=lambda x: x["overall"], reverse=True)
 
-        print("\n[LIVE TRACK 1 LEADERBOARD — EMPIRICAL RESULTS (15 FRONTIER MODELS)]")
+        print(f"\n[LIVE TRACK 1 LEADERBOARD — EMPIRICAL RESULTS ({len(explain_leaderboard)} FRONTIER MODELS)]")
         for rank, row in enumerate(explain_leaderboard, 1):
             print(
                 f"  #{rank:<2} {row['name']:<28} | Overall: {row['overall']:>5.1f}% | "
@@ -815,6 +824,37 @@ async def main() -> None:
             )
 
         if len(existing_retrieval) >= 8:
+            existing_zs_ids = {r.get("id") for r in existing_retrieval}
+            target_zs_models = [
+                m
+                for m in FRONTIER_MODELS
+                if m["id"] in ("gemini-4-carbon", "gemini-4-argon", "claude-opus-5-5", "claude-fable-5-1", "gemini-3.8-flash", "gemma-4-31b-it")
+                and f"llm-{m['id']}" not in existing_zs_ids
+            ]
+            if target_zs_models:
+                cand_ids: set[int] = {int(q["expected_id"]) for q in REVERSE_SEARCH_BENCHMARK}
+                for c in comics_all[:55]:
+                    cand_ids.add(int(c["num"]))
+                for q in REVERSE_SEARCH_BENCHMARK:
+                    r_bm = search_bm25(q["query"], top_k=5)
+                    for x in r_bm["results"][:4]:
+                        cand_ids.add(int(x["comic_id"]))
+                cand_pool = [get_comic_by_id(cid) for cid in sorted(cand_ids) if get_comic_by_id(cid)]
+                print(f"\nEvaluating {len(target_zs_models)} new model(s) on Track 2 Zero-Shot Retrieval (30 queries over {len(cand_pool)} candidates)...", flush=True)
+                new_zs = await asyncio.gather(
+                    *[evaluate_llm_zero_shot_reverse_search(m, REVERSE_SEARCH_BENCHMARK, cand_pool, http_client) for m in target_zs_models]
+                )
+                for zs in new_zs:
+                    if zs:
+                        existing_retrieval.append(zs)
+                existing_retrieval.sort(key=lambda x: (x["hit_at_1"], x["mrr_at_10"], -x["p50_latency_ms"]), reverse=True)
+                print("\n[LIVE TRACK 2 LEADERBOARD — EMPIRICAL RESULTS (30 QUERIES ON 891 COMICS)]")
+                for rank, row in enumerate(existing_retrieval, 1):
+                    print(
+                        f"  #{rank:<2} {row['name']:<48} | Hit@1: {row['hit_at_1']:>5.1f}% | "
+                        f"Hit@3: {row['hit_at_3']:>5.1f}% | MRR: {row['mrr_at_10']:.3f} | P50: {row['p50_latency_ms']}ms"
+                    )
+
             with open(LIVE_RESULTS_PATH, "w", encoding="utf-8") as f:
                 json.dump(
                     {

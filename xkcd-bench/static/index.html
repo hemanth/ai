@@ -1573,7 +1573,7 @@
                 </div>
                 <h1 class="hero-headline">Can AI actually get the joke, or just recite the punchline?</h1>
                 <p class="hero-subtext">
-                    We gave <strong>16 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Argon</strong>, <strong>Claude Opus 5.5</strong>, <strong>Claude Fable 5.1</strong>, <strong>Muse Glimmer 30B</strong>, <strong>Nemotron 3.5 Super VL</strong>, and <strong>Gemma 4 31B</strong> break down the humor, or test reverse comic search across 891 strips.
+                    We gave <strong>17 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Carbon</strong>, <strong>Gemini 4 Argon</strong>, <strong>Claude Fable 5.1</strong>, <strong>Claude Opus 5.5</strong>, <strong>Nemotron 3.5 Super VL</strong>, and <strong>Gemma 4 31B</strong> break down the humor, or test reverse comic search across 891 strips.
                 </p>
                 <div style="display:flex;gap:0.6rem;margin-top:0.95rem;flex-wrap:wrap;">
                     <button type="button" class="btn-cta" onclick="switchView('arena')">
@@ -1602,17 +1602,17 @@
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Live Blind Evals</span>
-                    <span class="telemetry-val" id="stat-bench-count">136</span>
-                    <span class="telemetry-sub" id="stat-bench-sub">17 Models × 8 Comics + 30 Queries</span>
+                    <span class="telemetry-val" id="stat-bench-count">340</span>
+                    <span class="telemetry-sub" id="stat-bench-sub">17 Models × 20 Comics + 30 Queries</span>
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Top Explain (#1)</span>
-                    <span class="telemetry-val" id="stat-top-explain">70.5%</span>
-                    <span class="telemetry-sub" id="stat-top-explain-sub">Gemini 4 Argon</span>
+                    <span class="telemetry-val" id="stat-top-explain">87.2%</span>
+                    <span class="telemetry-sub" id="stat-top-explain-sub">Gemini 4 Carbon</span>
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Reverse Hit@1</span>
-                    <span class="telemetry-val" id="stat-top-hit">93.3%</span>
+                    <span class="telemetry-val" id="stat-top-hit">100.0%</span>
                     <span class="telemetry-sub" id="stat-top-hit-sub">30 Queries / 891 Strips</span>
                 </div>
             </div>
@@ -1718,9 +1718,9 @@
                         <!-- 4-Pillar Score Summary -->
                         <div class="rubric-summary-card">
                             <div class="overall-score-box">
-                                <div class="overall-score-num" id="eval-overall-score">73.8</div>
+                                <div class="overall-score-num" id="eval-overall-score">87.2</div>
                                 <div class="overall-score-label">Composite</div>
-                                <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:4px;" id="eval-model-meta">Gemini 4 Argon</div>
+                                <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:4px;" id="eval-model-meta">Gemini 4 Carbon</div>
                             </div>
 
                             <div class="pillars-list">
@@ -1874,7 +1874,7 @@
                                     <h2 class="section-heading">Track 1: LLM Comic Explanation Leaderboard (Explain-Bench)</h2>
                                     <span class="meta-pill" style="color:var(--text);border-color:var(--border-strong);">LIVE BLIND PNG + ALT-TEXT EVAL</span>
                                 </div>
-                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 16 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across 8 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
+                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 17 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
                             </div>
                             <div class="filter-pills" id="explain-domain-filters">
                                 <button type="button" class="filter-pill active" data-domain="all">All Domains</button>
@@ -2155,13 +2155,13 @@
                                 <text x="140" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Memory · Concept · PNG Upload</text>
                             </g>
 
-                            <!-- Node 4: 16 Frontier LLMs -->
+                            <!-- Node 4: 17 Frontier LLMs -->
                             <g>
                                 <rect x="368" y="88" width="344" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
                                 <rect x="376" y="96" width="108" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="430" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VISION + TEXT GEN</text>
-                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">16 Frontier Multimodal &amp; Reasoning Models</text>
-                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Argon · Fable 5.1 · Opus 5.5 · Nemotron 3.5 VL · Gemma 4</text>
+                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">17 Frontier Multimodal &amp; Reasoning Models</text>
+                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Carbon · Argon · Fable 5.1 · Opus 5.5 · Nemotron 3.5 VL</text>
                             </g>
 
                             <!-- Node 5: FOCAL INVERTED BLACK HERO NODE (Hybrid 4-Pillar Rubric Judge) -->
@@ -2188,7 +2188,7 @@
                                 <rect x="856" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="898" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STATE STORE</text>
                                 <text x="940" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Live Eval Telemetry</text>
-                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 320 Runs</text>
+                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 340 Runs</text>
                             </g>
 
                             <!-- Node 8: Track 1 Arena & Domain Podiums -->
@@ -2322,12 +2322,12 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
                 <div>
                     <h3 style="font-size:1.02rem;font-weight:600;">API Keys &amp; Multi-Provider Runtime</h3>
-                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">16 Frontier Models + TypeSafe System One Judge</div>
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">17 Frontier Models + TypeSafe System One Judge</div>
                 </div>
                 <button type="button" class="icon-btn" id="close-keys-btn" style="padding:2px 8px;">Close</button>
             </div>
             <p style="font-size:0.79rem;color:var(--text-secondary);line-height:1.5;margin-bottom:1rem;">
-                Pre-computed live empirical evaluations for all 16 models across 20 canonical comics are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
+                Pre-computed live empirical evaluations for all 17 models across 20 canonical comics are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
             </p>
 
             <div class="field-block">
@@ -2341,7 +2341,7 @@
 
             <div class="field-block">
                 <div class="field-label">
-                    <label for="input-gemini-key">2. Google Gemini &amp; Gemma API Key (7 Models: Argon, 3.8/3.7, 3.1/2.5, Gemma 4)</label>
+                    <label for="input-gemini-key">2. Google Gemini &amp; Gemma API Key (8 Models: Carbon, Argon, 3.8/3.7, 3.1/2.5, Gemma 4)</label>
                     <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--text-secondary);font-size:0.72rem;">aistudio.google.com</a>
                 </div>
                 <input type="password" id="input-gemini-key" class="text-input-mono" placeholder="AIzaSy..." autocomplete="off">
@@ -2378,7 +2378,7 @@
         let overviewData = null;
         let allComics = [];
         let currentComicDetail = null;
-        let activeModelId = 'gemini-4-argon';
+        let activeModelId = 'gemini-4-carbon';
         let searchMode = 'text';
         let selectedSearchEngine = 'hybrid';
         let uploadedImageFile = null;
@@ -3038,7 +3038,7 @@
             const btn = document.getElementById('live-gemini-eval-btn');
             btn.disabled = true;
             const origHtml = btn.innerHTML;
-            const targetModel = activeModelId || 'gemini-4-argon';
+            const targetModel = activeModelId || 'gemini-4-carbon';
             btn.innerHTML = `<span>Generating Live (${esc(targetModel)})...</span>`;
 
             try {
@@ -3333,7 +3333,7 @@
         // VIEW 3: LEADERBOARDS & LIVE SWEEP
         // -------------------------------------------------------------------
         const DOMAIN_DESCRIPTIONS = {
-            'all': 'Real empirical outputs across 16 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.',
+            'all': 'Real empirical outputs across 17 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.',
             'Computer Science & Security': 'CS & Security Domain (188 corpus comics · 7 Canonical Eval Strips: #149 Sandwich, #208 Regex, #327 Exploits of a Mom, #353 Python, #979 Wisdom of the Ancients, #1513 Code Quality, #1597 Git) — Tests SQL injection, parser context-switching, regex engines, and Git DAG topology.',
             'AI & Machine Learning': 'AI & ML Domain (65 corpus comics · 2 Canonical Eval Strips: #1838 Machine Learning, #2173 Trained a Neural Net) — Tests empirical ML training loops, linear algebra matrix transformations, loss optimization, and predictive curve-fitting satire.',
             'Physics & Aerospace': 'Physics & Space Domain (169 corpus comics · Canonical Eval: #2630 Shuttle Skeleton) — Tests comparative vertebrate osteology (cetacean vs. avian anatomy) mapped onto NASA Space Shuttle orbiter aerodynamics and paleontological reconstruction.',
@@ -3652,7 +3652,7 @@
 
             document.getElementById('status-gemini-key').textContent = localGm
                 ? 'Active: Custom browser key'
-                : (serverStatus?.gemini_configured ? `Active: Server key (${serverStatus.gemini_masked})` : 'Optional — powers live Gemini 4 Argon, 3.8/3.7 Flash, 3.1/2.5 Pro & Gemma 4');
+                : (serverStatus?.gemini_configured ? `Active: Server key (${serverStatus.gemini_masked})` : 'Optional — powers live Gemini 4 Carbon/Argon, 3.8/3.7 Flash, 3.1/2.5 Pro & Gemma 4');
 
             document.getElementById('status-anthropic-key').textContent = localAn
                 ? 'Active: Custom browser key'
