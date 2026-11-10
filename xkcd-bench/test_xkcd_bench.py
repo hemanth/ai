@@ -30,16 +30,23 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertEqual(data["dataset"]["primary_hf"], "olivierdehaene/xkcd")
         self.assertIn("devparagiri/dataset-xkcd", data["dataset"]["secondary_hf"])
 
-        # Verify Track 1 Leaderboard has 17 frontier models, Gemini 4 Carbon #1, Gemini 4 Argon #2, and Nemotron 3.5 Super VL
+        # Verify Track 1 Leaderboard has 23 frontier models, Gemini 4 Carbon #1, Claude Fable 5.2 #2, Gemini 4 Argon #3
         lb = data["explain_leaderboard"]
-        self.assertEqual(len(lb), 17)
+        self.assertEqual(len(lb), 23)
         self.assertEqual(lb[0]["id"], "gemini-4-carbon")
-        self.assertEqual(lb[1]["id"], "gemini-4-argon")
+        self.assertEqual(lb[1]["id"], "claude-fable-5-2")
+        self.assertEqual(lb[2]["id"], "gemini-4-argon")
         model_ids = {m["id"] for m in lb}
         self.assertIn("gemini-4-carbon", model_ids)
+        self.assertIn("claude-fable-5-2", model_ids)
         self.assertIn("gemini-4-argon", model_ids)
         self.assertIn("claude-fable-5-1", model_ids)
+        self.assertIn("gemini-omni-1.2-flash", model_ids)
+        self.assertIn("claude-haiku-5-5", model_ids)
         self.assertIn("gemini-3.7-flash", model_ids)
+        self.assertIn("deepseek-ai/deepseek-v4.1-flash-maas", model_ids)
+        self.assertIn("zai-org/glm-5.2-maas", model_ids)
+        self.assertIn("nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", model_ids)
         self.assertIn("gemma-4-31b-it", model_ids)
         self.assertIn("nvidia/nemotron-3.5-super-vl:free", model_ids)
         self.assertIn("nvidia/nemotron-3-ultra-550b-a55b:free", model_ids)
@@ -98,13 +105,13 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertIn("xkcd-arch-title", arch_resp.text)
 
     def test_comic_detail_live_telemetry_contract(self) -> None:
-        # On #2347 (Dependency), all 17 frontier models completed live blind evaluations
+        # On #2347 (Dependency), all 23 frontier models completed live blind evaluations
         resp_2347 = self.client.get("/api/comics/2347")
         self.assertEqual(resp_2347.status_code, 200)
         data_2347 = resp_2347.json()
         self.assertEqual(data_2347["comic"]["num"], 2347)
         evals_2347 = data_2347["model_evaluations"]
-        self.assertEqual(len(evals_2347), 17)
+        self.assertEqual(len(evals_2347), 23)
         for item in evals_2347:
             self.assertTrue(item["is_live_empirical"])
             self.assertTrue(item["verified_live"])

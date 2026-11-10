@@ -35,7 +35,7 @@ from benchmark_suite import (
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 COMICS_DIR = os.path.join(BASE_DIR, "comics")
 IMAGES_DIR = os.path.join(COMICS_DIR, "images")
@@ -607,15 +607,49 @@ async def generate_live_explanation(
             )
             r.raise_for_status()
             text = "\n".join(b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text").strip()
+    elif model_name.endswith("-maas"):
+        import subprocess
+
+        v_tok = os.getenv("VERTEX_ACCESS_TOKEN", "").strip()
+        if not v_tok:
+            env = dict(os.environ)
+            env["CLOUDSDK_METRICS_ENVIRONMENT"] = (
+                f"{env.get('CLOUDSDK_METRICS_ENVIRONMENT', '')} datacloud.antigravity".strip()
+            )
+            v_tok = subprocess.check_output(["gcloud", "auth", "print-access-token"], env=env, text=True).strip()
+        if img_bytes:
+            b64 = base64.b64encode(img_bytes).decode()
+            maas_content: Any = [
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                {"type": "text", "text": prompt},
+            ]
+        else:
+            maas_content = prompt
+        async with httpx.AsyncClient() as http_client:
+            r = await http_client.post(
+                "https://aiplatform.googleapis.com/v1/projects/hemanth-hm/locations/global/endpoints/openapi/chat/completions",
+                headers={"Authorization": f"Bearer {v_tok}", "Content-Type": "application/json"},
+                json={"model": model_name, "max_tokens": 4096, "temperature": 0.2, "messages": [{"role": "user", "content": maas_content}]},
+                timeout=90.0,
+            )
+            r.raise_for_status()
+            msg_obj = r.json().get("choices", [{}])[0].get("message", {})
+            text = (msg_obj.get("content") or msg_obj.get("reasoning_content") or "").strip()
     elif "/" in model_name:
         or_key = openrouter_api_key or os.getenv("OPENROUTER_API_KEY")
-        if img_bytes and comic.get("transcript"):
-            prompt += f"\n\nPanel Transcript:\n{comic.get('transcript', '')[:900]}"
+        if img_bytes:
+            b64 = base64.b64encode(img_bytes).decode()
+            or_content: Any = [
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                {"type": "text", "text": prompt},
+            ]
+        else:
+            or_content = prompt
         async with httpx.AsyncClient() as http_client:
             r = await http_client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
-                json={"model": model_name, "max_tokens": 4096, "temperature": 0.2, "messages": [{"role": "user", "content": prompt}]},
+                json={"model": model_name, "max_tokens": 4096, "temperature": 0.2, "messages": [{"role": "user", "content": or_content}]},
                 timeout=90.0,
             )
             r.raise_for_status()
@@ -628,12 +662,20 @@ async def generate_live_explanation(
             contents.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
         contents.append(prompt)
         target_model = model_name if model_name.startswith(("gemini", "gemma")) else "gemini-4-carbon"
-        resp = await client.aio.models.generate_content(
-            model=target_model,
-            contents=contents,
-            config=types.GenerateContentConfig(temperature=0.2),
-        )
-        text = (resp.text or "").strip()
+        if target_model.startswith("gemini-omni"):
+            inputs: list[dict[str, Any]] = []
+            if img_bytes:
+                inputs.append({"type": "image", "data": base64.b64encode(img_bytes).decode(), "mime_type": "image/png"})
+            inputs.append({"type": "text", "text": prompt})
+            resp_int = await client.aio.interactions.create(model=target_model, input=inputs)
+            text = (getattr(resp_int, "output_text", "") or "").strip()
+        else:
+            resp = await client.aio.models.generate_content(
+                model=target_model,
+                contents=contents,
+                config=types.GenerateContentConfig(temperature=0.2),
+            )
+            text = (resp.text or "").strip()
         model_name = target_model
 
     latency_ms = round((time.perf_counter() - t0) * 1000, 1)

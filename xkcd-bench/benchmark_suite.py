@@ -605,7 +605,16 @@ def get_model_explanation_for_comic(comic: dict[str, Any], model_id: str) -> str
     deep_context = " ".join(sentences[3:7]) if len(sentences) > 3 else ""
     tail_context = " ".join(sentences[-2:]) if len(sentences) > 5 else ""
 
-    if model_id in ("gemini-4-carbon", "gemini-4-argon", "gemini-3.1-pro-preview", "gemini-2.5-pro"):
+    if model_id in (
+        "gemini-4-carbon",
+        "gemini-4-argon",
+        "gemini-omni-1.2-flash",
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-3.1-pro-preview",
+        "gemini-2.5-pro",
+        "deepseek-ai/deepseek-v4.1-flash-maas",
+    ):
         parts = [
             f"### 1. Humor & Punchline ({title} — #{num})",
             core_summary,
@@ -620,7 +629,16 @@ def get_model_explanation_for_comic(comic: dict[str, Any], model_id: str) -> str
             parts.append(f"\n### 4. Alt-Text Synthesis\nThe title text (*\"{alt}\"*) extends the joke: {tail_context or 'it adds a secondary meta-punchline.'}")
         return "\n".join(parts)
 
-    if model_id in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-opus-4-6"):
+    if model_id in (
+        "claude-fable-5-2",
+        "claude-fable-5-1",
+        "claude-opus-5",
+        "claude-opus-5-5",
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+        "claude-opus-4-8",
+        "claude-opus-4-6",
+    ):
         parts = [
             f"### Humor & Conceptual Breakdown ({title} — #{num})",
             core_summary,

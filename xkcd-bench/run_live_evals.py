@@ -48,7 +48,7 @@ from engine import (
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 TYPESAFE_API_KEY = os.getenv("TYPESAFE_API_KEY")
@@ -85,6 +85,14 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
         "name": "Gemini 3.8 Flash",
         "provider": "Google DeepMind",
         "api_type": "gemini",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "gemini-omni-1.2-flash",
+        "name": "Gemini Omni 1.2 Flash",
+        "provider": "Google DeepMind",
+        "api_type": "gemini_interactions",
         "modality": "Vision + Text",
         "supports_vision": True,
     },
@@ -129,6 +137,14 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
         "supports_vision": True,
     },
     {
+        "id": "claude-fable-5-2",
+        "name": "Claude Fable 5.2",
+        "provider": "Anthropic",
+        "api_type": "anthropic",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
         "id": "claude-opus-5-5",
         "name": "Claude Opus 5.5",
         "provider": "Anthropic",
@@ -139,6 +155,14 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
     {
         "id": "claude-sonnet-5-5",
         "name": "Claude Sonnet 5.5",
+        "provider": "Anthropic",
+        "api_type": "anthropic",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "claude-haiku-5-5",
+        "name": "Claude Haiku 5.5",
         "provider": "Anthropic",
         "api_type": "anthropic",
         "modality": "Vision + Text",
@@ -177,9 +201,33 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
         "supports_vision": True,
     },
     {
+        "id": "deepseek-ai/deepseek-v4.1-flash-maas",
+        "name": "DeepSeek V4.1 Flash",
+        "provider": "DeepSeek (552B MIT Open Weights)",
+        "api_type": "vertex_maas",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "zai-org/glm-5.2-maas",
+        "name": "GLM-5.2",
+        "provider": "Z.ai",
+        "api_type": "vertex_maas",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
         "id": "nvidia/nemotron-3.5-super-vl:free",
         "name": "NVIDIA Nemotron 3.5 Super VL",
         "provider": "NVIDIA (120B-A12B Multimodal MoE)",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "name": "NVIDIA Nemotron 3 Nano Omni",
+        "provider": "NVIDIA (30B-A3B Omni Reasoning)",
         "api_type": "openrouter",
         "modality": "Vision + Text",
         "supports_vision": True,
@@ -275,6 +323,28 @@ async def call_model_blind_explanation(
                             raise ge
                         await asyncio.sleep(2.5 * (attempt + 1))
 
+            elif api_type == "gemini_interactions":
+                gclient = genai.Client(api_key=GEMINI_API_KEY)
+                api_model_name = model_cfg.get("api_model", model_id)
+                inputs: list[dict[str, Any]] = []
+                if img_bytes:
+                    inputs.append({"type": "image", "data": base64.b64encode(img_bytes).decode(), "mime_type": "image/png"})
+                inputs.append({"type": "text", "text": prompt})
+                text = ""
+                for attempt in range(3):
+                    try:
+                        resp_int = await asyncio.wait_for(
+                            gclient.aio.interactions.create(model=api_model_name, input=inputs),
+                            timeout=75.0,
+                        )
+                        text = (getattr(resp_int, "output_text", "") or "").strip()
+                        if text:
+                            break
+                    except Exception as ge:
+                        if attempt == 2:
+                            raise ge
+                        await asyncio.sleep(2.5 * (attempt + 1))
+
             elif api_type == "anthropic":
                 content_blocks: list[dict[str, Any]] = []
                 if img_bytes:
@@ -297,10 +367,10 @@ async def call_model_blind_explanation(
                         },
                         json={
                             "model": model_id,
-                            "max_tokens": 4096,
+                            "max_tokens": 8192,
                             "messages": [{"role": "user", "content": content_blocks}],
                         },
-                        timeout=90.0,
+                        timeout=120.0,
                     )
                     if r.status_code in (429, 500, 502, 503, 529) and attempt < 2:
                         await asyncio.sleep(3.5 * (attempt + 1))
@@ -310,6 +380,52 @@ async def call_model_blind_explanation(
                     text = "\n".join(
                         b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
                     ).strip()
+                    if text:
+                        break
+
+            elif api_type == "vertex_maas":
+                import subprocess
+
+                v_tok = os.getenv("VERTEX_ACCESS_TOKEN", "").strip()
+                if not v_tok:
+                    env = dict(os.environ)
+                    env["CLOUDSDK_METRICS_ENVIRONMENT"] = (
+                        f"{env.get('CLOUDSDK_METRICS_ENVIRONMENT', '')} datacloud.antigravity".strip()
+                    )
+                    v_tok = subprocess.check_output(
+                        ["gcloud", "auth", "print-access-token"], env=env, text=True
+                    ).strip()
+                    os.environ["VERTEX_ACCESS_TOKEN"] = v_tok
+                v_headers = {
+                    "Authorization": f"Bearer {v_tok}",
+                    "x-goog-user-project": "hemanth-hm",
+                    "Content-Type": "application/json",
+                }
+                msg_content: list[dict[str, Any]] = []
+                if img_bytes:
+                    b64 = base64.b64encode(img_bytes).decode()
+                    msg_content.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}})
+                msg_content.append({"type": "text", "text": prompt})
+                maas_url = "https://aiplatform.googleapis.com/v1/projects/hemanth-hm/locations/global/endpoints/openapi/chat/completions"
+                text = ""
+                for attempt in range(4):
+                    r = await http_client.post(
+                        maas_url,
+                        headers=v_headers,
+                        json={
+                            "model": model_cfg.get("api_model", model_id),
+                            "max_tokens": 4096,
+                            "temperature": 0.2,
+                            "messages": [{"role": "user", "content": msg_content}],
+                        },
+                        timeout=120.0,
+                    )
+                    if r.status_code in (429, 500, 502, 503, 529) and attempt < 3:
+                        await asyncio.sleep(3.5 * (attempt + 1))
+                        continue
+                    r.raise_for_status()
+                    msg_obj = r.json().get("choices", [{}])[0].get("message", {})
+                    text = (msg_obj.get("content") or msg_obj.get("reasoning_content") or "").strip()
                     if text:
                         break
 
@@ -584,6 +700,13 @@ async def evaluate_llm_zero_shot_reverse_search(
                 config=types.GenerateContentConfig(temperature=0.0),
             )
             raw = resp.text or ""
+        elif api_type == "gemini_interactions":
+            gclient = genai.Client(api_key=GEMINI_API_KEY)
+            resp_int = await gclient.aio.interactions.create(
+                model=model_cfg.get("api_model", model_id),
+                input=prompt,
+            )
+            raw = getattr(resp_int, "output_text", "") or ""
         elif api_type == "anthropic":
             r = await http_client.post(
                 "https://api.anthropic.com/v1/messages",
@@ -594,15 +717,47 @@ async def evaluate_llm_zero_shot_reverse_search(
                 },
                 json={
                     "model": model_id,
-                    "max_tokens": 1600,
+                    "max_tokens": 8192,
                     "messages": [{"role": "user", "content": prompt}],
                 },
-                timeout=55.0,
+                timeout=120.0,
             )
             r.raise_for_status()
             raw = "\n".join(
                 b.get("text", "") for b in r.json().get("content", []) if b.get("type") == "text"
             )
+        elif api_type == "vertex_maas":
+            import subprocess
+
+            v_tok = os.getenv("VERTEX_ACCESS_TOKEN", "").strip()
+            if not v_tok:
+                env = dict(os.environ)
+                env["CLOUDSDK_METRICS_ENVIRONMENT"] = (
+                    f"{env.get('CLOUDSDK_METRICS_ENVIRONMENT', '')} datacloud.antigravity".strip()
+                )
+                v_tok = subprocess.check_output(
+                    ["gcloud", "auth", "print-access-token"], env=env, text=True
+                ).strip()
+                os.environ["VERTEX_ACCESS_TOKEN"] = v_tok
+            maas_url = "https://aiplatform.googleapis.com/v1/projects/hemanth-hm/locations/global/endpoints/openapi/chat/completions"
+            r = await http_client.post(
+                maas_url,
+                headers={
+                    "Authorization": f"Bearer {v_tok}",
+                    "x-goog-user-project": "hemanth-hm",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model_cfg.get("api_model", model_id),
+                    "max_tokens": 6144,
+                    "temperature": 0.0,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=120.0,
+            )
+            r.raise_for_status()
+            msg_obj = r.json().get("choices", [{}])[0].get("message", {})
+            raw = (msg_obj.get("content") or msg_obj.get("reasoning_content") or "")
         else:
             r = await http_client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
@@ -612,14 +767,15 @@ async def evaluate_llm_zero_shot_reverse_search(
                 },
                 json={
                     "model": model_id,
-                    "max_tokens": 1200,
+                    "max_tokens": 4096,
                     "temperature": 0.0,
                     "messages": [{"role": "user", "content": prompt}],
                 },
-                timeout=55.0,
+                timeout=90.0,
             )
             r.raise_for_status()
-            raw = r.json().get("choices", [{}])[0].get("message", {}).get("content", "") or ""
+            msg_obj = r.json().get("choices", [{}])[0].get("message", {})
+            raw = (msg_obj.get("content") or msg_obj.get("reasoning") or "")
 
         total_ms = round((time.perf_counter() - t0) * 1000, 1)
         m = re.search(r"\{[\s\S]*\}", raw)
@@ -679,7 +835,9 @@ async def main() -> None:
 
     sems = {
         "gemini": asyncio.Semaphore(8),
+        "gemini_interactions": asyncio.Semaphore(6),
         "anthropic": asyncio.Semaphore(6),
+        "vertex_maas": asyncio.Semaphore(4),
         "openrouter": asyncio.Semaphore(2),
     }
     default_sem = asyncio.Semaphore(4)
@@ -828,7 +986,19 @@ async def main() -> None:
             target_zs_models = [
                 m
                 for m in FRONTIER_MODELS
-                if m["id"] in ("gemini-4-carbon", "gemini-4-argon", "claude-opus-5-5", "claude-fable-5-1", "gemini-3.8-flash", "gemma-4-31b-it")
+                if m["id"] in (
+                    "gemini-4-carbon",
+                    "gemini-4-argon",
+                    "claude-fable-5-2",
+                    "claude-opus-5-5",
+                    "claude-fable-5-1",
+                    "claude-haiku-5-5",
+                    "gemini-3.8-flash",
+                    "gemini-omni-1.2-flash",
+                    "deepseek-ai/deepseek-v4.1-flash-maas",
+                    "zai-org/glm-5.2-maas",
+                    "gemma-4-31b-it",
+                )
                 and f"llm-{m['id']}" not in existing_zs_ids
             ]
             if target_zs_models:
