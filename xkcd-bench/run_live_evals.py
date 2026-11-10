@@ -241,6 +241,78 @@ FRONTIER_MODELS: list[dict[str, Any]] = [
         "supports_vision": False,
     },
     {
+        "id": "openai/gpt-6-astra-pro",
+        "name": "GPT-6 Astra Pro",
+        "provider": "OpenAI",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "openai/gpt-6.1-terra-pro",
+        "name": "GPT-6.1 Terra Pro",
+        "provider": "OpenAI",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "x-ai/grok-4.7",
+        "name": "Grok 4.7",
+        "provider": "xAI",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "meta/muse-wonder",
+        "name": "Meta Muse Wonder",
+        "provider": "Meta Superintelligence Lab",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "meta/muse-spark-open",
+        "name": "Meta Muse Spark Open",
+        "provider": "Meta Superintelligence Lab (Open Weights)",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "meta/muse-ember",
+        "name": "Meta Muse Ember",
+        "provider": "Meta Superintelligence Lab",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "moonshotai/kimi-k3.1-pro",
+        "name": "Kimi K3.1 Pro",
+        "provider": "Moonshot AI",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "qwen/qwen3.8-max-prime",
+        "name": "Qwen 3.8 Max Prime",
+        "provider": "Alibaba Qwen",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
+        "id": "mistralai/mistral-large-4-0",
+        "name": "Mistral Large 4",
+        "provider": "Mistral AI",
+        "api_type": "openrouter",
+        "modality": "Vision + Text",
+        "supports_vision": True,
+    },
+    {
         "id": "openai/gpt-6-luna",
         "name": "GPT-6 Luna",
         "provider": "OpenAI",
@@ -546,19 +618,22 @@ async def call_model_blind_explanation(
                 text = ""
                 for attempt in range(4):
                     try:
+                        or_payload: dict[str, Any] = {
+                            "model": model_id,
+                            "max_tokens": 4500,
+                            "temperature": 0.2,
+                            "messages": [{"role": "user", "content": or_content}],
+                        }
+                        if model_id.startswith(("meta/muse", "openai/gpt-6", "x-ai/grok", "moonshotai/", "qwen/", "mistralai/")):
+                            or_payload["reasoning"] = {"effort": "low"}
                         r = await http_client.post(
                             "https://openrouter.ai/api/v1/chat/completions",
                             headers={
                                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                                 "Content-Type": "application/json",
                             },
-                            json={
-                                "model": model_id,
-                                "max_tokens": 3600,
-                                "temperature": 0.2,
-                                "messages": [{"role": "user", "content": or_content}],
-                            },
-                            timeout=65.0,
+                            json=or_payload,
+                            timeout=120.0,
                         )
                         if r.status_code in (429, 500, 502, 503, 529) and attempt < 3:
                             await asyncio.sleep(3.5 * (attempt + 1))
@@ -759,19 +834,22 @@ async def evaluate_llm_zero_shot_reverse_search(
             msg_obj = r.json().get("choices", [{}])[0].get("message", {})
             raw = (msg_obj.get("content") or msg_obj.get("reasoning_content") or "")
         else:
+            or_zs_payload: dict[str, Any] = {
+                "model": model_id,
+                "max_tokens": 6144,
+                "temperature": 0.0,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            if model_id.startswith(("meta/muse", "openai/gpt-6", "x-ai/grok", "moonshotai/", "qwen/", "mistralai/")):
+                or_zs_payload["reasoning"] = {"effort": "low"}
             r = await http_client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "max_tokens": 4096,
-                    "temperature": 0.0,
-                    "messages": [{"role": "user", "content": prompt}],
-                },
-                timeout=90.0,
+                json=or_zs_payload,
+                timeout=120.0,
             )
             r.raise_for_status()
             msg_obj = r.json().get("choices", [{}])[0].get("message", {})
@@ -838,7 +916,7 @@ async def main() -> None:
         "gemini_interactions": asyncio.Semaphore(6),
         "anthropic": asyncio.Semaphore(6),
         "vertex_maas": asyncio.Semaphore(4),
-        "openrouter": asyncio.Semaphore(2),
+        "openrouter": asyncio.Semaphore(12),
     }
     default_sem = asyncio.Semaphore(4)
     ts_sem = asyncio.Semaphore(12)
@@ -997,6 +1075,15 @@ async def main() -> None:
                     "gemini-omni-1.2-flash",
                     "deepseek-ai/deepseek-v4.1-flash-maas",
                     "zai-org/glm-5.2-maas",
+                    "openai/gpt-6-astra-pro",
+                    "openai/gpt-6.1-terra-pro",
+                    "x-ai/grok-4.7",
+                    "meta/muse-wonder",
+                    "meta/muse-spark-open",
+                    "meta/muse-ember",
+                    "moonshotai/kimi-k3.1-pro",
+                    "qwen/qwen3.8-max-prime",
+                    "mistralai/mistral-large-4-0",
                     "gemma-4-31b-it",
                 )
                 and f"llm-{m['id']}" not in existing_zs_ids

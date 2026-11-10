@@ -1573,7 +1573,7 @@
                 </div>
                 <h1 class="hero-headline">Can AI actually get the joke, or just recite the punchline?</h1>
                 <p class="hero-subtext">
-                    We gave <strong>23 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Carbon</strong>, <strong>Claude Fable 5.2</strong>, <strong>Gemini 4 Argon</strong>, <strong>Gemini Omni 1.2 Flash</strong>, <strong>Claude Haiku 5.5</strong>, and <strong>DeepSeek V4.1 Flash</strong> break down the humor, or test reverse comic search across 891 strips.
+                    We gave <strong>32 frontier models</strong> raw XKCD strips and hover text with zero spoilers, then graded their explanations against human ExplainXKCD contributors using <strong>TypeSafe System One (Noul)</strong>. Compare how <strong>Gemini 4 Carbon</strong>, <strong>Meta Muse Wonder</strong>, <strong>Kimi K3.1 Pro</strong>, <strong>Meta Muse Spark Open</strong>, <strong>Claude Fable 5.2</strong>, and <strong>GPT-6 Astra Pro</strong> break down the humor, or test reverse comic search across 891 strips.
                 </p>
                 <div style="display:flex;gap:0.6rem;margin-top:0.95rem;flex-wrap:wrap;">
                     <button type="button" class="btn-cta" onclick="switchView('arena')">
@@ -1602,8 +1602,8 @@
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Live Blind Evals</span>
-                    <span class="telemetry-val" id="stat-bench-count">460</span>
-                    <span class="telemetry-sub" id="stat-bench-sub">23 Models × 20 Comics + 30 Queries</span>
+                    <span class="telemetry-val" id="stat-bench-count">640</span>
+                    <span class="telemetry-sub" id="stat-bench-sub">32 Models × 20 Comics + 30 Queries</span>
                 </div>
                 <div class="telemetry-cell">
                     <span class="telemetry-label">Top Explain (#1)</span>
@@ -1874,7 +1874,7 @@
                                     <h2 class="section-heading">Track 1: LLM Comic Explanation Leaderboard (Explain-Bench)</h2>
                                     <span class="meta-pill" style="color:var(--text);border-color:var(--border-strong);">LIVE BLIND PNG + ALT-TEXT EVAL</span>
                                 </div>
-                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 23 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
+                                <p class="section-sub" id="explain-section-sub">Real empirical outputs across 32 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.</p>
                             </div>
                             <div class="filter-pills" id="explain-domain-filters">
                                 <button type="button" class="filter-pill active" data-domain="all">All Domains</button>
@@ -2155,13 +2155,13 @@
                                 <text x="140" y="404" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Memory · Concept · PNG Upload</text>
                             </g>
 
-                            <!-- Node 4: 23 Frontier LLMs -->
+                            <!-- Node 4: 32 Frontier LLMs -->
                             <g>
                                 <rect x="368" y="88" width="344" height="88" rx="8" fill="#ffffff" stroke="#000000" stroke-width="1.2"/>
                                 <rect x="376" y="96" width="108" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="430" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VISION + TEXT GEN</text>
-                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">23 Frontier Multimodal &amp; Reasoning Models</text>
-                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Carbon · Fable 5.2 · Argon · Omni 1.2 · DeepSeek V4.1</text>
+                                <text x="540" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">32 Frontier Multimodal &amp; Reasoning Models</text>
+                                <text x="540" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">Carbon · Muse Wonder · Kimi K3.1 · Fable 5.2 · GPT-6 Astra</text>
                             </g>
 
                             <!-- Node 5: FOCAL INVERTED BLACK HERO NODE (Hybrid 4-Pillar Rubric Judge) -->
@@ -2188,7 +2188,7 @@
                                 <rect x="856" y="96" width="84" height="16" rx="4" fill="#ffffff" stroke="#000000" stroke-width="0.8"/>
                                 <text x="898" y="108" fill="#000000" font-size="8" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STATE STORE</text>
                                 <text x="940" y="136" fill="#000000" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Live Eval Telemetry</text>
-                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 460 Runs</text>
+                                <text x="940" y="156" fill="#555555" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">live_eval_results.json · 640 Runs</text>
                             </g>
 
                             <!-- Node 8: Track 1 Arena & Domain Podiums -->
@@ -2322,12 +2322,12 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
                 <div>
                     <h3 style="font-size:1.02rem;font-weight:600;">API Keys &amp; Multi-Provider Runtime</h3>
-                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">23 Frontier Models + TypeSafe System One Judge</div>
+                    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px;">32 Frontier Models + TypeSafe System One Judge</div>
                 </div>
                 <button type="button" class="icon-btn" id="close-keys-btn" style="padding:2px 8px;">Close</button>
             </div>
             <p style="font-size:0.79rem;color:var(--text-secondary);line-height:1.5;margin-bottom:1rem;">
-                Pre-computed live empirical evaluations for all 23 models across 20 canonical comics are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
+                Pre-computed live empirical evaluations for all 32 models across 20 canonical comics are bundled out-of-the-box. Configure provider keys below (or via server <code>.env</code>) to run live on-demand inference across any of the 891 comics.
             </p>
 
             <div class="field-block">
@@ -3333,7 +3333,7 @@
         // VIEW 3: LEADERBOARDS & LIVE SWEEP
         // -------------------------------------------------------------------
         const DOMAIN_DESCRIPTIONS = {
-            'all': 'Real empirical outputs across 23 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.',
+            'all': 'Real empirical outputs across 32 frontier models judged by TypeSafe System One (Noul) + ExplainXKCD ground-truth reference across all 20 canonical strips. Click any model row to inspect its explanations in the Arena.',
             'Computer Science & Security': 'CS & Security Domain (188 corpus comics · 7 Canonical Eval Strips: #149 Sandwich, #208 Regex, #327 Exploits of a Mom, #353 Python, #979 Wisdom of the Ancients, #1513 Code Quality, #1597 Git) — Tests SQL injection, parser context-switching, regex engines, and Git DAG topology.',
             'AI & Machine Learning': 'AI & ML Domain (65 corpus comics · 2 Canonical Eval Strips: #1838 Machine Learning, #2173 Trained a Neural Net) — Tests empirical ML training loops, linear algebra matrix transformations, loss optimization, and predictive curve-fitting satire.',
             'Physics & Aerospace': 'Physics & Space Domain (169 corpus comics · Canonical Eval: #2630 Shuttle Skeleton) — Tests comparative vertebrate osteology (cetacean vs. avian anatomy) mapped onto NASA Space Shuttle orbiter aerodynamics and paleontological reconstruction.',

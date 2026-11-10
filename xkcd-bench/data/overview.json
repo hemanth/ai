@@ -22,7 +22,7 @@
   },
   "live_eval_meta": {
     "is_live_empirical": true,
-    "evaluated_at": "2026-11-10T21:10:17.181438+00:00",
+    "evaluated_at": "2026-11-10T21:59:05.102276+00:00",
     "evaluation_protocol": "Live Blind Multimodal Inference + TypeSafe System One (Noul) + ExplainXKCD Reference Grounding",
     "evaluated_comic_ids": [
       327,
@@ -247,6 +247,612 @@
           "alt_text": 93.0,
           "concept_recall": 66.7,
           "latency_ms": 25704.0
+        }
+      },
+      "meta/muse-wonder": {
+        "327": {
+          "overall": 86.1,
+          "overall_score": 86.1,
+          "humor": 90.2,
+          "domain": 85.0,
+          "visual": 79.2,
+          "alt_text": 91.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15323.8
+        },
+        "2347": {
+          "overall": 90.8,
+          "overall_score": 90.8,
+          "humor": 93.8,
+          "domain": 85.4,
+          "visual": 91.2,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 17753.9
+        },
+        "2630": {
+          "overall": 87.7,
+          "overall_score": 87.7,
+          "humor": 92.6,
+          "domain": 82.0,
+          "visual": 86.0,
+          "alt_text": 92.2,
+          "concept_recall": 83.3,
+          "latency_ms": 21627.1
+        },
+        "927": {
+          "overall": 90.0,
+          "overall_score": 90.0,
+          "humor": 94.2,
+          "domain": 80.2,
+          "visual": 93.6,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15211.6
+        },
+        "386": {
+          "overall": 82.6,
+          "overall_score": 82.6,
+          "humor": 92.6,
+          "domain": 70.7,
+          "visual": 77.6,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 14469.0
+        },
+        "1838": {
+          "overall": 87.1,
+          "overall_score": 87.1,
+          "humor": 91.4,
+          "domain": 81.9,
+          "visual": 83.6,
+          "alt_text": 95.0,
+          "concept_recall": 83.3,
+          "latency_ms": 12871.0
+        },
+        "882": {
+          "overall": 92.8,
+          "overall_score": 92.8,
+          "humor": 95.4,
+          "domain": 92.6,
+          "visual": 88.4,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15514.6
+        },
+        "1597": {
+          "overall": 87.7,
+          "overall_score": 87.7,
+          "humor": 93.0,
+          "domain": 87.8,
+          "visual": 77.2,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 13902.5
+        },
+        "149": {
+          "overall": 78.0,
+          "overall_score": 78.0,
+          "humor": 87.8,
+          "domain": 71.9,
+          "visual": 66.3,
+          "alt_text": 89.8,
+          "concept_recall": 100.0,
+          "latency_ms": 20865.7
+        },
+        "208": {
+          "overall": 86.1,
+          "overall_score": 86.1,
+          "humor": 93.8,
+          "domain": 73.1,
+          "visual": 87.2,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 14626.8
+        },
+        "303": {
+          "overall": 87.3,
+          "overall_score": 87.3,
+          "humor": 94.6,
+          "domain": 78.3,
+          "visual": 86.0,
+          "alt_text": 92.6,
+          "concept_recall": 100.0,
+          "latency_ms": 23682.3
+        },
+        "353": {
+          "overall": 86.4,
+          "overall_score": 86.4,
+          "humor": 91.8,
+          "domain": 80.4,
+          "visual": 83.6,
+          "alt_text": 92.2,
+          "concept_recall": 83.3,
+          "latency_ms": 19115.8
+        },
+        "552": {
+          "overall": 88.5,
+          "overall_score": 88.5,
+          "humor": 93.8,
+          "domain": 87.7,
+          "visual": 78.6,
+          "alt_text": 95.8,
+          "concept_recall": 100.0,
+          "latency_ms": 16447.6
+        },
+        "979": {
+          "overall": 86.1,
+          "overall_score": 86.1,
+          "humor": 93.0,
+          "domain": 74.8,
+          "visual": 86.0,
+          "alt_text": 95.0,
+          "concept_recall": 83.3,
+          "latency_ms": 12999.7
+        },
+        "1053": {
+          "overall": 84.9,
+          "overall_score": 84.9,
+          "humor": 93.8,
+          "domain": 73.1,
+          "visual": 82.8,
+          "alt_text": 94.2,
+          "concept_recall": 83.3,
+          "latency_ms": 15585.8
+        },
+        "1172": {
+          "overall": 86.4,
+          "overall_score": 86.4,
+          "humor": 91.8,
+          "domain": 80.2,
+          "visual": 82.4,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 16410.1
+        },
+        "1205": {
+          "overall": 89.2,
+          "overall_score": 89.2,
+          "humor": 92.6,
+          "domain": 85.0,
+          "visual": 87.2,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 19741.0
+        },
+        "1319": {
+          "overall": 88.1,
+          "overall_score": 88.1,
+          "humor": 93.0,
+          "domain": 77.3,
+          "visual": 92.4,
+          "alt_text": 92.6,
+          "concept_recall": 100.0,
+          "latency_ms": 15554.2
+        },
+        "1513": {
+          "overall": 84.0,
+          "overall_score": 84.0,
+          "humor": 91.8,
+          "domain": 76.0,
+          "visual": 80.0,
+          "alt_text": 91.0,
+          "concept_recall": 80.0,
+          "latency_ms": 13056.4
+        },
+        "2173": {
+          "overall": 77.5,
+          "overall_score": 77.5,
+          "humor": 87.7,
+          "domain": 65.9,
+          "visual": 69.9,
+          "alt_text": 93.3,
+          "concept_recall": 66.7,
+          "latency_ms": 11381.4
+        }
+      },
+      "moonshotai/kimi-k3.1-pro": {
+        "327": {
+          "overall": 88.5,
+          "overall_score": 88.5,
+          "humor": 93.0,
+          "domain": 89.4,
+          "visual": 79.2,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 8588.5
+        },
+        "2347": {
+          "overall": 87.3,
+          "overall_score": 87.3,
+          "humor": 93.8,
+          "domain": 82.6,
+          "visual": 80.4,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 10075.5
+        },
+        "2630": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 92.2,
+          "domain": 81.9,
+          "visual": 84.0,
+          "alt_text": 93.4,
+          "concept_recall": 83.3,
+          "latency_ms": 5091.2
+        },
+        "927": {
+          "overall": 89.7,
+          "overall_score": 89.7,
+          "humor": 94.6,
+          "domain": 81.8,
+          "visual": 90.0,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 5465.0
+        },
+        "386": {
+          "overall": 80.5,
+          "overall_score": 80.5,
+          "humor": 93.8,
+          "domain": 66.9,
+          "visual": 71.3,
+          "alt_text": 96.2,
+          "concept_recall": 75.0,
+          "latency_ms": 8229.2
+        },
+        "1838": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 91.8,
+          "domain": 83.5,
+          "visual": 81.6,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 3986.3
+        },
+        "882": {
+          "overall": 90.4,
+          "overall_score": 90.4,
+          "humor": 94.2,
+          "domain": 93.0,
+          "visual": 80.7,
+          "alt_text": 93.8,
+          "concept_recall": 85.7,
+          "latency_ms": 10423.0
+        },
+        "1597": {
+          "overall": 89.8,
+          "overall_score": 89.8,
+          "humor": 94.2,
+          "domain": 86.6,
+          "visual": 84.8,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 13065.8
+        },
+        "149": {
+          "overall": 83.2,
+          "overall_score": 83.2,
+          "humor": 91.8,
+          "domain": 78.2,
+          "visual": 72.4,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 9811.4
+        },
+        "208": {
+          "overall": 86.3,
+          "overall_score": 86.3,
+          "humor": 93.4,
+          "domain": 72.8,
+          "visual": 89.6,
+          "alt_text": 93.4,
+          "concept_recall": 83.3,
+          "latency_ms": 12378.5
+        },
+        "303": {
+          "overall": 87.6,
+          "overall_score": 87.6,
+          "humor": 95.0,
+          "domain": 79.8,
+          "visual": 83.2,
+          "alt_text": 95.8,
+          "concept_recall": 100.0,
+          "latency_ms": 4350.2
+        },
+        "353": {
+          "overall": 87.9,
+          "overall_score": 87.9,
+          "humor": 92.6,
+          "domain": 83.7,
+          "visual": 84.8,
+          "alt_text": 92.2,
+          "concept_recall": 83.3,
+          "latency_ms": 6963.7
+        },
+        "552": {
+          "overall": 82.9,
+          "overall_score": 82.9,
+          "humor": 91.0,
+          "domain": 80.4,
+          "visual": 70.3,
+          "alt_text": 93.0,
+          "concept_recall": 80.0,
+          "latency_ms": 3399.3
+        },
+        "979": {
+          "overall": 87.4,
+          "overall_score": 87.4,
+          "humor": 93.8,
+          "domain": 78.7,
+          "visual": 85.2,
+          "alt_text": 95.4,
+          "concept_recall": 83.3,
+          "latency_ms": 4626.5
+        },
+        "1053": {
+          "overall": 79.2,
+          "overall_score": 79.2,
+          "humor": 92.6,
+          "domain": 65.4,
+          "visual": 71.2,
+          "alt_text": 93.0,
+          "concept_recall": 66.7,
+          "latency_ms": 9060.0
+        },
+        "1172": {
+          "overall": 89.2,
+          "overall_score": 89.2,
+          "humor": 93.4,
+          "domain": 83.8,
+          "visual": 87.2,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 11733.5
+        },
+        "1205": {
+          "overall": 88.4,
+          "overall_score": 88.4,
+          "humor": 92.2,
+          "domain": 83.8,
+          "visual": 86.0,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 7378.6
+        },
+        "1319": {
+          "overall": 88.5,
+          "overall_score": 88.5,
+          "humor": 94.6,
+          "domain": 80.6,
+          "visual": 95.2,
+          "alt_text": 80.6,
+          "concept_recall": 100.0,
+          "latency_ms": 3177.7
+        },
+        "1513": {
+          "overall": 85.4,
+          "overall_score": 85.4,
+          "humor": 91.8,
+          "domain": 80.5,
+          "visual": 78.0,
+          "alt_text": 94.6,
+          "concept_recall": 80.0,
+          "latency_ms": 26625.1
+        },
+        "2173": {
+          "overall": 81.9,
+          "overall_score": 81.9,
+          "humor": 91.4,
+          "domain": 70.7,
+          "visual": 76.4,
+          "alt_text": 94.2,
+          "concept_recall": 50.0,
+          "latency_ms": 12855.9
+        }
+      },
+      "meta/muse-spark-open": {
+        "327": {
+          "overall": 89.0,
+          "overall_score": 89.0,
+          "humor": 93.4,
+          "domain": 87.0,
+          "visual": 85.6,
+          "alt_text": 89.8,
+          "concept_recall": 100.0,
+          "latency_ms": 3924.3
+        },
+        "2347": {
+          "overall": 86.9,
+          "overall_score": 86.9,
+          "humor": 93.4,
+          "domain": 82.2,
+          "visual": 81.2,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 3998.4
+        },
+        "2630": {
+          "overall": 88.6,
+          "overall_score": 88.6,
+          "humor": 93.0,
+          "domain": 82.8,
+          "visual": 87.2,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 6499.1
+        },
+        "927": {
+          "overall": 91.0,
+          "overall_score": 91.0,
+          "humor": 95.0,
+          "domain": 82.2,
+          "visual": 94.0,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 5492.1
+        },
+        "386": {
+          "overall": 81.4,
+          "overall_score": 81.4,
+          "humor": 89.8,
+          "domain": 68.3,
+          "visual": 79.6,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 3026.8
+        },
+        "1838": {
+          "overall": 85.9,
+          "overall_score": 85.9,
+          "humor": 90.6,
+          "domain": 79.9,
+          "visual": 83.6,
+          "alt_text": 92.2,
+          "concept_recall": 100.0,
+          "latency_ms": 5884.8
+        },
+        "882": {
+          "overall": 92.8,
+          "overall_score": 92.8,
+          "humor": 95.0,
+          "domain": 93.0,
+          "visual": 88.8,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 8188.2
+        },
+        "1597": {
+          "overall": 88.0,
+          "overall_score": 88.0,
+          "humor": 91.8,
+          "domain": 84.2,
+          "visual": 85.2,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 3361.6
+        },
+        "149": {
+          "overall": 83.9,
+          "overall_score": 83.9,
+          "humor": 91.8,
+          "domain": 78.2,
+          "visual": 76.7,
+          "alt_text": 91.8,
+          "concept_recall": 100.0,
+          "latency_ms": 3315.4
+        },
+        "208": {
+          "overall": 78.5,
+          "overall_score": 78.5,
+          "humor": 86.2,
+          "domain": 63.0,
+          "visual": 80.9,
+          "alt_text": 90.2,
+          "concept_recall": 66.7,
+          "latency_ms": 4321.7
+        },
+        "303": {
+          "overall": 86.5,
+          "overall_score": 86.5,
+          "humor": 93.8,
+          "domain": 77.4,
+          "visual": 84.0,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 8749.5
+        },
+        "353": {
+          "overall": 84.7,
+          "overall_score": 84.7,
+          "humor": 91.7,
+          "domain": 72.9,
+          "visual": 87.2,
+          "alt_text": 90.1,
+          "concept_recall": 66.7,
+          "latency_ms": 6336.1
+        },
+        "552": {
+          "overall": 86.6,
+          "overall_score": 86.6,
+          "humor": 93.4,
+          "domain": 84.9,
+          "visual": 76.8,
+          "alt_text": 92.6,
+          "concept_recall": 100.0,
+          "latency_ms": 3333.7
+        },
+        "979": {
+          "overall": 88.8,
+          "overall_score": 88.8,
+          "humor": 93.8,
+          "domain": 81.4,
+          "visual": 88.0,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 3020.1
+        },
+        "1053": {
+          "overall": 70.6,
+          "overall_score": 70.6,
+          "humor": 81.2,
+          "domain": 54.4,
+          "visual": 68.7,
+          "alt_text": 85.1,
+          "concept_recall": 50.0,
+          "latency_ms": 5079.9
+        },
+        "1172": {
+          "overall": 86.6,
+          "overall_score": 86.6,
+          "humor": 92.6,
+          "domain": 80.2,
+          "visual": 82.4,
+          "alt_text": 94.2,
+          "concept_recall": 83.3,
+          "latency_ms": 3200.4
+        },
+        "1205": {
+          "overall": 88.6,
+          "overall_score": 88.6,
+          "humor": 93.4,
+          "domain": 83.4,
+          "visual": 85.6,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 8452.7
+        },
+        "1319": {
+          "overall": 85.3,
+          "overall_score": 85.3,
+          "humor": 93.4,
+          "domain": 74.3,
+          "visual": 93.6,
+          "alt_text": 77.0,
+          "concept_recall": 100.0,
+          "latency_ms": 3121.4
+        },
+        "1513": {
+          "overall": 86.2,
+          "overall_score": 86.2,
+          "humor": 91.4,
+          "domain": 82.2,
+          "visual": 80.4,
+          "alt_text": 93.8,
+          "concept_recall": 80.0,
+          "latency_ms": 7638.0
+        },
+        "2173": {
+          "overall": 80.4,
+          "overall_score": 80.4,
+          "humor": 90.7,
+          "domain": 67.1,
+          "visual": 76.4,
+          "alt_text": 93.3,
+          "concept_recall": 50.0,
+          "latency_ms": 7843.8
         }
       },
       "claude-fable-5-2": {
@@ -1057,6 +1663,410 @@
           "latency_ms": 11570.6
         }
       },
+      "mistralai/mistral-large-4-0": {
+        "327": {
+          "overall": 86.4,
+          "overall_score": 86.4,
+          "humor": 92.2,
+          "domain": 88.2,
+          "visual": 76.8,
+          "alt_text": 87.0,
+          "concept_recall": 100.0,
+          "latency_ms": 12852.7
+        },
+        "2347": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 92.6,
+          "domain": 80.2,
+          "visual": 85.6,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 16226.4
+        },
+        "2630": {
+          "overall": 86.6,
+          "overall_score": 86.6,
+          "humor": 93.4,
+          "domain": 74.3,
+          "visual": 88.0,
+          "alt_text": 95.4,
+          "concept_recall": 66.7,
+          "latency_ms": 25458.7
+        },
+        "927": {
+          "overall": 89.0,
+          "overall_score": 89.0,
+          "humor": 94.6,
+          "domain": 78.8,
+          "visual": 91.1,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 33280.4
+        },
+        "386": {
+          "overall": 82.3,
+          "overall_score": 82.3,
+          "humor": 93.0,
+          "domain": 68.2,
+          "visual": 78.6,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 15880.8
+        },
+        "1838": {
+          "overall": 86.6,
+          "overall_score": 86.6,
+          "humor": 91.0,
+          "domain": 80.6,
+          "visual": 84.4,
+          "alt_text": 93.4,
+          "concept_recall": 100.0,
+          "latency_ms": 18117.4
+        },
+        "882": {
+          "overall": 85.5,
+          "overall_score": 85.5,
+          "humor": 93.0,
+          "domain": 84.4,
+          "visual": 74.4,
+          "alt_text": 91.0,
+          "concept_recall": 85.7,
+          "latency_ms": 21708.0
+        },
+        "1597": {
+          "overall": 88.3,
+          "overall_score": 88.3,
+          "humor": 92.2,
+          "domain": 83.8,
+          "visual": 88.8,
+          "alt_text": 88.6,
+          "concept_recall": 100.0,
+          "latency_ms": 37701.7
+        },
+        "149": {
+          "overall": 82.4,
+          "overall_score": 82.4,
+          "humor": 91.8,
+          "domain": 77.3,
+          "visual": 70.7,
+          "alt_text": 93.4,
+          "concept_recall": 100.0,
+          "latency_ms": 18053.7
+        },
+        "208": {
+          "overall": 77.6,
+          "overall_score": 77.6,
+          "humor": 79.0,
+          "domain": 67.8,
+          "visual": 87.2,
+          "alt_text": 78.2,
+          "concept_recall": 83.3,
+          "latency_ms": 44496.2
+        },
+        "303": {
+          "overall": 85.8,
+          "overall_score": 85.8,
+          "humor": 94.6,
+          "domain": 77.0,
+          "visual": 80.4,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 22759.9
+        },
+        "353": {
+          "overall": 89.2,
+          "overall_score": 89.2,
+          "humor": 93.0,
+          "domain": 84.7,
+          "visual": 89.2,
+          "alt_text": 90.6,
+          "concept_recall": 83.3,
+          "latency_ms": 22209.4
+        },
+        "552": {
+          "overall": 89.2,
+          "overall_score": 89.2,
+          "humor": 93.4,
+          "domain": 88.2,
+          "visual": 82.4,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 19935.9
+        },
+        "979": {
+          "overall": 85.5,
+          "overall_score": 85.5,
+          "humor": 93.4,
+          "domain": 75.8,
+          "visual": 82.0,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 19311.8
+        },
+        "1053": {
+          "overall": 74.1,
+          "overall_score": 74.1,
+          "humor": 85.9,
+          "domain": 55.9,
+          "visual": 74.0,
+          "alt_text": 86.8,
+          "concept_recall": 50.0,
+          "latency_ms": 72190.4
+        },
+        "1172": {
+          "overall": 84.5,
+          "overall_score": 84.5,
+          "humor": 92.2,
+          "domain": 73.0,
+          "visual": 84.0,
+          "alt_text": 92.6,
+          "concept_recall": 83.3,
+          "latency_ms": 12863.8
+        },
+        "1205": {
+          "overall": 85.2,
+          "overall_score": 85.2,
+          "humor": 87.4,
+          "domain": 86.6,
+          "visual": 81.2,
+          "alt_text": 85.0,
+          "concept_recall": 83.3,
+          "latency_ms": 39470.6
+        },
+        "1319": {
+          "overall": 84.4,
+          "overall_score": 84.4,
+          "humor": 94.2,
+          "domain": 72.3,
+          "visual": 94.0,
+          "alt_text": 72.9,
+          "concept_recall": 100.0,
+          "latency_ms": 22932.4
+        },
+        "1513": {
+          "overall": 84.4,
+          "overall_score": 84.4,
+          "humor": 91.4,
+          "domain": 74.9,
+          "visual": 82.4,
+          "alt_text": 92.6,
+          "concept_recall": 80.0,
+          "latency_ms": 23601.1
+        },
+        "2173": {
+          "overall": 79.8,
+          "overall_score": 79.8,
+          "humor": 91.8,
+          "domain": 73.3,
+          "visual": 65.0,
+          "alt_text": 93.3,
+          "concept_recall": 66.7,
+          "latency_ms": 12616.6
+        }
+      },
+      "meta/muse-ember": {
+        "327": {
+          "overall": 87.0,
+          "overall_score": 87.0,
+          "humor": 93.0,
+          "domain": 84.6,
+          "visual": 80.0,
+          "alt_text": 91.8,
+          "concept_recall": 100.0,
+          "latency_ms": 5638.7
+        },
+        "2347": {
+          "overall": 87.0,
+          "overall_score": 87.0,
+          "humor": 91.8,
+          "domain": 77.4,
+          "visual": 89.6,
+          "alt_text": 92.2,
+          "concept_recall": 100.0,
+          "latency_ms": 5257.2
+        },
+        "2630": {
+          "overall": 84.1,
+          "overall_score": 84.1,
+          "humor": 91.0,
+          "domain": 70.4,
+          "visual": 86.4,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 4077.2
+        },
+        "927": {
+          "overall": 87.7,
+          "overall_score": 87.7,
+          "humor": 93.0,
+          "domain": 74.7,
+          "visual": 93.2,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 3546.4
+        },
+        "386": {
+          "overall": 81.1,
+          "overall_score": 81.1,
+          "humor": 92.2,
+          "domain": 65.5,
+          "visual": 78.4,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 4065.1
+        },
+        "1838": {
+          "overall": 86.9,
+          "overall_score": 86.9,
+          "humor": 91.4,
+          "domain": 81.1,
+          "visual": 84.0,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 3373.6
+        },
+        "882": {
+          "overall": 93.4,
+          "overall_score": 93.4,
+          "humor": 95.4,
+          "domain": 92.6,
+          "visual": 90.8,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 5529.8
+        },
+        "1597": {
+          "overall": 88.2,
+          "overall_score": 88.2,
+          "humor": 93.0,
+          "domain": 85.4,
+          "visual": 82.4,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 4310.9
+        },
+        "149": {
+          "overall": 79.6,
+          "overall_score": 79.6,
+          "humor": 89.8,
+          "domain": 74.2,
+          "visual": 66.8,
+          "alt_text": 91.4,
+          "concept_recall": 100.0,
+          "latency_ms": 3984.6
+        },
+        "208": {
+          "overall": 80.2,
+          "overall_score": 80.2,
+          "humor": 90.2,
+          "domain": 63.8,
+          "visual": 80.4,
+          "alt_text": 93.0,
+          "concept_recall": 83.3,
+          "latency_ms": 4602.3
+        },
+        "303": {
+          "overall": 85.3,
+          "overall_score": 85.3,
+          "humor": 94.6,
+          "domain": 71.6,
+          "visual": 85.2,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 6146.5
+        },
+        "353": {
+          "overall": 88.1,
+          "overall_score": 88.1,
+          "humor": 92.6,
+          "domain": 80.4,
+          "visual": 89.6,
+          "alt_text": 92.2,
+          "concept_recall": 83.3,
+          "latency_ms": 4711.0
+        },
+        "552": {
+          "overall": 83.2,
+          "overall_score": 83.2,
+          "humor": 91.0,
+          "domain": 80.4,
+          "visual": 71.0,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 3449.4
+        },
+        "979": {
+          "overall": 85.2,
+          "overall_score": 85.2,
+          "humor": 92.2,
+          "domain": 75.9,
+          "visual": 82.4,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 4649.7
+        },
+        "1053": {
+          "overall": 76.9,
+          "overall_score": 76.9,
+          "humor": 88.1,
+          "domain": 58.9,
+          "visual": 77.9,
+          "alt_text": 89.1,
+          "concept_recall": 66.7,
+          "latency_ms": 6249.5
+        },
+        "1172": {
+          "overall": 84.0,
+          "overall_score": 84.0,
+          "humor": 91.4,
+          "domain": 74.5,
+          "visual": 80.0,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 6278.6
+        },
+        "1205": {
+          "overall": 86.8,
+          "overall_score": 86.8,
+          "humor": 92.6,
+          "domain": 77.6,
+          "visual": 86.4,
+          "alt_text": 94.6,
+          "concept_recall": 83.3,
+          "latency_ms": 4783.5
+        },
+        "1319": {
+          "overall": 87.4,
+          "overall_score": 87.4,
+          "humor": 93.8,
+          "domain": 72.9,
+          "visual": 93.2,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 4251.9
+        },
+        "1513": {
+          "overall": 85.2,
+          "overall_score": 85.2,
+          "humor": 90.6,
+          "domain": 78.2,
+          "visual": 83.2,
+          "alt_text": 91.8,
+          "concept_recall": 100.0,
+          "latency_ms": 5182.4
+        },
+        "2173": {
+          "overall": 74.6,
+          "overall_score": 74.6,
+          "humor": 82.8,
+          "domain": 56.0,
+          "visual": 78.2,
+          "alt_text": 89.6,
+          "concept_recall": 50.0,
+          "latency_ms": 3051.9
+        }
+      },
       "claude-opus-5-5": {
         "327": {
           "overall": 86.2,
@@ -1257,6 +2267,208 @@
           "alt_text": 93.4,
           "concept_recall": 66.7,
           "latency_ms": 12636.3
+        }
+      },
+      "qwen/qwen3.8-max-prime": {
+        "327": {
+          "overall": 87.4,
+          "overall_score": 87.4,
+          "humor": 93.0,
+          "domain": 87.0,
+          "visual": 81.2,
+          "alt_text": 87.4,
+          "concept_recall": 100.0,
+          "latency_ms": 11892.2
+        },
+        "2347": {
+          "overall": 88.9,
+          "overall_score": 88.9,
+          "humor": 93.8,
+          "domain": 83.0,
+          "visual": 86.8,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 19405.1
+        },
+        "2630": {
+          "overall": 84.1,
+          "overall_score": 84.1,
+          "humor": 93.0,
+          "domain": 71.4,
+          "visual": 82.8,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 13099.5
+        },
+        "927": {
+          "overall": 87.6,
+          "overall_score": 87.6,
+          "humor": 94.2,
+          "domain": 74.8,
+          "visual": 90.4,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 16439.4
+        },
+        "386": {
+          "overall": 78.3,
+          "overall_score": 78.3,
+          "humor": 92.6,
+          "domain": 65.2,
+          "visual": 67.3,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 17573.2
+        },
+        "1838": {
+          "overall": 85.8,
+          "overall_score": 85.8,
+          "humor": 91.4,
+          "domain": 81.1,
+          "visual": 80.0,
+          "alt_text": 93.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15195.3
+        },
+        "882": {
+          "overall": 90.3,
+          "overall_score": 90.3,
+          "humor": 94.6,
+          "domain": 89.8,
+          "visual": 83.2,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 15289.5
+        },
+        "1597": {
+          "overall": 87.4,
+          "overall_score": 87.4,
+          "humor": 92.6,
+          "domain": 85.4,
+          "visual": 80.0,
+          "alt_text": 93.4,
+          "concept_recall": 100.0,
+          "latency_ms": 18981.1
+        },
+        "149": {
+          "overall": 84.3,
+          "overall_score": 84.3,
+          "humor": 92.2,
+          "domain": 78.5,
+          "visual": 76.4,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 15835.8
+        },
+        "208": {
+          "overall": 77.0,
+          "overall_score": 77.0,
+          "humor": 87.7,
+          "domain": 60.9,
+          "visual": 75.1,
+          "alt_text": 91.0,
+          "concept_recall": 66.7,
+          "latency_ms": 17464.6
+        },
+        "303": {
+          "overall": 86.8,
+          "overall_score": 86.8,
+          "humor": 94.6,
+          "domain": 77.8,
+          "visual": 83.2,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 18048.7
+        },
+        "353": {
+          "overall": 86.3,
+          "overall_score": 86.3,
+          "humor": 93.4,
+          "domain": 79.4,
+          "visual": 81.6,
+          "alt_text": 93.4,
+          "concept_recall": 83.3,
+          "latency_ms": 17551.7
+        },
+        "552": {
+          "overall": 85.1,
+          "overall_score": 85.1,
+          "humor": 92.6,
+          "domain": 85.4,
+          "visual": 70.2,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 17030.0
+        },
+        "979": {
+          "overall": 81.4,
+          "overall_score": 81.4,
+          "humor": 92.1,
+          "domain": 62.9,
+          "visual": 83.4,
+          "alt_text": 94.0,
+          "concept_recall": 66.7,
+          "latency_ms": 19896.2
+        },
+        "1053": {
+          "overall": 76.6,
+          "overall_score": 76.6,
+          "humor": 86.8,
+          "domain": 60.4,
+          "visual": 78.1,
+          "alt_text": 86.1,
+          "concept_recall": 50.0,
+          "latency_ms": 11715.9
+        },
+        "1172": {
+          "overall": 84.5,
+          "overall_score": 84.5,
+          "humor": 93.0,
+          "domain": 77.0,
+          "visual": 77.2,
+          "alt_text": 94.4,
+          "concept_recall": 83.3,
+          "latency_ms": 23126.5
+        },
+        "1205": {
+          "overall": 87.1,
+          "overall_score": 87.1,
+          "humor": 92.6,
+          "domain": 80.1,
+          "visual": 84.8,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 18479.9
+        },
+        "1319": {
+          "overall": 84.9,
+          "overall_score": 84.9,
+          "humor": 94.2,
+          "domain": 73.7,
+          "visual": 94.0,
+          "alt_text": 73.8,
+          "concept_recall": 100.0,
+          "latency_ms": 23503.2
+        },
+        "1513": {
+          "overall": 82.4,
+          "overall_score": 82.4,
+          "humor": 89.0,
+          "domain": 75.1,
+          "visual": 79.2,
+          "alt_text": 89.4,
+          "concept_recall": 80.0,
+          "latency_ms": 12719.1
+        },
+        "2173": {
+          "overall": 78.8,
+          "overall_score": 78.8,
+          "humor": 91.0,
+          "domain": 65.0,
+          "visual": 72.3,
+          "alt_text": 93.0,
+          "concept_recall": 66.7,
+          "latency_ms": 14994.8
         }
       },
       "gemini-omni-1.2-flash": {
@@ -1863,6 +3075,410 @@
           "alt_text": 91.8,
           "concept_recall": 66.7,
           "latency_ms": 11087.9
+        }
+      },
+      "openai/gpt-6-astra-pro": {
+        "327": {
+          "overall": 87.6,
+          "overall_score": 87.6,
+          "humor": 92.6,
+          "domain": 87.0,
+          "visual": 78.8,
+          "alt_text": 93.4,
+          "concept_recall": 100.0,
+          "latency_ms": 28370.9
+        },
+        "2347": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 91.4,
+          "domain": 78.9,
+          "visual": 88.8,
+          "alt_text": 92.6,
+          "concept_recall": 83.3,
+          "latency_ms": 22093.8
+        },
+        "2630": {
+          "overall": 84.5,
+          "overall_score": 84.5,
+          "humor": 90.2,
+          "domain": 77.7,
+          "visual": 81.2,
+          "alt_text": 92.2,
+          "concept_recall": 83.3,
+          "latency_ms": 22464.9
+        },
+        "927": {
+          "overall": 89.3,
+          "overall_score": 89.3,
+          "humor": 94.6,
+          "domain": 80.6,
+          "visual": 90.4,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 29055.3
+        },
+        "386": {
+          "overall": 74.2,
+          "overall_score": 74.2,
+          "humor": 91.0,
+          "domain": 57.2,
+          "visual": 62.2,
+          "alt_text": 94.6,
+          "concept_recall": 75.0,
+          "latency_ms": 26273.1
+        },
+        "1838": {
+          "overall": 84.1,
+          "overall_score": 84.1,
+          "humor": 89.0,
+          "domain": 78.2,
+          "visual": 80.0,
+          "alt_text": 93.0,
+          "concept_recall": 83.3,
+          "latency_ms": 21293.3
+        },
+        "882": {
+          "overall": 90.9,
+          "overall_score": 90.9,
+          "humor": 94.6,
+          "domain": 91.8,
+          "visual": 83.6,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 20713.5
+        },
+        "1597": {
+          "overall": 86.5,
+          "overall_score": 86.5,
+          "humor": 90.2,
+          "domain": 86.6,
+          "visual": 79.2,
+          "alt_text": 91.0,
+          "concept_recall": 100.0,
+          "latency_ms": 21911.1
+        },
+        "149": {
+          "overall": 81.3,
+          "overall_score": 81.3,
+          "humor": 88.6,
+          "domain": 78.8,
+          "visual": 69.4,
+          "alt_text": 91.8,
+          "concept_recall": 100.0,
+          "latency_ms": 25885.1
+        },
+        "208": {
+          "overall": 82.8,
+          "overall_score": 82.8,
+          "humor": 91.8,
+          "domain": 68.7,
+          "visual": 85.6,
+          "alt_text": 88.6,
+          "concept_recall": 83.3,
+          "latency_ms": 23322.4
+        },
+        "303": {
+          "overall": 85.8,
+          "overall_score": 85.8,
+          "humor": 93.0,
+          "domain": 75.8,
+          "visual": 84.4,
+          "alt_text": 93.8,
+          "concept_recall": 100.0,
+          "latency_ms": 18027.4
+        },
+        "353": {
+          "overall": 82.8,
+          "overall_score": 82.8,
+          "humor": 91.4,
+          "domain": 75.4,
+          "visual": 77.1,
+          "alt_text": 89.9,
+          "concept_recall": 66.7,
+          "latency_ms": 25942.4
+        },
+        "552": {
+          "overall": 79.6,
+          "overall_score": 79.6,
+          "humor": 91.0,
+          "domain": 73.7,
+          "visual": 65.7,
+          "alt_text": 91.8,
+          "concept_recall": 80.0,
+          "latency_ms": 29165.6
+        },
+        "979": {
+          "overall": 82.4,
+          "overall_score": 82.4,
+          "humor": 91.8,
+          "domain": 73.0,
+          "visual": 76.0,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 32907.4
+        },
+        "1053": {
+          "overall": 77.7,
+          "overall_score": 77.7,
+          "humor": 85.8,
+          "domain": 65.8,
+          "visual": 73.6,
+          "alt_text": 92.2,
+          "concept_recall": 66.7,
+          "latency_ms": 22729.2
+        },
+        "1172": {
+          "overall": 83.3,
+          "overall_score": 83.3,
+          "humor": 91.4,
+          "domain": 73.6,
+          "visual": 78.8,
+          "alt_text": 93.8,
+          "concept_recall": 83.3,
+          "latency_ms": 24918.2
+        },
+        "1205": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 88.2,
+          "domain": 82.2,
+          "visual": 88.0,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 25959.7
+        },
+        "1319": {
+          "overall": 84.7,
+          "overall_score": 84.7,
+          "humor": 92.6,
+          "domain": 75.6,
+          "visual": 90.4,
+          "alt_text": 77.5,
+          "concept_recall": 100.0,
+          "latency_ms": 20043.0
+        },
+        "1513": {
+          "overall": 85.3,
+          "overall_score": 85.3,
+          "humor": 91.8,
+          "domain": 80.9,
+          "visual": 78.0,
+          "alt_text": 93.0,
+          "concept_recall": 80.0,
+          "latency_ms": 29594.3
+        },
+        "2173": {
+          "overall": 73.2,
+          "overall_score": 73.2,
+          "humor": 85.8,
+          "domain": 61.8,
+          "visual": 64.5,
+          "alt_text": 85.5,
+          "concept_recall": 50.0,
+          "latency_ms": 26969.0
+        }
+      },
+      "x-ai/grok-4.7": {
+        "327": {
+          "overall": 85.6,
+          "overall_score": 85.6,
+          "humor": 92.6,
+          "domain": 87.8,
+          "visual": 73.6,
+          "alt_text": 87.0,
+          "concept_recall": 100.0,
+          "latency_ms": 13494.2
+        },
+        "2347": {
+          "overall": 88.4,
+          "overall_score": 88.4,
+          "humor": 93.0,
+          "domain": 81.0,
+          "visual": 88.4,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 16780.0
+        },
+        "2630": {
+          "overall": 90.5,
+          "overall_score": 90.5,
+          "humor": 93.4,
+          "domain": 85.4,
+          "visual": 90.0,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 21178.5
+        },
+        "927": {
+          "overall": 85.4,
+          "overall_score": 85.4,
+          "humor": 94.2,
+          "domain": 70.8,
+          "visual": 86.4,
+          "alt_text": 95.4,
+          "concept_recall": 83.3,
+          "latency_ms": 12720.8
+        },
+        "386": {
+          "overall": 71.4,
+          "overall_score": 71.4,
+          "humor": 86.4,
+          "domain": 52.2,
+          "visual": 63.3,
+          "alt_text": 93.4,
+          "concept_recall": 75.0,
+          "latency_ms": 13301.7
+        },
+        "1838": {
+          "overall": 86.3,
+          "overall_score": 86.3,
+          "humor": 92.2,
+          "domain": 81.1,
+          "visual": 80.8,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 13521.5
+        },
+        "882": {
+          "overall": 83.9,
+          "overall_score": 83.9,
+          "humor": 90.1,
+          "domain": 85.9,
+          "visual": 68.6,
+          "alt_text": 92.8,
+          "concept_recall": 85.7,
+          "latency_ms": 13929.4
+        },
+        "1597": {
+          "overall": 88.6,
+          "overall_score": 88.6,
+          "humor": 93.0,
+          "domain": 92.6,
+          "visual": 74.8,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 16314.1
+        },
+        "149": {
+          "overall": 80.4,
+          "overall_score": 80.4,
+          "humor": 88.6,
+          "domain": 74.6,
+          "visual": 70.1,
+          "alt_text": 92.7,
+          "concept_recall": 80.0,
+          "latency_ms": 10872.8
+        },
+        "208": {
+          "overall": 76.9,
+          "overall_score": 76.9,
+          "humor": 86.2,
+          "domain": 62.6,
+          "visual": 74.4,
+          "alt_text": 90.8,
+          "concept_recall": 66.7,
+          "latency_ms": 20536.7
+        },
+        "303": {
+          "overall": 85.4,
+          "overall_score": 85.4,
+          "humor": 95.0,
+          "domain": 80.0,
+          "visual": 74.2,
+          "alt_text": 95.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15231.2
+        },
+        "353": {
+          "overall": 81.5,
+          "overall_score": 81.5,
+          "humor": 90.5,
+          "domain": 71.7,
+          "visual": 77.8,
+          "alt_text": 89.0,
+          "concept_recall": 66.7,
+          "latency_ms": 14069.8
+        },
+        "552": {
+          "overall": 85.4,
+          "overall_score": 85.4,
+          "humor": 93.4,
+          "domain": 84.9,
+          "visual": 70.7,
+          "alt_text": 94.6,
+          "concept_recall": 100.0,
+          "latency_ms": 10373.3
+        },
+        "979": {
+          "overall": 83.3,
+          "overall_score": 83.3,
+          "humor": 91.0,
+          "domain": 72.3,
+          "visual": 80.8,
+          "alt_text": 94.2,
+          "concept_recall": 100.0,
+          "latency_ms": 15497.7
+        },
+        "1053": {
+          "overall": 75.9,
+          "overall_score": 75.9,
+          "humor": 89.8,
+          "domain": 59.4,
+          "visual": 71.5,
+          "alt_text": 88.7,
+          "concept_recall": 66.7,
+          "latency_ms": 12331.2
+        },
+        "1172": {
+          "overall": 88.2,
+          "overall_score": 88.2,
+          "humor": 93.0,
+          "domain": 83.8,
+          "visual": 83.6,
+          "alt_text": 95.0,
+          "concept_recall": 100.0,
+          "latency_ms": 14833.7
+        },
+        "1205": {
+          "overall": 81.7,
+          "overall_score": 81.7,
+          "humor": 92.6,
+          "domain": 71.8,
+          "visual": 72.9,
+          "alt_text": 94.7,
+          "concept_recall": 83.3,
+          "latency_ms": 18594.8
+        },
+        "1319": {
+          "overall": 86.8,
+          "overall_score": 86.8,
+          "humor": 94.6,
+          "domain": 79.1,
+          "visual": 92.0,
+          "alt_text": 77.8,
+          "concept_recall": 100.0,
+          "latency_ms": 11497.4
+        },
+        "1513": {
+          "overall": 86.1,
+          "overall_score": 86.1,
+          "humor": 92.2,
+          "domain": 79.8,
+          "visual": 82.4,
+          "alt_text": 92.6,
+          "concept_recall": 80.0,
+          "latency_ms": 14750.5
+        },
+        "2173": {
+          "overall": 77.2,
+          "overall_score": 77.2,
+          "humor": 90.1,
+          "domain": 66.5,
+          "visual": 65.6,
+          "alt_text": 92.2,
+          "concept_recall": 66.7,
+          "latency_ms": 15520.4
         }
       },
       "gemini-3.1-pro-preview": {
@@ -3279,6 +4895,208 @@
           "latency_ms": 3303.5
         }
       },
+      "openai/gpt-6.1-terra-pro": {
+        "327": {
+          "overall": 83.8,
+          "overall_score": 83.8,
+          "humor": 91.4,
+          "domain": 87.0,
+          "visual": 68.4,
+          "alt_text": 87.8,
+          "concept_recall": 100.0,
+          "latency_ms": 12008.6
+        },
+        "2347": {
+          "overall": 83.3,
+          "overall_score": 83.3,
+          "humor": 90.2,
+          "domain": 76.1,
+          "visual": 78.0,
+          "alt_text": 93.0,
+          "concept_recall": 83.3,
+          "latency_ms": 12607.2
+        },
+        "2630": {
+          "overall": 77.3,
+          "overall_score": 77.3,
+          "humor": 82.8,
+          "domain": 67.0,
+          "visual": 76.0,
+          "alt_text": 89.2,
+          "concept_recall": 83.3,
+          "latency_ms": 11964.8
+        },
+        "927": {
+          "overall": 83.0,
+          "overall_score": 83.0,
+          "humor": 89.1,
+          "domain": 71.9,
+          "visual": 82.1,
+          "alt_text": 94.2,
+          "concept_recall": 83.3,
+          "latency_ms": 11495.0
+        },
+        "386": {
+          "overall": 70.4,
+          "overall_score": 70.4,
+          "humor": 85.3,
+          "domain": 52.7,
+          "visual": 61.1,
+          "alt_text": 91.2,
+          "concept_recall": 75.0,
+          "latency_ms": 10935.2
+        },
+        "1838": {
+          "overall": 81.0,
+          "overall_score": 81.0,
+          "humor": 86.6,
+          "domain": 77.1,
+          "visual": 74.4,
+          "alt_text": 88.6,
+          "concept_recall": 83.3,
+          "latency_ms": 11916.8
+        },
+        "882": {
+          "overall": 87.2,
+          "overall_score": 87.2,
+          "humor": 93.8,
+          "domain": 86.9,
+          "visual": 75.9,
+          "alt_text": 93.5,
+          "concept_recall": 85.7,
+          "latency_ms": 12862.9
+        },
+        "1597": {
+          "overall": 83.5,
+          "overall_score": 83.5,
+          "humor": 89.4,
+          "domain": 85.0,
+          "visual": 70.4,
+          "alt_text": 90.2,
+          "concept_recall": 100.0,
+          "latency_ms": 10803.2
+        },
+        "149": {
+          "overall": 74.6,
+          "overall_score": 74.6,
+          "humor": 80.6,
+          "domain": 71.0,
+          "visual": 62.7,
+          "alt_text": 89.4,
+          "concept_recall": 100.0,
+          "latency_ms": 15045.8
+        },
+        "208": {
+          "overall": 76.3,
+          "overall_score": 76.3,
+          "humor": 79.0,
+          "domain": 65.6,
+          "visual": 76.0,
+          "alt_text": 93.0,
+          "concept_recall": 83.3,
+          "latency_ms": 12211.9
+        },
+        "303": {
+          "overall": 82.9,
+          "overall_score": 82.9,
+          "humor": 92.6,
+          "domain": 72.4,
+          "visual": 77.9,
+          "alt_text": 93.0,
+          "concept_recall": 100.0,
+          "latency_ms": 10198.2
+        },
+        "353": {
+          "overall": 83.0,
+          "overall_score": 83.0,
+          "humor": 89.4,
+          "domain": 76.4,
+          "visual": 80.7,
+          "alt_text": 87.3,
+          "concept_recall": 66.7,
+          "latency_ms": 11271.4
+        },
+        "552": {
+          "overall": 75.9,
+          "overall_score": 75.9,
+          "humor": 87.1,
+          "domain": 73.9,
+          "visual": 55.5,
+          "alt_text": 91.3,
+          "concept_recall": 80.0,
+          "latency_ms": 10602.6
+        },
+        "979": {
+          "overall": 80.8,
+          "overall_score": 80.8,
+          "humor": 89.8,
+          "domain": 71.0,
+          "visual": 75.2,
+          "alt_text": 91.8,
+          "concept_recall": 100.0,
+          "latency_ms": 10287.6
+        },
+        "1053": {
+          "overall": 72.4,
+          "overall_score": 72.4,
+          "humor": 84.6,
+          "domain": 62.8,
+          "visual": 61.0,
+          "alt_text": 86.1,
+          "concept_recall": 66.7,
+          "latency_ms": 14057.8
+        },
+        "1172": {
+          "overall": 75.7,
+          "overall_score": 75.7,
+          "humor": 86.1,
+          "domain": 65.1,
+          "visual": 66.8,
+          "alt_text": 90.9,
+          "concept_recall": 66.7,
+          "latency_ms": 8912.3
+        },
+        "1205": {
+          "overall": 76.8,
+          "overall_score": 76.8,
+          "humor": 82.6,
+          "domain": 69.8,
+          "visual": 70.3,
+          "alt_text": 90.1,
+          "concept_recall": 66.7,
+          "latency_ms": 19562.5
+        },
+        "1319": {
+          "overall": 83.0,
+          "overall_score": 83.0,
+          "humor": 91.8,
+          "domain": 72.4,
+          "visual": 88.8,
+          "alt_text": 77.1,
+          "concept_recall": 100.0,
+          "latency_ms": 12080.2
+        },
+        "1513": {
+          "overall": 83.5,
+          "overall_score": 83.5,
+          "humor": 88.2,
+          "domain": 76.2,
+          "visual": 82.4,
+          "alt_text": 90.6,
+          "concept_recall": 100.0,
+          "latency_ms": 12961.7
+        },
+        "2173": {
+          "overall": 67.7,
+          "overall_score": 67.7,
+          "humor": 72.1,
+          "domain": 59.9,
+          "visual": 58.9,
+          "alt_text": 88.9,
+          "concept_recall": 50.0,
+          "latency_ms": 12162.9
+        }
+      },
       "nvidia/nemotron-3.5-super-vl:free": {
         "327": {
           "overall": 83.0,
@@ -4451,6 +6269,36 @@
             "concept_recall": 100.0,
             "latency_ms": 17181.6
           },
+          "meta/muse-wonder": {
+            "overall": 86.1,
+            "overall_score": 86.1,
+            "humor": 90.2,
+            "domain": 85.0,
+            "visual": 79.2,
+            "alt_text": 91.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15323.8
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 88.5,
+            "overall_score": 88.5,
+            "humor": 93.0,
+            "domain": 89.4,
+            "visual": 79.2,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 8588.5
+          },
+          "meta/muse-spark-open": {
+            "overall": 89.0,
+            "overall_score": 89.0,
+            "humor": 93.4,
+            "domain": 87.0,
+            "visual": 85.6,
+            "alt_text": 89.8,
+            "concept_recall": 100.0,
+            "latency_ms": 3924.3
+          },
           "claude-fable-5-2": {
             "overall": 88.5,
             "overall_score": 88.5,
@@ -4491,6 +6339,26 @@
             "concept_recall": 100.0,
             "latency_ms": 10584.2
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 86.4,
+            "overall_score": 86.4,
+            "humor": 92.2,
+            "domain": 88.2,
+            "visual": 76.8,
+            "alt_text": 87.0,
+            "concept_recall": 100.0,
+            "latency_ms": 12852.7
+          },
+          "meta/muse-ember": {
+            "overall": 87.0,
+            "overall_score": 87.0,
+            "humor": 93.0,
+            "domain": 84.6,
+            "visual": 80.0,
+            "alt_text": 91.8,
+            "concept_recall": 100.0,
+            "latency_ms": 5638.7
+          },
           "claude-opus-5-5": {
             "overall": 86.2,
             "overall_score": 86.2,
@@ -4500,6 +6368,16 @@
             "alt_text": 92.2,
             "concept_recall": 100.0,
             "latency_ms": 12962.0
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 87.4,
+            "overall_score": 87.4,
+            "humor": 93.0,
+            "domain": 87.0,
+            "visual": 81.2,
+            "alt_text": 87.4,
+            "concept_recall": 100.0,
+            "latency_ms": 11892.2
           },
           "gemini-omni-1.2-flash": {
             "overall": 85.4,
@@ -4530,6 +6408,26 @@
             "alt_text": 92.2,
             "concept_recall": 100.0,
             "latency_ms": 6877.5
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 87.6,
+            "overall_score": 87.6,
+            "humor": 92.6,
+            "domain": 87.0,
+            "visual": 78.8,
+            "alt_text": 93.4,
+            "concept_recall": 100.0,
+            "latency_ms": 28370.9
+          },
+          "x-ai/grok-4.7": {
+            "overall": 85.6,
+            "overall_score": 85.6,
+            "humor": 92.6,
+            "domain": 87.8,
+            "visual": 73.6,
+            "alt_text": 87.0,
+            "concept_recall": 100.0,
+            "latency_ms": 13494.2
           },
           "gemini-3.1-pro-preview": {
             "overall": 84.4,
@@ -4600,6 +6498,16 @@
             "alt_text": 84.2,
             "concept_recall": 100.0,
             "latency_ms": 20770.4
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.8,
+            "overall_score": 83.8,
+            "humor": 91.4,
+            "domain": 87.0,
+            "visual": 68.4,
+            "alt_text": 87.8,
+            "concept_recall": 100.0,
+            "latency_ms": 12008.6
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 83.0,
@@ -4689,6 +6597,36 @@
             "concept_recall": 100.0,
             "latency_ms": 15751.1
           },
+          "meta/muse-wonder": {
+            "overall": 90.8,
+            "overall_score": 90.8,
+            "humor": 93.8,
+            "domain": 85.4,
+            "visual": 91.2,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 17753.9
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.3,
+            "overall_score": 87.3,
+            "humor": 93.8,
+            "domain": 82.6,
+            "visual": 80.4,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 10075.5
+          },
+          "meta/muse-spark-open": {
+            "overall": 86.9,
+            "overall_score": 86.9,
+            "humor": 93.4,
+            "domain": 82.2,
+            "visual": 81.2,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 3998.4
+          },
           "claude-fable-5-2": {
             "overall": 87.1,
             "overall_score": 87.1,
@@ -4729,6 +6667,26 @@
             "concept_recall": 83.3,
             "latency_ms": 11270.0
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 92.6,
+            "domain": 80.2,
+            "visual": 85.6,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 16226.4
+          },
+          "meta/muse-ember": {
+            "overall": 87.0,
+            "overall_score": 87.0,
+            "humor": 91.8,
+            "domain": 77.4,
+            "visual": 89.6,
+            "alt_text": 92.2,
+            "concept_recall": 100.0,
+            "latency_ms": 5257.2
+          },
           "claude-opus-5-5": {
             "overall": 88.0,
             "overall_score": 88.0,
@@ -4738,6 +6696,16 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 9512.7
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 88.9,
+            "overall_score": 88.9,
+            "humor": 93.8,
+            "domain": 83.0,
+            "visual": 86.8,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 19405.1
           },
           "gemini-omni-1.2-flash": {
             "overall": 88.1,
@@ -4768,6 +6736,26 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 7055.1
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 91.4,
+            "domain": 78.9,
+            "visual": 88.8,
+            "alt_text": 92.6,
+            "concept_recall": 83.3,
+            "latency_ms": 22093.8
+          },
+          "x-ai/grok-4.7": {
+            "overall": 88.4,
+            "overall_score": 88.4,
+            "humor": 93.0,
+            "domain": 81.0,
+            "visual": 88.4,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 16780.0
           },
           "gemini-3.1-pro-preview": {
             "overall": 86.0,
@@ -4838,6 +6826,16 @@
             "alt_text": 87.4,
             "concept_recall": 100.0,
             "latency_ms": 10034.6
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.3,
+            "overall_score": 83.3,
+            "humor": 90.2,
+            "domain": 76.1,
+            "visual": 78.0,
+            "alt_text": 93.0,
+            "concept_recall": 83.3,
+            "latency_ms": 12607.2
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 81.4,
@@ -4927,6 +6925,36 @@
             "concept_recall": 100.0,
             "latency_ms": 33102.6
           },
+          "meta/muse-wonder": {
+            "overall": 87.7,
+            "overall_score": 87.7,
+            "humor": 92.6,
+            "domain": 82.0,
+            "visual": 86.0,
+            "alt_text": 92.2,
+            "concept_recall": 83.3,
+            "latency_ms": 21627.1
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 92.2,
+            "domain": 81.9,
+            "visual": 84.0,
+            "alt_text": 93.4,
+            "concept_recall": 83.3,
+            "latency_ms": 5091.2
+          },
+          "meta/muse-spark-open": {
+            "overall": 88.6,
+            "overall_score": 88.6,
+            "humor": 93.0,
+            "domain": 82.8,
+            "visual": 87.2,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 6499.1
+          },
           "claude-fable-5-2": {
             "overall": 89.9,
             "overall_score": 89.9,
@@ -4967,6 +6995,26 @@
             "concept_recall": 83.3,
             "latency_ms": 12293.2
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 86.6,
+            "overall_score": 86.6,
+            "humor": 93.4,
+            "domain": 74.3,
+            "visual": 88.0,
+            "alt_text": 95.4,
+            "concept_recall": 66.7,
+            "latency_ms": 25458.7
+          },
+          "meta/muse-ember": {
+            "overall": 84.1,
+            "overall_score": 84.1,
+            "humor": 91.0,
+            "domain": 70.4,
+            "visual": 86.4,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 4077.2
+          },
           "claude-opus-5-5": {
             "overall": 87.2,
             "overall_score": 87.2,
@@ -4976,6 +7024,16 @@
             "alt_text": 93.8,
             "concept_recall": 100.0,
             "latency_ms": 12447.4
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 84.1,
+            "overall_score": 84.1,
+            "humor": 93.0,
+            "domain": 71.4,
+            "visual": 82.8,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 13099.5
           },
           "gemini-omni-1.2-flash": {
             "overall": 83.9,
@@ -5006,6 +7064,26 @@
             "alt_text": 93.8,
             "concept_recall": 100.0,
             "latency_ms": 12104.4
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 84.5,
+            "overall_score": 84.5,
+            "humor": 90.2,
+            "domain": 77.7,
+            "visual": 81.2,
+            "alt_text": 92.2,
+            "concept_recall": 83.3,
+            "latency_ms": 22464.9
+          },
+          "x-ai/grok-4.7": {
+            "overall": 90.5,
+            "overall_score": 90.5,
+            "humor": 93.4,
+            "domain": 85.4,
+            "visual": 90.0,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 21178.5
           },
           "gemini-3.1-pro-preview": {
             "overall": 81.1,
@@ -5076,6 +7154,16 @@
             "alt_text": 85.8,
             "concept_recall": 83.3,
             "latency_ms": 24980.0
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 77.3,
+            "overall_score": 77.3,
+            "humor": 82.8,
+            "domain": 67.0,
+            "visual": 76.0,
+            "alt_text": 89.2,
+            "concept_recall": 83.3,
+            "latency_ms": 11964.8
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 75.1,
@@ -5165,6 +7253,36 @@
             "concept_recall": 100.0,
             "latency_ms": 33925.1
           },
+          "meta/muse-wonder": {
+            "overall": 90.0,
+            "overall_score": 90.0,
+            "humor": 94.2,
+            "domain": 80.2,
+            "visual": 93.6,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15211.6
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 89.7,
+            "overall_score": 89.7,
+            "humor": 94.6,
+            "domain": 81.8,
+            "visual": 90.0,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 5465.0
+          },
+          "meta/muse-spark-open": {
+            "overall": 91.0,
+            "overall_score": 91.0,
+            "humor": 95.0,
+            "domain": 82.2,
+            "visual": 94.0,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 5492.1
+          },
           "claude-fable-5-2": {
             "overall": 88.4,
             "overall_score": 88.4,
@@ -5205,6 +7323,26 @@
             "concept_recall": 83.3,
             "latency_ms": 11085.0
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 89.0,
+            "overall_score": 89.0,
+            "humor": 94.6,
+            "domain": 78.8,
+            "visual": 91.1,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 33280.4
+          },
+          "meta/muse-ember": {
+            "overall": 87.7,
+            "overall_score": 87.7,
+            "humor": 93.0,
+            "domain": 74.7,
+            "visual": 93.2,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 3546.4
+          },
           "claude-opus-5-5": {
             "overall": 87.8,
             "overall_score": 87.8,
@@ -5214,6 +7352,16 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 10399.8
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 87.6,
+            "overall_score": 87.6,
+            "humor": 94.2,
+            "domain": 74.8,
+            "visual": 90.4,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 16439.4
           },
           "gemini-omni-1.2-flash": {
             "overall": 88.6,
@@ -5244,6 +7392,26 @@
             "alt_text": 93.8,
             "concept_recall": 100.0,
             "latency_ms": 6550.1
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 89.3,
+            "overall_score": 89.3,
+            "humor": 94.6,
+            "domain": 80.6,
+            "visual": 90.4,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 29055.3
+          },
+          "x-ai/grok-4.7": {
+            "overall": 85.4,
+            "overall_score": 85.4,
+            "humor": 94.2,
+            "domain": 70.8,
+            "visual": 86.4,
+            "alt_text": 95.4,
+            "concept_recall": 83.3,
+            "latency_ms": 12720.8
           },
           "gemini-3.1-pro-preview": {
             "overall": 86.0,
@@ -5314,6 +7482,16 @@
             "alt_text": 92.6,
             "concept_recall": 100.0,
             "latency_ms": 3190.4
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.0,
+            "overall_score": 83.0,
+            "humor": 89.1,
+            "domain": 71.9,
+            "visual": 82.1,
+            "alt_text": 94.2,
+            "concept_recall": 83.3,
+            "latency_ms": 11495.0
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 80.8,
@@ -5403,6 +7581,36 @@
             "concept_recall": 100.0,
             "latency_ms": 28228.8
           },
+          "meta/muse-wonder": {
+            "overall": 82.6,
+            "overall_score": 82.6,
+            "humor": 92.6,
+            "domain": 70.7,
+            "visual": 77.6,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 14469.0
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 80.5,
+            "overall_score": 80.5,
+            "humor": 93.8,
+            "domain": 66.9,
+            "visual": 71.3,
+            "alt_text": 96.2,
+            "concept_recall": 75.0,
+            "latency_ms": 8229.2
+          },
+          "meta/muse-spark-open": {
+            "overall": 81.4,
+            "overall_score": 81.4,
+            "humor": 89.8,
+            "domain": 68.3,
+            "visual": 79.6,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 3026.8
+          },
           "claude-fable-5-2": {
             "overall": 82.4,
             "overall_score": 82.4,
@@ -5443,6 +7651,26 @@
             "concept_recall": 100.0,
             "latency_ms": 10945.7
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 82.3,
+            "overall_score": 82.3,
+            "humor": 93.0,
+            "domain": 68.2,
+            "visual": 78.6,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 15880.8
+          },
+          "meta/muse-ember": {
+            "overall": 81.1,
+            "overall_score": 81.1,
+            "humor": 92.2,
+            "domain": 65.5,
+            "visual": 78.4,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 4065.1
+          },
           "claude-opus-5-5": {
             "overall": 81.0,
             "overall_score": 81.0,
@@ -5452,6 +7680,16 @@
             "alt_text": 93.0,
             "concept_recall": 100.0,
             "latency_ms": 13559.6
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 78.3,
+            "overall_score": 78.3,
+            "humor": 92.6,
+            "domain": 65.2,
+            "visual": 67.3,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 17573.2
           },
           "gemini-omni-1.2-flash": {
             "overall": 80.0,
@@ -5482,6 +7720,26 @@
             "alt_text": 90.6,
             "concept_recall": 100.0,
             "latency_ms": 6381.8
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 74.2,
+            "overall_score": 74.2,
+            "humor": 91.0,
+            "domain": 57.2,
+            "visual": 62.2,
+            "alt_text": 94.6,
+            "concept_recall": 75.0,
+            "latency_ms": 26273.1
+          },
+          "x-ai/grok-4.7": {
+            "overall": 71.4,
+            "overall_score": 71.4,
+            "humor": 86.4,
+            "domain": 52.2,
+            "visual": 63.3,
+            "alt_text": 93.4,
+            "concept_recall": 75.0,
+            "latency_ms": 13301.7
           },
           "gemini-3.1-pro-preview": {
             "overall": 76.9,
@@ -5552,6 +7810,16 @@
             "alt_text": 92.6,
             "concept_recall": 75.0,
             "latency_ms": 12100.4
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 70.4,
+            "overall_score": 70.4,
+            "humor": 85.3,
+            "domain": 52.7,
+            "visual": 61.1,
+            "alt_text": 91.2,
+            "concept_recall": 75.0,
+            "latency_ms": 10935.2
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 75.7,
@@ -5641,6 +7909,36 @@
             "concept_recall": 100.0,
             "latency_ms": 10545.5
           },
+          "meta/muse-wonder": {
+            "overall": 87.1,
+            "overall_score": 87.1,
+            "humor": 91.4,
+            "domain": 81.9,
+            "visual": 83.6,
+            "alt_text": 95.0,
+            "concept_recall": 83.3,
+            "latency_ms": 12871.0
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 91.8,
+            "domain": 83.5,
+            "visual": 81.6,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 3986.3
+          },
+          "meta/muse-spark-open": {
+            "overall": 85.9,
+            "overall_score": 85.9,
+            "humor": 90.6,
+            "domain": 79.9,
+            "visual": 83.6,
+            "alt_text": 92.2,
+            "concept_recall": 100.0,
+            "latency_ms": 5884.8
+          },
           "claude-fable-5-2": {
             "overall": 88.2,
             "overall_score": 88.2,
@@ -5681,6 +7979,26 @@
             "concept_recall": 83.3,
             "latency_ms": 11612.9
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 86.6,
+            "overall_score": 86.6,
+            "humor": 91.0,
+            "domain": 80.6,
+            "visual": 84.4,
+            "alt_text": 93.4,
+            "concept_recall": 100.0,
+            "latency_ms": 18117.4
+          },
+          "meta/muse-ember": {
+            "overall": 86.9,
+            "overall_score": 86.9,
+            "humor": 91.4,
+            "domain": 81.1,
+            "visual": 84.0,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 3373.6
+          },
           "claude-opus-5-5": {
             "overall": 88.5,
             "overall_score": 88.5,
@@ -5690,6 +8008,16 @@
             "alt_text": 94.6,
             "concept_recall": 100.0,
             "latency_ms": 11536.7
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 85.8,
+            "overall_score": 85.8,
+            "humor": 91.4,
+            "domain": 81.1,
+            "visual": 80.0,
+            "alt_text": 93.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15195.3
           },
           "gemini-omni-1.2-flash": {
             "overall": 88.1,
@@ -5720,6 +8048,26 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 6472.5
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 84.1,
+            "overall_score": 84.1,
+            "humor": 89.0,
+            "domain": 78.2,
+            "visual": 80.0,
+            "alt_text": 93.0,
+            "concept_recall": 83.3,
+            "latency_ms": 21293.3
+          },
+          "x-ai/grok-4.7": {
+            "overall": 86.3,
+            "overall_score": 86.3,
+            "humor": 92.2,
+            "domain": 81.1,
+            "visual": 80.8,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 13521.5
           },
           "gemini-3.1-pro-preview": {
             "overall": 83.2,
@@ -5790,6 +8138,16 @@
             "alt_text": 88.6,
             "concept_recall": 100.0,
             "latency_ms": 3264.1
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 81.0,
+            "overall_score": 81.0,
+            "humor": 86.6,
+            "domain": 77.1,
+            "visual": 74.4,
+            "alt_text": 88.6,
+            "concept_recall": 83.3,
+            "latency_ms": 11916.8
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 82.8,
@@ -5879,6 +8237,36 @@
             "concept_recall": 100.0,
             "latency_ms": 15896.2
           },
+          "meta/muse-wonder": {
+            "overall": 92.8,
+            "overall_score": 92.8,
+            "humor": 95.4,
+            "domain": 92.6,
+            "visual": 88.4,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15514.6
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 90.4,
+            "overall_score": 90.4,
+            "humor": 94.2,
+            "domain": 93.0,
+            "visual": 80.7,
+            "alt_text": 93.8,
+            "concept_recall": 85.7,
+            "latency_ms": 10423.0
+          },
+          "meta/muse-spark-open": {
+            "overall": 92.8,
+            "overall_score": 92.8,
+            "humor": 95.0,
+            "domain": 93.0,
+            "visual": 88.8,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 8188.2
+          },
           "claude-fable-5-2": {
             "overall": 91.3,
             "overall_score": 91.3,
@@ -5919,6 +8307,26 @@
             "concept_recall": 85.7,
             "latency_ms": 11585.1
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 85.5,
+            "overall_score": 85.5,
+            "humor": 93.0,
+            "domain": 84.4,
+            "visual": 74.4,
+            "alt_text": 91.0,
+            "concept_recall": 85.7,
+            "latency_ms": 21708.0
+          },
+          "meta/muse-ember": {
+            "overall": 93.4,
+            "overall_score": 93.4,
+            "humor": 95.4,
+            "domain": 92.6,
+            "visual": 90.8,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 5529.8
+          },
           "claude-opus-5-5": {
             "overall": 91.2,
             "overall_score": 91.2,
@@ -5928,6 +8336,16 @@
             "alt_text": 94.6,
             "concept_recall": 100.0,
             "latency_ms": 14633.6
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 90.3,
+            "overall_score": 90.3,
+            "humor": 94.6,
+            "domain": 89.8,
+            "visual": 83.2,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 15289.5
           },
           "gemini-omni-1.2-flash": {
             "overall": 89.6,
@@ -5958,6 +8376,26 @@
             "alt_text": 94.6,
             "concept_recall": 100.0,
             "latency_ms": 6644.3
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 90.9,
+            "overall_score": 90.9,
+            "humor": 94.6,
+            "domain": 91.8,
+            "visual": 83.6,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 20713.5
+          },
+          "x-ai/grok-4.7": {
+            "overall": 83.9,
+            "overall_score": 83.9,
+            "humor": 90.1,
+            "domain": 85.9,
+            "visual": 68.6,
+            "alt_text": 92.8,
+            "concept_recall": 85.7,
+            "latency_ms": 13929.4
           },
           "gemini-3.1-pro-preview": {
             "overall": 90.1,
@@ -6028,6 +8466,16 @@
             "alt_text": 87.7,
             "concept_recall": 100.0,
             "latency_ms": 8411.6
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 93.8,
+            "domain": 86.9,
+            "visual": 75.9,
+            "alt_text": 93.5,
+            "concept_recall": 85.7,
+            "latency_ms": 12862.9
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 88.0,
@@ -6107,6 +8555,36 @@
             "concept_recall": 100.0,
             "latency_ms": 17422.6
           },
+          "meta/muse-wonder": {
+            "overall": 87.7,
+            "overall_score": 87.7,
+            "humor": 93.0,
+            "domain": 87.8,
+            "visual": 77.2,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 13902.5
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 89.8,
+            "overall_score": 89.8,
+            "humor": 94.2,
+            "domain": 86.6,
+            "visual": 84.8,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 13065.8
+          },
+          "meta/muse-spark-open": {
+            "overall": 88.0,
+            "overall_score": 88.0,
+            "humor": 91.8,
+            "domain": 84.2,
+            "visual": 85.2,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 3361.6
+          },
           "claude-fable-5-2": {
             "overall": 85.1,
             "overall_score": 85.1,
@@ -6147,6 +8625,26 @@
             "concept_recall": 100.0,
             "latency_ms": 9563.2
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 88.3,
+            "overall_score": 88.3,
+            "humor": 92.2,
+            "domain": 83.8,
+            "visual": 88.8,
+            "alt_text": 88.6,
+            "concept_recall": 100.0,
+            "latency_ms": 37701.7
+          },
+          "meta/muse-ember": {
+            "overall": 88.2,
+            "overall_score": 88.2,
+            "humor": 93.0,
+            "domain": 85.4,
+            "visual": 82.4,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 4310.9
+          },
           "claude-opus-5-5": {
             "overall": 84.4,
             "overall_score": 84.4,
@@ -6156,6 +8654,16 @@
             "alt_text": 92.2,
             "concept_recall": 100.0,
             "latency_ms": 10453.1
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 87.4,
+            "overall_score": 87.4,
+            "humor": 92.6,
+            "domain": 85.4,
+            "visual": 80.0,
+            "alt_text": 93.4,
+            "concept_recall": 100.0,
+            "latency_ms": 18981.1
           },
           "gemini-omni-1.2-flash": {
             "overall": 85.1,
@@ -6186,6 +8694,26 @@
             "alt_text": 93.0,
             "concept_recall": 100.0,
             "latency_ms": 6835.8
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 86.5,
+            "overall_score": 86.5,
+            "humor": 90.2,
+            "domain": 86.6,
+            "visual": 79.2,
+            "alt_text": 91.0,
+            "concept_recall": 100.0,
+            "latency_ms": 21911.1
+          },
+          "x-ai/grok-4.7": {
+            "overall": 88.6,
+            "overall_score": 88.6,
+            "humor": 93.0,
+            "domain": 92.6,
+            "visual": 74.8,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 16314.1
           },
           "gemini-3.1-pro-preview": {
             "overall": 84.2,
@@ -6256,6 +8784,16 @@
             "alt_text": 92.6,
             "concept_recall": 83.3,
             "latency_ms": 4073.2
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.5,
+            "overall_score": 83.5,
+            "humor": 89.4,
+            "domain": 85.0,
+            "visual": 70.4,
+            "alt_text": 90.2,
+            "concept_recall": 100.0,
+            "latency_ms": 10803.2
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 83.3,
@@ -6335,6 +8873,36 @@
             "concept_recall": 100.0,
             "latency_ms": 10411.5
           },
+          "meta/muse-wonder": {
+            "overall": 78.0,
+            "overall_score": 78.0,
+            "humor": 87.8,
+            "domain": 71.9,
+            "visual": 66.3,
+            "alt_text": 89.8,
+            "concept_recall": 100.0,
+            "latency_ms": 20865.7
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 83.2,
+            "overall_score": 83.2,
+            "humor": 91.8,
+            "domain": 78.2,
+            "visual": 72.4,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 9811.4
+          },
+          "meta/muse-spark-open": {
+            "overall": 83.9,
+            "overall_score": 83.9,
+            "humor": 91.8,
+            "domain": 78.2,
+            "visual": 76.7,
+            "alt_text": 91.8,
+            "concept_recall": 100.0,
+            "latency_ms": 3315.4
+          },
           "claude-fable-5-2": {
             "overall": 80.0,
             "overall_score": 80.0,
@@ -6375,6 +8943,26 @@
             "concept_recall": 100.0,
             "latency_ms": 11611.8
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 82.4,
+            "overall_score": 82.4,
+            "humor": 91.8,
+            "domain": 77.3,
+            "visual": 70.7,
+            "alt_text": 93.4,
+            "concept_recall": 100.0,
+            "latency_ms": 18053.7
+          },
+          "meta/muse-ember": {
+            "overall": 79.6,
+            "overall_score": 79.6,
+            "humor": 89.8,
+            "domain": 74.2,
+            "visual": 66.8,
+            "alt_text": 91.4,
+            "concept_recall": 100.0,
+            "latency_ms": 3984.6
+          },
           "claude-opus-5-5": {
             "overall": 79.8,
             "overall_score": 79.8,
@@ -6384,6 +8972,16 @@
             "alt_text": 92.2,
             "concept_recall": 100.0,
             "latency_ms": 11942.6
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 84.3,
+            "overall_score": 84.3,
+            "humor": 92.2,
+            "domain": 78.5,
+            "visual": 76.4,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 15835.8
           },
           "gemini-omni-1.2-flash": {
             "overall": 80.5,
@@ -6414,6 +9012,26 @@
             "alt_text": 92.6,
             "concept_recall": 100.0,
             "latency_ms": 6548.8
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 81.3,
+            "overall_score": 81.3,
+            "humor": 88.6,
+            "domain": 78.8,
+            "visual": 69.4,
+            "alt_text": 91.8,
+            "concept_recall": 100.0,
+            "latency_ms": 25885.1
+          },
+          "x-ai/grok-4.7": {
+            "overall": 80.4,
+            "overall_score": 80.4,
+            "humor": 88.6,
+            "domain": 74.6,
+            "visual": 70.1,
+            "alt_text": 92.7,
+            "concept_recall": 80.0,
+            "latency_ms": 10872.8
           },
           "gemini-3.1-pro-preview": {
             "overall": 77.0,
@@ -6485,6 +9103,16 @@
             "concept_recall": 100.0,
             "latency_ms": 18208.9
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 74.6,
+            "overall_score": 74.6,
+            "humor": 80.6,
+            "domain": 71.0,
+            "visual": 62.7,
+            "alt_text": 89.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15045.8
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 74.4,
             "overall_score": 74.4,
@@ -6553,6 +9181,36 @@
             "concept_recall": 100.0,
             "latency_ms": 16420.7
           },
+          "meta/muse-wonder": {
+            "overall": 86.1,
+            "overall_score": 86.1,
+            "humor": 93.8,
+            "domain": 73.1,
+            "visual": 87.2,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 14626.8
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 86.3,
+            "overall_score": 86.3,
+            "humor": 93.4,
+            "domain": 72.8,
+            "visual": 89.6,
+            "alt_text": 93.4,
+            "concept_recall": 83.3,
+            "latency_ms": 12378.5
+          },
+          "meta/muse-spark-open": {
+            "overall": 78.5,
+            "overall_score": 78.5,
+            "humor": 86.2,
+            "domain": 63.0,
+            "visual": 80.9,
+            "alt_text": 90.2,
+            "concept_recall": 66.7,
+            "latency_ms": 4321.7
+          },
           "claude-fable-5-2": {
             "overall": 83.4,
             "overall_score": 83.4,
@@ -6593,6 +9251,26 @@
             "concept_recall": 83.3,
             "latency_ms": 11877.9
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 77.6,
+            "overall_score": 77.6,
+            "humor": 79.0,
+            "domain": 67.8,
+            "visual": 87.2,
+            "alt_text": 78.2,
+            "concept_recall": 83.3,
+            "latency_ms": 44496.2
+          },
+          "meta/muse-ember": {
+            "overall": 80.2,
+            "overall_score": 80.2,
+            "humor": 90.2,
+            "domain": 63.8,
+            "visual": 80.4,
+            "alt_text": 93.0,
+            "concept_recall": 83.3,
+            "latency_ms": 4602.3
+          },
           "claude-opus-5-5": {
             "overall": 83.4,
             "overall_score": 83.4,
@@ -6602,6 +9280,16 @@
             "alt_text": 91.8,
             "concept_recall": 83.3,
             "latency_ms": 12476.0
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 77.0,
+            "overall_score": 77.0,
+            "humor": 87.7,
+            "domain": 60.9,
+            "visual": 75.1,
+            "alt_text": 91.0,
+            "concept_recall": 66.7,
+            "latency_ms": 17464.6
           },
           "gemini-omni-1.2-flash": {
             "overall": 81.7,
@@ -6632,6 +9320,26 @@
             "alt_text": 93.0,
             "concept_recall": 83.3,
             "latency_ms": 7058.9
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 82.8,
+            "overall_score": 82.8,
+            "humor": 91.8,
+            "domain": 68.7,
+            "visual": 85.6,
+            "alt_text": 88.6,
+            "concept_recall": 83.3,
+            "latency_ms": 23322.4
+          },
+          "x-ai/grok-4.7": {
+            "overall": 76.9,
+            "overall_score": 76.9,
+            "humor": 86.2,
+            "domain": 62.6,
+            "visual": 74.4,
+            "alt_text": 90.8,
+            "concept_recall": 66.7,
+            "latency_ms": 20536.7
           },
           "gemini-3.1-pro-preview": {
             "overall": 83.0,
@@ -6703,6 +9411,16 @@
             "concept_recall": 66.7,
             "latency_ms": 23087.2
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 76.3,
+            "overall_score": 76.3,
+            "humor": 79.0,
+            "domain": 65.6,
+            "visual": 76.0,
+            "alt_text": 93.0,
+            "concept_recall": 83.3,
+            "latency_ms": 12211.9
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 70.9,
             "overall_score": 70.9,
@@ -6771,6 +9489,36 @@
             "concept_recall": 100.0,
             "latency_ms": 46610.7
           },
+          "meta/muse-wonder": {
+            "overall": 87.3,
+            "overall_score": 87.3,
+            "humor": 94.6,
+            "domain": 78.3,
+            "visual": 86.0,
+            "alt_text": 92.6,
+            "concept_recall": 100.0,
+            "latency_ms": 23682.3
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.6,
+            "overall_score": 87.6,
+            "humor": 95.0,
+            "domain": 79.8,
+            "visual": 83.2,
+            "alt_text": 95.8,
+            "concept_recall": 100.0,
+            "latency_ms": 4350.2
+          },
+          "meta/muse-spark-open": {
+            "overall": 86.5,
+            "overall_score": 86.5,
+            "humor": 93.8,
+            "domain": 77.4,
+            "visual": 84.0,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 8749.5
+          },
           "claude-fable-5-2": {
             "overall": 85.3,
             "overall_score": 85.3,
@@ -6811,6 +9559,26 @@
             "concept_recall": 100.0,
             "latency_ms": 10798.5
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 85.8,
+            "overall_score": 85.8,
+            "humor": 94.6,
+            "domain": 77.0,
+            "visual": 80.4,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 22759.9
+          },
+          "meta/muse-ember": {
+            "overall": 85.3,
+            "overall_score": 85.3,
+            "humor": 94.6,
+            "domain": 71.6,
+            "visual": 85.2,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 6146.5
+          },
           "claude-opus-5-5": {
             "overall": 85.9,
             "overall_score": 85.9,
@@ -6820,6 +9588,16 @@
             "alt_text": 92.6,
             "concept_recall": 100.0,
             "latency_ms": 10126.9
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 86.8,
+            "overall_score": 86.8,
+            "humor": 94.6,
+            "domain": 77.8,
+            "visual": 83.2,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 18048.7
           },
           "gemini-omni-1.2-flash": {
             "overall": 87.2,
@@ -6850,6 +9628,26 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 5916.1
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 85.8,
+            "overall_score": 85.8,
+            "humor": 93.0,
+            "domain": 75.8,
+            "visual": 84.4,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 18027.4
+          },
+          "x-ai/grok-4.7": {
+            "overall": 85.4,
+            "overall_score": 85.4,
+            "humor": 95.0,
+            "domain": 80.0,
+            "visual": 74.2,
+            "alt_text": 95.4,
+            "concept_recall": 100.0,
+            "latency_ms": 15231.2
           },
           "gemini-3.1-pro-preview": {
             "overall": 84.1,
@@ -6921,6 +9719,16 @@
             "concept_recall": 83.3,
             "latency_ms": 20891.7
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 82.9,
+            "overall_score": 82.9,
+            "humor": 92.6,
+            "domain": 72.4,
+            "visual": 77.9,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 10198.2
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 73.4,
             "overall_score": 73.4,
@@ -6989,6 +9797,36 @@
             "concept_recall": 66.7,
             "latency_ms": 15978.5
           },
+          "meta/muse-wonder": {
+            "overall": 86.4,
+            "overall_score": 86.4,
+            "humor": 91.8,
+            "domain": 80.4,
+            "visual": 83.6,
+            "alt_text": 92.2,
+            "concept_recall": 83.3,
+            "latency_ms": 19115.8
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.9,
+            "overall_score": 87.9,
+            "humor": 92.6,
+            "domain": 83.7,
+            "visual": 84.8,
+            "alt_text": 92.2,
+            "concept_recall": 83.3,
+            "latency_ms": 6963.7
+          },
+          "meta/muse-spark-open": {
+            "overall": 84.7,
+            "overall_score": 84.7,
+            "humor": 91.7,
+            "domain": 72.9,
+            "visual": 87.2,
+            "alt_text": 90.1,
+            "concept_recall": 66.7,
+            "latency_ms": 6336.1
+          },
           "claude-fable-5-2": {
             "overall": 87.5,
             "overall_score": 87.5,
@@ -7029,6 +9867,26 @@
             "concept_recall": 83.3,
             "latency_ms": 10932.9
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 89.2,
+            "overall_score": 89.2,
+            "humor": 93.0,
+            "domain": 84.7,
+            "visual": 89.2,
+            "alt_text": 90.6,
+            "concept_recall": 83.3,
+            "latency_ms": 22209.4
+          },
+          "meta/muse-ember": {
+            "overall": 88.1,
+            "overall_score": 88.1,
+            "humor": 92.6,
+            "domain": 80.4,
+            "visual": 89.6,
+            "alt_text": 92.2,
+            "concept_recall": 83.3,
+            "latency_ms": 4711.0
+          },
           "claude-opus-5-5": {
             "overall": 85.3,
             "overall_score": 85.3,
@@ -7038,6 +9896,16 @@
             "alt_text": 90.2,
             "concept_recall": 83.3,
             "latency_ms": 12216.7
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 86.3,
+            "overall_score": 86.3,
+            "humor": 93.4,
+            "domain": 79.4,
+            "visual": 81.6,
+            "alt_text": 93.4,
+            "concept_recall": 83.3,
+            "latency_ms": 17551.7
           },
           "gemini-omni-1.2-flash": {
             "overall": 86.5,
@@ -7068,6 +9936,26 @@
             "alt_text": 91.8,
             "concept_recall": 83.3,
             "latency_ms": 7274.5
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 82.8,
+            "overall_score": 82.8,
+            "humor": 91.4,
+            "domain": 75.4,
+            "visual": 77.1,
+            "alt_text": 89.9,
+            "concept_recall": 66.7,
+            "latency_ms": 25942.4
+          },
+          "x-ai/grok-4.7": {
+            "overall": 81.5,
+            "overall_score": 81.5,
+            "humor": 90.5,
+            "domain": 71.7,
+            "visual": 77.8,
+            "alt_text": 89.0,
+            "concept_recall": 66.7,
+            "latency_ms": 14069.8
           },
           "gemini-3.1-pro-preview": {
             "overall": 81.9,
@@ -7139,6 +10027,16 @@
             "concept_recall": 66.7,
             "latency_ms": 3686.2
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.0,
+            "overall_score": 83.0,
+            "humor": 89.4,
+            "domain": 76.4,
+            "visual": 80.7,
+            "alt_text": 87.3,
+            "concept_recall": 66.7,
+            "latency_ms": 11271.4
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 76.5,
             "overall_score": 76.5,
@@ -7207,6 +10105,36 @@
             "concept_recall": 100.0,
             "latency_ms": 38494.0
           },
+          "meta/muse-wonder": {
+            "overall": 88.5,
+            "overall_score": 88.5,
+            "humor": 93.8,
+            "domain": 87.7,
+            "visual": 78.6,
+            "alt_text": 95.8,
+            "concept_recall": 100.0,
+            "latency_ms": 16447.6
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 82.9,
+            "overall_score": 82.9,
+            "humor": 91.0,
+            "domain": 80.4,
+            "visual": 70.3,
+            "alt_text": 93.0,
+            "concept_recall": 80.0,
+            "latency_ms": 3399.3
+          },
+          "meta/muse-spark-open": {
+            "overall": 86.6,
+            "overall_score": 86.6,
+            "humor": 93.4,
+            "domain": 84.9,
+            "visual": 76.8,
+            "alt_text": 92.6,
+            "concept_recall": 100.0,
+            "latency_ms": 3333.7
+          },
           "claude-fable-5-2": {
             "overall": 84.4,
             "overall_score": 84.4,
@@ -7247,6 +10175,26 @@
             "concept_recall": 100.0,
             "latency_ms": 10773.1
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 89.2,
+            "overall_score": 89.2,
+            "humor": 93.4,
+            "domain": 88.2,
+            "visual": 82.4,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 19935.9
+          },
+          "meta/muse-ember": {
+            "overall": 83.2,
+            "overall_score": 83.2,
+            "humor": 91.0,
+            "domain": 80.4,
+            "visual": 71.0,
+            "alt_text": 93.8,
+            "concept_recall": 100.0,
+            "latency_ms": 3449.4
+          },
           "claude-opus-5-5": {
             "overall": 85.0,
             "overall_score": 85.0,
@@ -7256,6 +10204,16 @@
             "alt_text": 93.8,
             "concept_recall": 100.0,
             "latency_ms": 9778.5
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 85.1,
+            "overall_score": 85.1,
+            "humor": 92.6,
+            "domain": 85.4,
+            "visual": 70.2,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 17030.0
           },
           "gemini-omni-1.2-flash": {
             "overall": 82.2,
@@ -7286,6 +10244,26 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 6241.2
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 79.6,
+            "overall_score": 79.6,
+            "humor": 91.0,
+            "domain": 73.7,
+            "visual": 65.7,
+            "alt_text": 91.8,
+            "concept_recall": 80.0,
+            "latency_ms": 29165.6
+          },
+          "x-ai/grok-4.7": {
+            "overall": 85.4,
+            "overall_score": 85.4,
+            "humor": 93.4,
+            "domain": 84.9,
+            "visual": 70.7,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 10373.3
           },
           "gemini-3.1-pro-preview": {
             "overall": 82.0,
@@ -7357,6 +10335,16 @@
             "concept_recall": 100.0,
             "latency_ms": 3047.9
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 75.9,
+            "overall_score": 75.9,
+            "humor": 87.1,
+            "domain": 73.9,
+            "visual": 55.5,
+            "alt_text": 91.3,
+            "concept_recall": 80.0,
+            "latency_ms": 10602.6
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 75.8,
             "overall_score": 75.8,
@@ -7425,6 +10413,36 @@
             "concept_recall": 83.3,
             "latency_ms": 29869.3
           },
+          "meta/muse-wonder": {
+            "overall": 86.1,
+            "overall_score": 86.1,
+            "humor": 93.0,
+            "domain": 74.8,
+            "visual": 86.0,
+            "alt_text": 95.0,
+            "concept_recall": 83.3,
+            "latency_ms": 12999.7
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 87.4,
+            "overall_score": 87.4,
+            "humor": 93.8,
+            "domain": 78.7,
+            "visual": 85.2,
+            "alt_text": 95.4,
+            "concept_recall": 83.3,
+            "latency_ms": 4626.5
+          },
+          "meta/muse-spark-open": {
+            "overall": 88.8,
+            "overall_score": 88.8,
+            "humor": 93.8,
+            "domain": 81.4,
+            "visual": 88.0,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 3020.1
+          },
           "claude-fable-5-2": {
             "overall": 85.1,
             "overall_score": 85.1,
@@ -7465,6 +10483,26 @@
             "concept_recall": 66.7,
             "latency_ms": 11467.2
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 85.5,
+            "overall_score": 85.5,
+            "humor": 93.4,
+            "domain": 75.8,
+            "visual": 82.0,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 19311.8
+          },
+          "meta/muse-ember": {
+            "overall": 85.2,
+            "overall_score": 85.2,
+            "humor": 92.2,
+            "domain": 75.9,
+            "visual": 82.4,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 4649.7
+          },
           "claude-opus-5-5": {
             "overall": 83.0,
             "overall_score": 83.0,
@@ -7474,6 +10512,16 @@
             "alt_text": 93.0,
             "concept_recall": 83.3,
             "latency_ms": 11560.1
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 81.4,
+            "overall_score": 81.4,
+            "humor": 92.1,
+            "domain": 62.9,
+            "visual": 83.4,
+            "alt_text": 94.0,
+            "concept_recall": 66.7,
+            "latency_ms": 19896.2
           },
           "gemini-omni-1.2-flash": {
             "overall": 84.9,
@@ -7504,6 +10552,26 @@
             "alt_text": 94.2,
             "concept_recall": 83.3,
             "latency_ms": 6510.1
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 82.4,
+            "overall_score": 82.4,
+            "humor": 91.8,
+            "domain": 73.0,
+            "visual": 76.0,
+            "alt_text": 93.0,
+            "concept_recall": 100.0,
+            "latency_ms": 32907.4
+          },
+          "x-ai/grok-4.7": {
+            "overall": 83.3,
+            "overall_score": 83.3,
+            "humor": 91.0,
+            "domain": 72.3,
+            "visual": 80.8,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 15497.7
           },
           "gemini-3.1-pro-preview": {
             "overall": 82.2,
@@ -7575,6 +10643,16 @@
             "concept_recall": 66.7,
             "latency_ms": 16665.3
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 80.8,
+            "overall_score": 80.8,
+            "humor": 89.8,
+            "domain": 71.0,
+            "visual": 75.2,
+            "alt_text": 91.8,
+            "concept_recall": 100.0,
+            "latency_ms": 10287.6
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 81.3,
             "overall_score": 81.3,
@@ -7643,6 +10721,36 @@
             "concept_recall": 83.3,
             "latency_ms": 15944.3
           },
+          "meta/muse-wonder": {
+            "overall": 84.9,
+            "overall_score": 84.9,
+            "humor": 93.8,
+            "domain": 73.1,
+            "visual": 82.8,
+            "alt_text": 94.2,
+            "concept_recall": 83.3,
+            "latency_ms": 15585.8
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 79.2,
+            "overall_score": 79.2,
+            "humor": 92.6,
+            "domain": 65.4,
+            "visual": 71.2,
+            "alt_text": 93.0,
+            "concept_recall": 66.7,
+            "latency_ms": 9060.0
+          },
+          "meta/muse-spark-open": {
+            "overall": 70.6,
+            "overall_score": 70.6,
+            "humor": 81.2,
+            "domain": 54.4,
+            "visual": 68.7,
+            "alt_text": 85.1,
+            "concept_recall": 50.0,
+            "latency_ms": 5079.9
+          },
           "claude-fable-5-2": {
             "overall": 80.6,
             "overall_score": 80.6,
@@ -7683,6 +10791,26 @@
             "concept_recall": 66.7,
             "latency_ms": 15465.5
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 74.1,
+            "overall_score": 74.1,
+            "humor": 85.9,
+            "domain": 55.9,
+            "visual": 74.0,
+            "alt_text": 86.8,
+            "concept_recall": 50.0,
+            "latency_ms": 72190.4
+          },
+          "meta/muse-ember": {
+            "overall": 76.9,
+            "overall_score": 76.9,
+            "humor": 88.1,
+            "domain": 58.9,
+            "visual": 77.9,
+            "alt_text": 89.1,
+            "concept_recall": 66.7,
+            "latency_ms": 6249.5
+          },
           "claude-opus-5-5": {
             "overall": 77.6,
             "overall_score": 77.6,
@@ -7692,6 +10820,16 @@
             "alt_text": 86.2,
             "concept_recall": 66.7,
             "latency_ms": 11383.8
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 76.6,
+            "overall_score": 76.6,
+            "humor": 86.8,
+            "domain": 60.4,
+            "visual": 78.1,
+            "alt_text": 86.1,
+            "concept_recall": 50.0,
+            "latency_ms": 11715.9
           },
           "gemini-omni-1.2-flash": {
             "overall": 82.1,
@@ -7722,6 +10860,26 @@
             "alt_text": 88.6,
             "concept_recall": 83.3,
             "latency_ms": 5413.6
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 77.7,
+            "overall_score": 77.7,
+            "humor": 85.8,
+            "domain": 65.8,
+            "visual": 73.6,
+            "alt_text": 92.2,
+            "concept_recall": 66.7,
+            "latency_ms": 22729.2
+          },
+          "x-ai/grok-4.7": {
+            "overall": 75.9,
+            "overall_score": 75.9,
+            "humor": 89.8,
+            "domain": 59.4,
+            "visual": 71.5,
+            "alt_text": 88.7,
+            "concept_recall": 66.7,
+            "latency_ms": 12331.2
           },
           "gemini-3.1-pro-preview": {
             "overall": 78.4,
@@ -7793,6 +10951,16 @@
             "concept_recall": 66.7,
             "latency_ms": 4940.9
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 72.4,
+            "overall_score": 72.4,
+            "humor": 84.6,
+            "domain": 62.8,
+            "visual": 61.0,
+            "alt_text": 86.1,
+            "concept_recall": 66.7,
+            "latency_ms": 14057.8
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 68.0,
             "overall_score": 68.0,
@@ -7861,6 +11029,36 @@
             "concept_recall": 100.0,
             "latency_ms": 25290.2
           },
+          "meta/muse-wonder": {
+            "overall": 86.4,
+            "overall_score": 86.4,
+            "humor": 91.8,
+            "domain": 80.2,
+            "visual": 82.4,
+            "alt_text": 94.6,
+            "concept_recall": 100.0,
+            "latency_ms": 16410.1
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 89.2,
+            "overall_score": 89.2,
+            "humor": 93.4,
+            "domain": 83.8,
+            "visual": 87.2,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 11733.5
+          },
+          "meta/muse-spark-open": {
+            "overall": 86.6,
+            "overall_score": 86.6,
+            "humor": 92.6,
+            "domain": 80.2,
+            "visual": 82.4,
+            "alt_text": 94.2,
+            "concept_recall": 83.3,
+            "latency_ms": 3200.4
+          },
           "claude-fable-5-2": {
             "overall": 88.5,
             "overall_score": 88.5,
@@ -7901,6 +11099,26 @@
             "concept_recall": 100.0,
             "latency_ms": 11599.4
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 84.5,
+            "overall_score": 84.5,
+            "humor": 92.2,
+            "domain": 73.0,
+            "visual": 84.0,
+            "alt_text": 92.6,
+            "concept_recall": 83.3,
+            "latency_ms": 12863.8
+          },
+          "meta/muse-ember": {
+            "overall": 84.0,
+            "overall_score": 84.0,
+            "humor": 91.4,
+            "domain": 74.5,
+            "visual": 80.0,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 6278.6
+          },
           "claude-opus-5-5": {
             "overall": 82.3,
             "overall_score": 82.3,
@@ -7910,6 +11128,16 @@
             "alt_text": 90.6,
             "concept_recall": 100.0,
             "latency_ms": 10845.5
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 84.5,
+            "overall_score": 84.5,
+            "humor": 93.0,
+            "domain": 77.0,
+            "visual": 77.2,
+            "alt_text": 94.4,
+            "concept_recall": 83.3,
+            "latency_ms": 23126.5
           },
           "gemini-omni-1.2-flash": {
             "overall": 81.7,
@@ -7940,6 +11168,26 @@
             "alt_text": 93.4,
             "concept_recall": 100.0,
             "latency_ms": 6324.1
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 83.3,
+            "overall_score": 83.3,
+            "humor": 91.4,
+            "domain": 73.6,
+            "visual": 78.8,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 24918.2
+          },
+          "x-ai/grok-4.7": {
+            "overall": 88.2,
+            "overall_score": 88.2,
+            "humor": 93.0,
+            "domain": 83.8,
+            "visual": 83.6,
+            "alt_text": 95.0,
+            "concept_recall": 100.0,
+            "latency_ms": 14833.7
           },
           "gemini-3.1-pro-preview": {
             "overall": 80.6,
@@ -8011,6 +11259,16 @@
             "concept_recall": 83.3,
             "latency_ms": 4781.0
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 75.7,
+            "overall_score": 75.7,
+            "humor": 86.1,
+            "domain": 65.1,
+            "visual": 66.8,
+            "alt_text": 90.9,
+            "concept_recall": 66.7,
+            "latency_ms": 8912.3
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 74.6,
             "overall_score": 74.6,
@@ -8079,6 +11337,36 @@
             "concept_recall": 100.0,
             "latency_ms": 18092.3
           },
+          "meta/muse-wonder": {
+            "overall": 89.2,
+            "overall_score": 89.2,
+            "humor": 92.6,
+            "domain": 85.0,
+            "visual": 87.2,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 19741.0
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 88.4,
+            "overall_score": 88.4,
+            "humor": 92.2,
+            "domain": 83.8,
+            "visual": 86.0,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 7378.6
+          },
+          "meta/muse-spark-open": {
+            "overall": 88.6,
+            "overall_score": 88.6,
+            "humor": 93.4,
+            "domain": 83.4,
+            "visual": 85.6,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 8452.7
+          },
           "claude-fable-5-2": {
             "overall": 87.6,
             "overall_score": 87.6,
@@ -8119,6 +11407,26 @@
             "concept_recall": 83.3,
             "latency_ms": 19232.8
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 85.2,
+            "overall_score": 85.2,
+            "humor": 87.4,
+            "domain": 86.6,
+            "visual": 81.2,
+            "alt_text": 85.0,
+            "concept_recall": 83.3,
+            "latency_ms": 39470.6
+          },
+          "meta/muse-ember": {
+            "overall": 86.8,
+            "overall_score": 86.8,
+            "humor": 92.6,
+            "domain": 77.6,
+            "visual": 86.4,
+            "alt_text": 94.6,
+            "concept_recall": 83.3,
+            "latency_ms": 4783.5
+          },
           "claude-opus-5-5": {
             "overall": 86.0,
             "overall_score": 86.0,
@@ -8128,6 +11436,16 @@
             "alt_text": 92.2,
             "concept_recall": 83.3,
             "latency_ms": 11511.9
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 87.1,
+            "overall_score": 87.1,
+            "humor": 92.6,
+            "domain": 80.1,
+            "visual": 84.8,
+            "alt_text": 93.8,
+            "concept_recall": 83.3,
+            "latency_ms": 18479.9
           },
           "gemini-omni-1.2-flash": {
             "overall": 82.9,
@@ -8158,6 +11476,26 @@
             "alt_text": 91.8,
             "concept_recall": 83.3,
             "latency_ms": 10131.0
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 87.2,
+            "overall_score": 87.2,
+            "humor": 88.2,
+            "domain": 82.2,
+            "visual": 88.0,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 25959.7
+          },
+          "x-ai/grok-4.7": {
+            "overall": 81.7,
+            "overall_score": 81.7,
+            "humor": 92.6,
+            "domain": 71.8,
+            "visual": 72.9,
+            "alt_text": 94.7,
+            "concept_recall": 83.3,
+            "latency_ms": 18594.8
           },
           "gemini-3.1-pro-preview": {
             "overall": 81.1,
@@ -8229,6 +11567,16 @@
             "concept_recall": 83.3,
             "latency_ms": 3678.7
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 76.8,
+            "overall_score": 76.8,
+            "humor": 82.6,
+            "domain": 69.8,
+            "visual": 70.3,
+            "alt_text": 90.1,
+            "concept_recall": 66.7,
+            "latency_ms": 19562.5
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 81.7,
             "overall_score": 81.7,
@@ -8297,6 +11645,36 @@
             "concept_recall": 100.0,
             "latency_ms": 16603.4
           },
+          "meta/muse-wonder": {
+            "overall": 88.1,
+            "overall_score": 88.1,
+            "humor": 93.0,
+            "domain": 77.3,
+            "visual": 92.4,
+            "alt_text": 92.6,
+            "concept_recall": 100.0,
+            "latency_ms": 15554.2
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 88.5,
+            "overall_score": 88.5,
+            "humor": 94.6,
+            "domain": 80.6,
+            "visual": 95.2,
+            "alt_text": 80.6,
+            "concept_recall": 100.0,
+            "latency_ms": 3177.7
+          },
+          "meta/muse-spark-open": {
+            "overall": 85.3,
+            "overall_score": 85.3,
+            "humor": 93.4,
+            "domain": 74.3,
+            "visual": 93.6,
+            "alt_text": 77.0,
+            "concept_recall": 100.0,
+            "latency_ms": 3121.4
+          },
           "claude-fable-5-2": {
             "overall": 85.6,
             "overall_score": 85.6,
@@ -8337,6 +11715,26 @@
             "concept_recall": 100.0,
             "latency_ms": 10849.2
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 84.4,
+            "overall_score": 84.4,
+            "humor": 94.2,
+            "domain": 72.3,
+            "visual": 94.0,
+            "alt_text": 72.9,
+            "concept_recall": 100.0,
+            "latency_ms": 22932.4
+          },
+          "meta/muse-ember": {
+            "overall": 87.4,
+            "overall_score": 87.4,
+            "humor": 93.8,
+            "domain": 72.9,
+            "visual": 93.2,
+            "alt_text": 94.2,
+            "concept_recall": 100.0,
+            "latency_ms": 4251.9
+          },
           "claude-opus-5-5": {
             "overall": 87.6,
             "overall_score": 87.6,
@@ -8346,6 +11744,16 @@
             "alt_text": 83.8,
             "concept_recall": 100.0,
             "latency_ms": 10854.5
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 84.9,
+            "overall_score": 84.9,
+            "humor": 94.2,
+            "domain": 73.7,
+            "visual": 94.0,
+            "alt_text": 73.8,
+            "concept_recall": 100.0,
+            "latency_ms": 23503.2
           },
           "gemini-omni-1.2-flash": {
             "overall": 88.0,
@@ -8376,6 +11784,26 @@
             "alt_text": 70.2,
             "concept_recall": 100.0,
             "latency_ms": 5499.2
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 84.7,
+            "overall_score": 84.7,
+            "humor": 92.6,
+            "domain": 75.6,
+            "visual": 90.4,
+            "alt_text": 77.5,
+            "concept_recall": 100.0,
+            "latency_ms": 20043.0
+          },
+          "x-ai/grok-4.7": {
+            "overall": 86.8,
+            "overall_score": 86.8,
+            "humor": 94.6,
+            "domain": 79.1,
+            "visual": 92.0,
+            "alt_text": 77.8,
+            "concept_recall": 100.0,
+            "latency_ms": 11497.4
           },
           "gemini-3.1-pro-preview": {
             "overall": 82.1,
@@ -8447,6 +11875,16 @@
             "concept_recall": 100.0,
             "latency_ms": 26477.3
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.0,
+            "overall_score": 83.0,
+            "humor": 91.8,
+            "domain": 72.4,
+            "visual": 88.8,
+            "alt_text": 77.1,
+            "concept_recall": 100.0,
+            "latency_ms": 12080.2
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 83.3,
             "overall_score": 83.3,
@@ -8515,6 +11953,36 @@
             "concept_recall": 100.0,
             "latency_ms": 18550.5
           },
+          "meta/muse-wonder": {
+            "overall": 84.0,
+            "overall_score": 84.0,
+            "humor": 91.8,
+            "domain": 76.0,
+            "visual": 80.0,
+            "alt_text": 91.0,
+            "concept_recall": 80.0,
+            "latency_ms": 13056.4
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 85.4,
+            "overall_score": 85.4,
+            "humor": 91.8,
+            "domain": 80.5,
+            "visual": 78.0,
+            "alt_text": 94.6,
+            "concept_recall": 80.0,
+            "latency_ms": 26625.1
+          },
+          "meta/muse-spark-open": {
+            "overall": 86.2,
+            "overall_score": 86.2,
+            "humor": 91.4,
+            "domain": 82.2,
+            "visual": 80.4,
+            "alt_text": 93.8,
+            "concept_recall": 80.0,
+            "latency_ms": 7638.0
+          },
           "claude-fable-5-2": {
             "overall": 84.4,
             "overall_score": 84.4,
@@ -8555,6 +12023,26 @@
             "concept_recall": 80.0,
             "latency_ms": 11454.8
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 84.4,
+            "overall_score": 84.4,
+            "humor": 91.4,
+            "domain": 74.9,
+            "visual": 82.4,
+            "alt_text": 92.6,
+            "concept_recall": 80.0,
+            "latency_ms": 23601.1
+          },
+          "meta/muse-ember": {
+            "overall": 85.2,
+            "overall_score": 85.2,
+            "humor": 90.6,
+            "domain": 78.2,
+            "visual": 83.2,
+            "alt_text": 91.8,
+            "concept_recall": 100.0,
+            "latency_ms": 5182.4
+          },
           "claude-opus-5-5": {
             "overall": 80.9,
             "overall_score": 80.9,
@@ -8564,6 +12052,16 @@
             "alt_text": 89.4,
             "concept_recall": 100.0,
             "latency_ms": 12634.7
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 82.4,
+            "overall_score": 82.4,
+            "humor": 89.0,
+            "domain": 75.1,
+            "visual": 79.2,
+            "alt_text": 89.4,
+            "concept_recall": 80.0,
+            "latency_ms": 12719.1
           },
           "gemini-omni-1.2-flash": {
             "overall": 77.0,
@@ -8594,6 +12092,26 @@
             "alt_text": 89.8,
             "concept_recall": 80.0,
             "latency_ms": 6818.4
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 85.3,
+            "overall_score": 85.3,
+            "humor": 91.8,
+            "domain": 80.9,
+            "visual": 78.0,
+            "alt_text": 93.0,
+            "concept_recall": 80.0,
+            "latency_ms": 29594.3
+          },
+          "x-ai/grok-4.7": {
+            "overall": 86.1,
+            "overall_score": 86.1,
+            "humor": 92.2,
+            "domain": 79.8,
+            "visual": 82.4,
+            "alt_text": 92.6,
+            "concept_recall": 80.0,
+            "latency_ms": 14750.5
           },
           "gemini-3.1-pro-preview": {
             "overall": 82.2,
@@ -8665,6 +12183,16 @@
             "concept_recall": 60.0,
             "latency_ms": 10726.6
           },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 83.5,
+            "overall_score": 83.5,
+            "humor": 88.2,
+            "domain": 76.2,
+            "visual": 82.4,
+            "alt_text": 90.6,
+            "concept_recall": 100.0,
+            "latency_ms": 12961.7
+          },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 79.8,
             "overall_score": 79.8,
@@ -8733,6 +12261,36 @@
             "concept_recall": 66.7,
             "latency_ms": 25704.0
           },
+          "meta/muse-wonder": {
+            "overall": 77.5,
+            "overall_score": 77.5,
+            "humor": 87.7,
+            "domain": 65.9,
+            "visual": 69.9,
+            "alt_text": 93.3,
+            "concept_recall": 66.7,
+            "latency_ms": 11381.4
+          },
+          "moonshotai/kimi-k3.1-pro": {
+            "overall": 81.9,
+            "overall_score": 81.9,
+            "humor": 91.4,
+            "domain": 70.7,
+            "visual": 76.4,
+            "alt_text": 94.2,
+            "concept_recall": 50.0,
+            "latency_ms": 12855.9
+          },
+          "meta/muse-spark-open": {
+            "overall": 80.4,
+            "overall_score": 80.4,
+            "humor": 90.7,
+            "domain": 67.1,
+            "visual": 76.4,
+            "alt_text": 93.3,
+            "concept_recall": 50.0,
+            "latency_ms": 7843.8
+          },
           "claude-fable-5-2": {
             "overall": 75.5,
             "overall_score": 75.5,
@@ -8773,6 +12331,26 @@
             "concept_recall": 66.7,
             "latency_ms": 11570.6
           },
+          "mistralai/mistral-large-4-0": {
+            "overall": 79.8,
+            "overall_score": 79.8,
+            "humor": 91.8,
+            "domain": 73.3,
+            "visual": 65.0,
+            "alt_text": 93.3,
+            "concept_recall": 66.7,
+            "latency_ms": 12616.6
+          },
+          "meta/muse-ember": {
+            "overall": 74.6,
+            "overall_score": 74.6,
+            "humor": 82.8,
+            "domain": 56.0,
+            "visual": 78.2,
+            "alt_text": 89.6,
+            "concept_recall": 50.0,
+            "latency_ms": 3051.9
+          },
           "claude-opus-5-5": {
             "overall": 78.5,
             "overall_score": 78.5,
@@ -8782,6 +12360,16 @@
             "alt_text": 93.4,
             "concept_recall": 66.7,
             "latency_ms": 12636.3
+          },
+          "qwen/qwen3.8-max-prime": {
+            "overall": 78.8,
+            "overall_score": 78.8,
+            "humor": 91.0,
+            "domain": 65.0,
+            "visual": 72.3,
+            "alt_text": 93.0,
+            "concept_recall": 66.7,
+            "latency_ms": 14994.8
           },
           "gemini-omni-1.2-flash": {
             "overall": 76.6,
@@ -8812,6 +12400,26 @@
             "alt_text": 91.8,
             "concept_recall": 66.7,
             "latency_ms": 11087.9
+          },
+          "openai/gpt-6-astra-pro": {
+            "overall": 73.2,
+            "overall_score": 73.2,
+            "humor": 85.8,
+            "domain": 61.8,
+            "visual": 64.5,
+            "alt_text": 85.5,
+            "concept_recall": 50.0,
+            "latency_ms": 26969.0
+          },
+          "x-ai/grok-4.7": {
+            "overall": 77.2,
+            "overall_score": 77.2,
+            "humor": 90.1,
+            "domain": 66.5,
+            "visual": 65.6,
+            "alt_text": 92.2,
+            "concept_recall": 66.7,
+            "latency_ms": 15520.4
           },
           "gemini-3.1-pro-preview": {
             "overall": 75.9,
@@ -8882,6 +12490,16 @@
             "alt_text": 85.9,
             "concept_recall": 66.7,
             "latency_ms": 3303.5
+          },
+          "openai/gpt-6.1-terra-pro": {
+            "overall": 67.7,
+            "overall_score": 67.7,
+            "humor": 72.1,
+            "domain": 59.9,
+            "visual": 58.9,
+            "alt_text": 88.9,
+            "concept_recall": 50.0,
+            "latency_ms": 12162.9
           },
           "nvidia/nemotron-3.5-super-vl:free": {
             "overall": 69.2,
@@ -9013,6 +12631,243 @@
           "domain": 89.4,
           "visual": 83.2,
           "alt_text": 93.6,
+          "concept_recall": 100.0
+        }
+      }
+    },
+    {
+      "id": "meta/muse-wonder",
+      "name": "Meta Muse Wonder",
+      "provider": "Meta Superintelligence Lab",
+      "modality": "Vision + Text",
+      "overall": 86.4,
+      "humor_score": 92.4,
+      "domain_score": 79.5,
+      "visual_score": 83.0,
+      "alt_text_score": 93.7,
+      "concept_recall": 92.3,
+      "hallucination_rate": 2.0,
+      "avg_latency_ms": 16307,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 86.4,
+      "humor": 92.4,
+      "domain": 79.5,
+      "visual": 83.0,
+      "alt_text": 93.7,
+      "domain_scores": {
+        "Computer Science & Security": 84.9,
+        "Engineering & Workflow": 88.6,
+        "Physics & Aerospace": 87.7,
+        "Science & Culture": 83.8,
+        "AI & Machine Learning": 82.3,
+        "Mathematics & Statistics": 90.7
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 84.9,
+          "humor": 91.6,
+          "domain": 78.4,
+          "visual": 79.9,
+          "alt_text": 92.6,
+          "concept_recall": 90.0
+        },
+        "Engineering & Workflow": {
+          "overall_score": 88.6,
+          "humor": 93.3,
+          "domain": 81.1,
+          "visual": 88.8,
+          "alt_text": 94.0,
+          "concept_recall": 100.0
+        },
+        "Physics & Aerospace": {
+          "overall_score": 87.7,
+          "humor": 92.6,
+          "domain": 82.0,
+          "visual": 86.0,
+          "alt_text": 92.2,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 83.8,
+          "humor": 93.2,
+          "domain": 71.9,
+          "visual": 80.2,
+          "alt_text": 94.6,
+          "concept_recall": 91.7
+        },
+        "AI & Machine Learning": {
+          "overall_score": 82.3,
+          "humor": 89.6,
+          "domain": 73.9,
+          "visual": 76.8,
+          "alt_text": 94.2,
+          "concept_recall": 75.0
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 90.7,
+          "humor": 94.6,
+          "domain": 90.2,
+          "visual": 83.5,
+          "alt_text": 95.6,
+          "concept_recall": 100.0
+        }
+      }
+    },
+    {
+      "id": "moonshotai/kimi-k3.1-pro",
+      "name": "Kimi K3.1 Pro",
+      "provider": "Moonshot AI",
+      "modality": "Vision + Text",
+      "overall": 86.4,
+      "humor_score": 93.1,
+      "domain_score": 80.2,
+      "visual_score": 81.6,
+      "alt_text_score": 93.6,
+      "concept_recall": 86.9,
+      "hallucination_rate": 2.2,
+      "avg_latency_ms": 8864,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 86.4,
+      "humor": 93.1,
+      "domain": 80.2,
+      "visual": 81.6,
+      "alt_text": 93.6,
+      "domain_scores": {
+        "Computer Science & Security": 86.9,
+        "Engineering & Workflow": 88.5,
+        "Physics & Aerospace": 87.2,
+        "Science & Culture": 79.8,
+        "AI & Machine Learning": 84.6,
+        "Mathematics & Statistics": 86.7
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 86.9,
+          "humor": 92.9,
+          "domain": 81.4,
+          "visual": 82.0,
+          "alt_text": 94.0,
+          "concept_recall": 90.0
+        },
+        "Engineering & Workflow": {
+          "overall_score": 88.5,
+          "humor": 93.9,
+          "domain": 82.1,
+          "visual": 87.0,
+          "alt_text": 92.7,
+          "concept_recall": 97.2
+        },
+        "Physics & Aerospace": {
+          "overall_score": 87.2,
+          "humor": 92.2,
+          "domain": 81.9,
+          "visual": 84.0,
+          "alt_text": 93.4,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 79.8,
+          "humor": 93.2,
+          "domain": 66.2,
+          "visual": 71.2,
+          "alt_text": 94.6,
+          "concept_recall": 70.8
+        },
+        "AI & Machine Learning": {
+          "overall_score": 84.6,
+          "humor": 91.6,
+          "domain": 77.1,
+          "visual": 79.0,
+          "alt_text": 94.4,
+          "concept_recall": 66.7
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 86.7,
+          "humor": 92.6,
+          "domain": 86.7,
+          "visual": 75.5,
+          "alt_text": 93.4,
+          "concept_recall": 82.8
+        }
+      }
+    },
+    {
+      "id": "meta/muse-spark-open",
+      "name": "Meta Muse Spark Open",
+      "provider": "Meta Superintelligence Lab (Open Weights)",
+      "modality": "Vision + Text",
+      "overall": 85.5,
+      "humor_score": 91.8,
+      "domain_score": 78.0,
+      "visual_score": 83.3,
+      "alt_text_score": 91.9,
+      "concept_recall": 88.2,
+      "hallucination_rate": 2.0,
+      "avg_latency_ms": 5239,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 85.5,
+      "humor": 91.8,
+      "domain": 78.0,
+      "visual": 83.3,
+      "alt_text": 91.9,
+      "domain_scores": {
+        "Computer Science & Security": 85.6,
+        "Engineering & Workflow": 87.5,
+        "Physics & Aerospace": 88.6,
+        "Science & Culture": 76.0,
+        "AI & Machine Learning": 83.2,
+        "Mathematics & Statistics": 89.7
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 85.6,
+          "humor": 91.4,
+          "domain": 78.4,
+          "visual": 83.4,
+          "alt_text": 92.0,
+          "concept_recall": 87.6
+        },
+        "Engineering & Workflow": {
+          "overall_score": 87.5,
+          "humor": 93.6,
+          "domain": 80.0,
+          "visual": 86.8,
+          "alt_text": 91.4,
+          "concept_recall": 94.4
+        },
+        "Physics & Aerospace": {
+          "overall_score": 88.6,
+          "humor": 93.0,
+          "domain": 82.8,
+          "visual": 87.2,
+          "alt_text": 93.8,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 76.0,
+          "humor": 85.5,
+          "domain": 61.3,
+          "visual": 74.2,
+          "alt_text": 89.4,
+          "concept_recall": 75.0
+        },
+        "AI & Machine Learning": {
+          "overall_score": 83.2,
+          "humor": 90.7,
+          "domain": 73.5,
+          "visual": 80.0,
+          "alt_text": 92.8,
+          "concept_recall": 75.0
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 89.7,
+          "humor": 94.2,
+          "domain": 89.0,
+          "visual": 82.8,
+          "alt_text": 93.8,
           "concept_recall": 100.0
         }
       }
@@ -9334,6 +13189,164 @@
       }
     },
     {
+      "id": "mistralai/mistral-large-4-0",
+      "name": "Mistral Large 4",
+      "provider": "Mistral AI",
+      "modality": "Vision + Text",
+      "overall": 84.7,
+      "humor_score": 91.5,
+      "domain_score": 77.3,
+      "visual_score": 82.0,
+      "alt_text_score": 90.4,
+      "concept_recall": 89.1,
+      "hallucination_rate": 2.2,
+      "avg_latency_ms": 25583,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 84.7,
+      "humor": 91.5,
+      "domain": 77.3,
+      "visual": 82.0,
+      "alt_text": 90.4,
+      "domain_scores": {
+        "Computer Science & Security": 84.8,
+        "Engineering & Workflow": 86.0,
+        "Physics & Aerospace": 86.6,
+        "Science & Culture": 78.2,
+        "AI & Machine Learning": 83.2,
+        "Mathematics & Statistics": 87.3
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 84.8,
+          "humor": 90.4,
+          "domain": 78.9,
+          "visual": 82.4,
+          "alt_text": 89.3,
+          "concept_recall": 92.4
+        },
+        "Engineering & Workflow": {
+          "overall_score": 86.0,
+          "humor": 92.6,
+          "domain": 78.0,
+          "visual": 86.0,
+          "alt_text": 88.9,
+          "concept_recall": 94.4
+        },
+        "Physics & Aerospace": {
+          "overall_score": 86.6,
+          "humor": 93.4,
+          "domain": 74.3,
+          "visual": 88.0,
+          "alt_text": 95.4,
+          "concept_recall": 66.7
+        },
+        "Science & Culture": {
+          "overall_score": 78.2,
+          "humor": 89.5,
+          "domain": 62.0,
+          "visual": 76.3,
+          "alt_text": 90.9,
+          "concept_recall": 75.0
+        },
+        "AI & Machine Learning": {
+          "overall_score": 83.2,
+          "humor": 91.4,
+          "domain": 76.9,
+          "visual": 74.7,
+          "alt_text": 93.3,
+          "concept_recall": 83.3
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 87.3,
+          "humor": 93.2,
+          "domain": 86.3,
+          "visual": 78.4,
+          "alt_text": 92.4,
+          "concept_recall": 92.8
+        }
+      }
+    },
+    {
+      "id": "meta/muse-ember",
+      "name": "Meta Muse Ember",
+      "provider": "Meta Superintelligence Lab",
+      "modality": "Vision + Text",
+      "overall": 84.6,
+      "humor_score": 91.5,
+      "domain_score": 74.8,
+      "visual_score": 83.0,
+      "alt_text_score": 93.2,
+      "concept_recall": 90.8,
+      "hallucination_rate": 2.0,
+      "avg_latency_ms": 4657,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 84.6,
+      "humor": 91.5,
+      "domain": 74.8,
+      "visual": 83.0,
+      "alt_text": 93.2,
+      "domain_scores": {
+        "Computer Science & Security": 84.8,
+        "Engineering & Workflow": 86.4,
+        "Physics & Aerospace": 84.1,
+        "Science & Culture": 79.0,
+        "AI & Machine Learning": 80.8,
+        "Mathematics & Statistics": 88.3
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 84.8,
+          "humor": 91.6,
+          "domain": 77.5,
+          "visual": 80.7,
+          "alt_text": 92.7,
+          "concept_recall": 95.2
+        },
+        "Engineering & Workflow": {
+          "overall_score": 86.4,
+          "humor": 92.9,
+          "domain": 74.8,
+          "visual": 87.9,
+          "alt_text": 94.0,
+          "concept_recall": 91.6
+        },
+        "Physics & Aerospace": {
+          "overall_score": 84.1,
+          "humor": 91.0,
+          "domain": 70.4,
+          "visual": 86.4,
+          "alt_text": 93.8,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 79.0,
+          "humor": 90.2,
+          "domain": 62.2,
+          "visual": 78.2,
+          "alt_text": 91.8,
+          "concept_recall": 83.3
+        },
+        "AI & Machine Learning": {
+          "overall_score": 80.8,
+          "humor": 87.1,
+          "domain": 68.5,
+          "visual": 81.1,
+          "alt_text": 92.1,
+          "concept_recall": 75.0
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 88.3,
+          "humor": 93.2,
+          "domain": 86.5,
+          "visual": 80.9,
+          "alt_text": 94.6,
+          "concept_recall": 100.0
+        }
+      }
+    },
+    {
       "id": "claude-opus-5-5",
       "name": "Claude Opus 5.5",
       "provider": "Anthropic",
@@ -9408,6 +13421,85 @@
           "domain": 85.8,
           "visual": 81.0,
           "alt_text": 94.2,
+          "concept_recall": 100.0
+        }
+      }
+    },
+    {
+      "id": "qwen/qwen3.8-max-prime",
+      "name": "Qwen 3.8 Max Prime",
+      "provider": "Alibaba Qwen",
+      "modality": "Vision + Text",
+      "overall": 84.2,
+      "humor_score": 92.2,
+      "domain_score": 75.7,
+      "visual_score": 80.4,
+      "alt_text_score": 91.9,
+      "concept_recall": 88.2,
+      "hallucination_rate": 2.4,
+      "avg_latency_ms": 16912,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 84.2,
+      "humor": 92.2,
+      "domain": 75.7,
+      "visual": 80.4,
+      "alt_text": 91.9,
+      "domain_scores": {
+        "Computer Science & Security": 83.7,
+        "Engineering & Workflow": 86.6,
+        "Physics & Aerospace": 84.1,
+        "Science & Culture": 77.4,
+        "AI & Machine Learning": 82.3,
+        "Mathematics & Statistics": 87.7
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 83.7,
+          "humor": 91.4,
+          "domain": 75.6,
+          "visual": 79.6,
+          "alt_text": 91.7,
+          "concept_recall": 85.2
+        },
+        "Engineering & Workflow": {
+          "overall_score": 86.6,
+          "humor": 93.7,
+          "domain": 77.7,
+          "visual": 86.1,
+          "alt_text": 91.1,
+          "concept_recall": 94.4
+        },
+        "Physics & Aerospace": {
+          "overall_score": 84.1,
+          "humor": 93.0,
+          "domain": 71.4,
+          "visual": 82.8,
+          "alt_text": 93.8,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 77.4,
+          "humor": 89.7,
+          "domain": 62.8,
+          "visual": 72.7,
+          "alt_text": 90.2,
+          "concept_recall": 75.0
+        },
+        "AI & Machine Learning": {
+          "overall_score": 82.3,
+          "humor": 91.2,
+          "domain": 73.0,
+          "visual": 76.2,
+          "alt_text": 93.2,
+          "concept_recall": 83.3
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 87.7,
+          "humor": 93.6,
+          "domain": 87.6,
+          "visual": 76.7,
+          "alt_text": 94.6,
           "concept_recall": 100.0
         }
       }
@@ -9646,6 +13738,164 @@
           "visual": 80.5,
           "alt_text": 94.0,
           "concept_recall": 100.0
+        }
+      }
+    },
+    {
+      "id": "openai/gpt-6-astra-pro",
+      "name": "GPT-6 Astra Pro",
+      "provider": "OpenAI",
+      "modality": "Vision + Text",
+      "overall": 83.5,
+      "humor_score": 90.8,
+      "domain_score": 76.2,
+      "visual_score": 78.8,
+      "alt_text_score": 91.5,
+      "concept_recall": 86.7,
+      "hallucination_rate": 2.5,
+      "avg_latency_ms": 24882,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 83.5,
+      "humor": 90.8,
+      "domain": 76.2,
+      "visual": 78.8,
+      "alt_text": 91.5,
+      "domain_scores": {
+        "Computer Science & Security": 84.1,
+        "Engineering & Workflow": 86.2,
+        "Physics & Aerospace": 84.5,
+        "Science & Culture": 76.0,
+        "AI & Machine Learning": 78.7,
+        "Mathematics & Statistics": 85.2
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 84.1,
+          "humor": 91.2,
+          "domain": 78.6,
+          "visual": 77.7,
+          "alt_text": 91.5,
+          "concept_recall": 90.0
+        },
+        "Engineering & Workflow": {
+          "overall_score": 86.2,
+          "humor": 91.9,
+          "domain": 77.8,
+          "visual": 86.8,
+          "alt_text": 91.0,
+          "concept_recall": 94.4
+        },
+        "Physics & Aerospace": {
+          "overall_score": 84.5,
+          "humor": 90.2,
+          "domain": 77.7,
+          "visual": 81.2,
+          "alt_text": 92.2,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 76.0,
+          "humor": 88.4,
+          "domain": 61.5,
+          "visual": 67.9,
+          "alt_text": 93.4,
+          "concept_recall": 70.8
+        },
+        "AI & Machine Learning": {
+          "overall_score": 78.7,
+          "humor": 87.4,
+          "domain": 70.0,
+          "visual": 72.2,
+          "alt_text": 89.2,
+          "concept_recall": 66.7
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 85.2,
+          "humor": 92.8,
+          "domain": 82.8,
+          "visual": 74.7,
+          "alt_text": 93.0,
+          "concept_recall": 90.0
+        }
+      }
+    },
+    {
+      "id": "x-ai/grok-4.7",
+      "name": "Grok 4.7",
+      "provider": "xAI",
+      "modality": "Vision + Text",
+      "overall": 83.4,
+      "humor_score": 91.6,
+      "domain_score": 76.2,
+      "visual_score": 77.1,
+      "alt_text_score": 92.3,
+      "concept_recall": 87.7,
+      "hallucination_rate": 2.7,
+      "avg_latency_ms": 14767,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 83.4,
+      "humor": 91.6,
+      "domain": 76.2,
+      "visual": 77.1,
+      "alt_text": 92.3,
+      "domain_scores": {
+        "Computer Science & Security": 83.2,
+        "Engineering & Workflow": 86.0,
+        "Physics & Aerospace": 90.5,
+        "Science & Culture": 73.7,
+        "AI & Machine Learning": 81.8,
+        "Mathematics & Statistics": 84.7
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 83.2,
+          "humor": 90.6,
+          "domain": 77.3,
+          "visual": 76.3,
+          "alt_text": 91.6,
+          "concept_recall": 84.8
+        },
+        "Engineering & Workflow": {
+          "overall_score": 86.0,
+          "humor": 93.7,
+          "domain": 77.8,
+          "visual": 82.9,
+          "alt_text": 92.1,
+          "concept_recall": 94.4
+        },
+        "Physics & Aerospace": {
+          "overall_score": 90.5,
+          "humor": 93.4,
+          "domain": 85.4,
+          "visual": 90.0,
+          "alt_text": 95.4,
+          "concept_recall": 100.0
+        },
+        "Science & Culture": {
+          "overall_score": 73.7,
+          "humor": 88.1,
+          "domain": 55.8,
+          "visual": 67.4,
+          "alt_text": 91.1,
+          "concept_recall": 70.8
+        },
+        "AI & Machine Learning": {
+          "overall_score": 81.8,
+          "humor": 91.2,
+          "domain": 73.8,
+          "visual": 73.2,
+          "alt_text": 93.2,
+          "concept_recall": 83.3
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 84.7,
+          "humor": 91.8,
+          "domain": 85.4,
+          "visual": 69.7,
+          "alt_text": 93.7,
+          "concept_recall": 92.8
         }
       }
     },
@@ -10199,6 +14449,85 @@
           "visual": 72.0,
           "alt_text": 90.6,
           "concept_recall": 100.0
+        }
+      }
+    },
+    {
+      "id": "openai/gpt-6.1-terra-pro",
+      "name": "GPT-6.1 Terra Pro",
+      "provider": "OpenAI",
+      "modality": "Vision + Text",
+      "overall": 79.1,
+      "humor_score": 86.6,
+      "domain_score": 72.0,
+      "visual_score": 72.1,
+      "alt_text_score": 89.9,
+      "concept_recall": 83.7,
+      "hallucination_rate": 3.3,
+      "avg_latency_ms": 12197,
+      "comics_evaluated": 20,
+      "verified_live": true,
+      "overall_score": 79.1,
+      "humor": 86.6,
+      "domain": 72.0,
+      "visual": 72.1,
+      "alt_text": 89.9,
+      "domain_scores": {
+        "Computer Science & Security": 80.8,
+        "Engineering & Workflow": 80.8,
+        "Physics & Aerospace": 77.3,
+        "Science & Culture": 71.4,
+        "AI & Machine Learning": 74.3,
+        "Mathematics & Statistics": 81.6
+      },
+      "domain_breakdown": {
+        "Computer Science & Security": {
+          "overall_score": 80.8,
+          "humor": 86.8,
+          "domain": 76.0,
+          "visual": 73.7,
+          "alt_text": 90.0,
+          "concept_recall": 92.9
+        },
+        "Engineering & Workflow": {
+          "overall_score": 80.8,
+          "humor": 88.7,
+          "domain": 71.3,
+          "visual": 77.3,
+          "alt_text": 89.7,
+          "concept_recall": 83.3
+        },
+        "Physics & Aerospace": {
+          "overall_score": 77.3,
+          "humor": 82.8,
+          "domain": 67.0,
+          "visual": 76.0,
+          "alt_text": 89.2,
+          "concept_recall": 83.3
+        },
+        "Science & Culture": {
+          "overall_score": 71.4,
+          "humor": 84.9,
+          "domain": 57.8,
+          "visual": 61.0,
+          "alt_text": 88.7,
+          "concept_recall": 70.8
+        },
+        "AI & Machine Learning": {
+          "overall_score": 74.3,
+          "humor": 79.3,
+          "domain": 68.5,
+          "visual": 66.7,
+          "alt_text": 88.8,
+          "concept_recall": 66.7
+        },
+        "Mathematics & Statistics": {
+          "overall_score": 81.6,
+          "humor": 90.4,
+          "domain": 80.4,
+          "visual": 65.7,
+          "alt_text": 92.4,
+          "concept_recall": 82.8
         }
       }
     },
@@ -10771,6 +15100,19 @@
       "verified_live": true
     },
     {
+      "id": "llm-meta/muse-spark-open",
+      "name": "Meta Muse Spark Open (Zero-Shot Retrieval)",
+      "architecture": "Meta Superintelligence Lab (Open Weights) • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 89.6,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
       "id": "hybrid-jev-bm25",
       "name": "Hybrid BM25F + TypeSafe System One (jev-pro)",
       "architecture": "Stage-1 Lexical + Stage-2 Calibrated Choice/Noul Re-ranker (RRF k=60)",
@@ -10797,6 +15139,19 @@
       "verified_live": true
     },
     {
+      "id": "llm-meta/muse-wonder",
+      "name": "Meta Muse Wonder (Zero-Shot Retrieval)",
+      "architecture": "Meta Superintelligence Lab • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 330.1,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
       "id": "llm-claude-fable-5-2",
       "name": "Claude Fable 5.2 (Zero-Shot Retrieval)",
       "architecture": "Anthropic • Vision + Text Zero-Shot Ranking",
@@ -10810,6 +15165,32 @@
       "verified_live": true
     },
     {
+      "id": "llm-moonshotai/kimi-k3.1-pro",
+      "name": "Kimi K3.1 Pro (Zero-Shot Retrieval)",
+      "architecture": "Moonshot AI • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 401.6,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
+      "id": "llm-openai/gpt-6-astra-pro",
+      "name": "GPT-6 Astra Pro (Zero-Shot Retrieval)",
+      "architecture": "OpenAI • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 428.3,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
       "id": "llm-gemini-omni-1.2-flash",
       "name": "Gemini Omni 1.2 Flash (Zero-Shot Retrieval)",
       "architecture": "Google DeepMind • Vision + Text Zero-Shot Ranking",
@@ -10819,6 +15200,32 @@
       "mrr_at_10": 1.0,
       "ece": 0.032,
       "p50_latency_ms": 547.6,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
+      "id": "llm-x-ai/grok-4.7",
+      "name": "Grok 4.7 (Zero-Shot Retrieval)",
+      "architecture": "xAI • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 738.7,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
+      "id": "llm-qwen/qwen3.8-max-prime",
+      "name": "Qwen 3.8 Max Prime (Zero-Shot Retrieval)",
+      "architecture": "Alibaba Qwen • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 100.0,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 1.0,
+      "ece": 0.032,
+      "p50_latency_ms": 1237.3,
       "zero_index": true,
       "verified_live": true
     },
@@ -10858,6 +15265,32 @@
       "mrr_at_10": 0.983,
       "ece": 0.032,
       "p50_latency_ms": 131.5,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
+      "id": "llm-meta/muse-ember",
+      "name": "Meta Muse Ember (Zero-Shot Retrieval)",
+      "architecture": "Meta Superintelligence Lab • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 96.7,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 0.983,
+      "ece": 0.032,
+      "p50_latency_ms": 160.9,
+      "zero_index": true,
+      "verified_live": true
+    },
+    {
+      "id": "llm-openai/gpt-6.1-terra-pro",
+      "name": "GPT-6.1 Terra Pro (Zero-Shot Retrieval)",
+      "architecture": "OpenAI • Vision + Text Zero-Shot Ranking",
+      "hit_at_1": 96.7,
+      "hit_at_3": 100.0,
+      "hit_at_5": 100.0,
+      "mrr_at_10": 0.983,
+      "ece": 0.032,
+      "p50_latency_ms": 307.9,
       "zero_index": true,
       "verified_live": true
     },

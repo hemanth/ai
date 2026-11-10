@@ -613,6 +613,15 @@ def get_model_explanation_for_comic(comic: dict[str, Any], model_id: str) -> str
         "gemini-3.7-flash",
         "gemini-3.1-pro-preview",
         "gemini-2.5-pro",
+        "openai/gpt-6-astra-pro",
+        "openai/gpt-6.1-terra-pro",
+        "x-ai/grok-4.7",
+        "meta/muse-wonder",
+        "meta/muse-spark-open",
+        "meta/muse-ember",
+        "moonshotai/kimi-k3.1-pro",
+        "qwen/qwen3.8-max-prime",
+        "mistralai/mistral-large-4-0",
         "deepseek-ai/deepseek-v4.1-flash-maas",
     ):
         parts = [

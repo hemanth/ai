@@ -28,37 +28,46 @@ Evaluates retrieval accuracy (`Hit@1`, `Hit@3`, `Hit@5`, `MRR@10`, `Calibration 
 
 ---
 
-## Live Benchmark Leaderboard (20 Canonical Iconic Comics · 23 Frontier Models)
+## Live Benchmark Leaderboard (20 Canonical Iconic Comics · 32 Frontier Models)
 
 Live studio: **[h3manth.com/ai/xkcd-bench](https://h3manth.com/ai/xkcd-bench/)** · Architecture Diagram: **[architecture-diagram.html](https://h3manth.com/ai/xkcd-bench/architecture-diagram.html)**
 
-Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #353, #386, #552, #882, #927, #979, #1053, #1172, #1205, #1319, #1513, #1597, #1838, #2173, #2347, #2630` — 460 live evaluations):
+Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #353, #386, #552, #882, #927, #979, #1053, #1172, #1205, #1319, #1513, #1597, #1838, #2173, #2347, #2630` — 640 live evaluations):
 
 | Rank | Model | Provider | Overall | Humor (30%) | Domain (30%) | Visual (25%) | Alt-Text (15%) | Concepts | Latency |
 | ---: | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 | **Gemini 4 Carbon** | Google DeepMind | **87.2%** | 92.1% | 80.8% | 86.0% | 92.3% | 95.0% | 22,501ms |
-| 2 | **Claude Fable 5.2** | Anthropic | **85.4%** | 91.9% | 78.0% | 82.1% | 93.0% | 92.3% | 11,998ms |
-| 3 | **Gemini 4 Argon** | Google DeepMind | **85.2%** | 91.7% | 77.6% | 83.6% | 90.0% | 94.2% | 13,809ms |
-| 4 | **Claude Fable 5.1** | Anthropic | **85.1%** | 92.6% | 77.2% | 81.3% | 92.1% | 93.2% | 11,235ms |
-| 5 | **Claude Opus 5** | Anthropic | **84.9%** | 93.0% | 76.5% | 81.4% | 91.5% | 87.4% | 11,829ms |
-| 6 | **Claude Opus 5.5** | Anthropic | **84.5%** | 92.0% | 75.8% | 81.5% | 91.8% | 93.3% | 11,674ms |
-| 7 | **Gemini Omni 1.2 Flash** | Google DeepMind | **84.0%** | 91.1% | 74.5% | 82.6% | 91.1% | 85.2% | 11,979ms |
-| 8 | **Claude Haiku 5.5** | Anthropic | **84.0%** | 90.7% | 77.0% | 79.9% | 91.4% | 88.3% | 8,356ms |
-| 9 | **Claude Sonnet 5.5** | Anthropic | **83.9%** | 90.6% | 73.9% | 83.4% | 91.4% | 93.2% | 7,187ms |
-| 10 | **Gemini 3.1 Pro** | Google DeepMind | **82.1%** | 90.9% | 73.6% | 76.6% | 90.7% | 93.3% | 15,609ms |
-| 11 | **Gemini 3.8 Flash** | Google DeepMind | **82.0%** | 90.2% | 73.3% | 78.1% | 89.5% | 87.4% | 11,874ms |
-| 12 | **Gemini 3.7 Flash** | Google DeepMind | **82.0%** | 89.2% | 73.5% | 79.5% | 88.9% | 91.3% | 8,805ms |
-| 13 | **Claude Opus 4.6** | Anthropic | **81.2%** | 91.0% | 72.4% | 75.9% | 88.3% | 92.5% | 14,159ms |
-| 14 | **Claude Opus 4.8** | Anthropic | **81.0%** | 90.9% | 70.0% | 77.2% | 89.5% | 91.5% | 10,276ms |
-| 15 | **Gemini 2.5 Pro** | Google DeepMind | **80.3%** | 89.7% | 69.5% | 76.5% | 89.6% | 88.3% | 21,839ms |
-| 16 | **DeepSeek V4.1 Flash** *(Open)* | DeepSeek | **80.0%** | 89.2% | 69.3% | 76.8% | 88.2% | 84.2% | 11,316ms |
-| 17 | **NVIDIA Nemotron 3.5 Super VL** *(Open)* | NVIDIA | **78.0%** | 89.1% | 64.5% | 74.0% | 89.2% | 85.5% | 17,886ms |
-| 18 | **Gemma 4 31B IT** *(Open)* | Google Open | **74.7%** | 87.3% | 64.0% | 64.2% | 88.1% | 81.9% | 39,805ms |
-| 19 | **Gemma 4 26B A4B MoE** *(Open)* | Google Open | **73.2%** | 86.8% | 61.6% | 63.2% | 86.2% | 81.6% | 35,949ms |
-| 20 | **GLM-5.2** *(Open)* | Z.ai | **71.3%** | 80.8% | 63.5% | 61.3% | 84.8% | 72.2% | 14,304ms |
-| 21 | **NVIDIA Nemotron 3 Nano Omni** *(Open)* | NVIDIA | **70.3%** | 81.8% | 59.2% | 71.3% | 67.8% | 73.4% | 23,518ms |
-| 22 | **NVIDIA Nemotron 3 Ultra 550B** *(Open)* | NVIDIA | **69.7%** | 82.1% | 63.5% | 63.1% | 68.0% | 82.6% | 10,785ms |
-| 23 | **GPT-6 Luna** | OpenAI (via OR) | **59.8%** | 74.5% | 53.4% | 54.6% | 52.1% | 78.3% | 7,665ms |
+| 2 | **Meta Muse Wonder** | Meta Superintelligence Lab | **86.4%** | 92.4% | 79.5% | 83.0% | 93.7% | 92.3% | 16,307ms |
+| 3 | **Kimi K3.1 Pro** | Moonshot AI | **86.4%** | 93.1% | 80.2% | 81.6% | 93.6% | 86.9% | 8,864ms |
+| 4 | **Meta Muse Spark Open** *(Open)* | Meta Superintelligence Lab | **85.5%** | 91.8% | 78.0% | 83.3% | 91.9% | 88.2% | 5,239ms |
+| 5 | **Claude Fable 5.2** | Anthropic | **85.4%** | 91.9% | 78.0% | 82.1% | 93.0% | 92.3% | 11,998ms |
+| 6 | **Gemini 4 Argon** | Google DeepMind | **85.2%** | 91.7% | 77.6% | 83.6% | 90.0% | 94.2% | 13,809ms |
+| 7 | **Claude Fable 5.1** | Anthropic | **85.1%** | 92.6% | 77.2% | 81.3% | 92.1% | 93.2% | 11,235ms |
+| 8 | **Claude Opus 5** | Anthropic | **84.9%** | 93.0% | 76.5% | 81.4% | 91.5% | 87.4% | 11,829ms |
+| 9 | **Mistral Large 4** | Mistral AI | **84.7%** | 91.5% | 77.3% | 82.0% | 90.4% | 89.1% | 25,583ms |
+| 10 | **Meta Muse Ember** | Meta Superintelligence Lab | **84.6%** | 91.5% | 74.8% | 83.0% | 93.2% | 90.8% | 4,657ms |
+| 11 | **Claude Opus 5.5** | Anthropic | **84.5%** | 92.0% | 75.8% | 81.5% | 91.8% | 93.3% | 11,674ms |
+| 12 | **Qwen 3.8 Max Prime** | Alibaba Qwen | **84.2%** | 92.2% | 75.7% | 80.4% | 91.9% | 88.2% | 16,912ms |
+| 13 | **Gemini Omni 1.2 Flash** | Google DeepMind | **84.0%** | 91.1% | 74.5% | 82.6% | 91.1% | 85.2% | 11,979ms |
+| 14 | **Claude Haiku 5.5** | Anthropic | **84.0%** | 90.7% | 77.0% | 79.9% | 91.4% | 88.3% | 8,356ms |
+| 15 | **Claude Sonnet 5.5** | Anthropic | **83.9%** | 90.6% | 73.9% | 83.4% | 91.4% | 93.2% | 7,187ms |
+| 16 | **GPT-6 Astra Pro** | OpenAI | **83.5%** | 90.8% | 76.2% | 78.8% | 91.5% | 86.7% | 24,882ms |
+| 17 | **Grok 4.7** | xAI | **83.4%** | 91.6% | 76.2% | 77.1% | 92.3% | 87.7% | 14,767ms |
+| 18 | **Gemini 3.1 Pro** | Google DeepMind | **82.1%** | 90.9% | 73.6% | 76.6% | 90.7% | 93.3% | 15,609ms |
+| 19 | **Gemini 3.8 Flash** | Google DeepMind | **82.0%** | 90.2% | 73.3% | 78.1% | 89.5% | 87.4% | 11,874ms |
+| 20 | **Gemini 3.7 Flash** | Google DeepMind | **82.0%** | 89.2% | 73.5% | 79.5% | 88.9% | 91.3% | 8,805ms |
+| 21 | **Claude Opus 4.6** | Anthropic | **81.2%** | 91.0% | 72.4% | 75.9% | 88.3% | 92.5% | 14,159ms |
+| 22 | **Claude Opus 4.8** | Anthropic | **81.0%** | 90.9% | 70.0% | 77.2% | 89.5% | 91.5% | 10,276ms |
+| 23 | **Gemini 2.5 Pro** | Google DeepMind | **80.3%** | 89.7% | 69.5% | 76.5% | 89.6% | 88.3% | 21,839ms |
+| 24 | **DeepSeek V4.1 Flash** *(Open)* | DeepSeek | **80.0%** | 89.2% | 69.3% | 76.8% | 88.2% | 84.2% | 11,316ms |
+| 25 | **GPT-6.1 Terra Pro** | OpenAI | **79.1%** | 86.6% | 72.0% | 72.1% | 89.9% | 83.7% | 12,197ms |
+| 26 | **NVIDIA Nemotron 3.5 Super VL** *(Open)* | NVIDIA | **78.0%** | 89.1% | 64.5% | 74.0% | 89.2% | 85.5% | 17,886ms |
+| 27 | **Gemma 4 31B IT** *(Open)* | Google Open | **74.7%** | 87.3% | 64.0% | 64.2% | 88.1% | 81.9% | 39,805ms |
+| 28 | **Gemma 4 26B A4B MoE** *(Open)* | Google Open | **73.2%** | 86.8% | 61.6% | 63.2% | 86.2% | 81.6% | 35,949ms |
+| 29 | **GLM-5.2** *(Open)* | Z.ai | **71.3%** | 80.8% | 63.5% | 61.3% | 84.8% | 72.2% | 14,304ms |
+| 30 | **NVIDIA Nemotron 3 Nano Omni** *(Open)* | NVIDIA | **70.3%** | 81.8% | 59.2% | 71.3% | 67.8% | 73.4% | 23,518ms |
+| 31 | **NVIDIA Nemotron 3 Ultra 550B** *(Open)* | NVIDIA | **69.7%** | 82.1% | 63.5% | 63.1% | 68.0% | 82.6% | 10,785ms |
+| 32 | **GPT-6 Luna** | OpenAI (via OR) | **59.8%** | 74.5% | 53.4% | 54.6% | 52.1% | 78.3% | 7,665ms |
 
 ---
 
@@ -68,7 +77,7 @@ Evaluated across all 20 canonical iconic XKCD strips (`#149, #208, #303, #327, #
 # 1. Build/refresh the benchmark corpus from Hugging Face (20 Iconic + 50 Recent comics)
 .venv/bin/python fetch_xkcd.py 50
 
-# 2. Run the 20-comic live multimodal evaluation suite across all 23 models
+# 2. Run the 20-comic live multimodal evaluation suite across all 32 models
 .venv/bin/python run_live_evals.py
 
 # 3. Run the CLI evaluation suite & unit tests

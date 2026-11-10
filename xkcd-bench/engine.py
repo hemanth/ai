@@ -645,12 +645,20 @@ async def generate_live_explanation(
             ]
         else:
             or_content = prompt
+        or_payload: dict[str, Any] = {
+            "model": model_name,
+            "max_tokens": 4500,
+            "temperature": 0.2,
+            "messages": [{"role": "user", "content": or_content}],
+        }
+        if model_name.startswith(("meta/muse", "openai/gpt-6", "x-ai/grok", "moonshotai/", "qwen/", "mistralai/")):
+            or_payload["reasoning"] = {"effort": "low"}
         async with httpx.AsyncClient() as http_client:
             r = await http_client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={"Authorization": f"Bearer {or_key}", "Content-Type": "application/json"},
-                json={"model": model_name, "max_tokens": 4096, "temperature": 0.2, "messages": [{"role": "user", "content": or_content}]},
-                timeout=90.0,
+                json=or_payload,
+                timeout=120.0,
             )
             r.raise_for_status()
             msg_obj = r.json().get("choices", [{}])[0].get("message", {})

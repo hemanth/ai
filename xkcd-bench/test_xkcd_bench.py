@@ -30,26 +30,37 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertEqual(data["dataset"]["primary_hf"], "olivierdehaene/xkcd")
         self.assertIn("devparagiri/dataset-xkcd", data["dataset"]["secondary_hf"])
 
-        # Verify Track 1 Leaderboard has 23 frontier models, Gemini 4 Carbon #1, Claude Fable 5.2 #2, Gemini 4 Argon #3
+        # Verify Track 1 Leaderboard has 32 frontier models, Gemini 4 Carbon #1, Meta Muse Wonder #2, Kimi K3.1 Pro #3
         lb = data["explain_leaderboard"]
-        self.assertEqual(len(lb), 23)
+        self.assertEqual(len(lb), 32)
         self.assertEqual(lb[0]["id"], "gemini-4-carbon")
-        self.assertEqual(lb[1]["id"], "claude-fable-5-2")
-        self.assertEqual(lb[2]["id"], "gemini-4-argon")
+        self.assertEqual(lb[1]["id"], "meta/muse-wonder")
+        self.assertEqual(lb[2]["id"], "moonshotai/kimi-k3.1-pro")
         model_ids = {m["id"] for m in lb}
-        self.assertIn("gemini-4-carbon", model_ids)
-        self.assertIn("claude-fable-5-2", model_ids)
-        self.assertIn("gemini-4-argon", model_ids)
-        self.assertIn("claude-fable-5-1", model_ids)
-        self.assertIn("gemini-omni-1.2-flash", model_ids)
-        self.assertIn("claude-haiku-5-5", model_ids)
-        self.assertIn("gemini-3.7-flash", model_ids)
-        self.assertIn("deepseek-ai/deepseek-v4.1-flash-maas", model_ids)
-        self.assertIn("zai-org/glm-5.2-maas", model_ids)
-        self.assertIn("nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", model_ids)
-        self.assertIn("gemma-4-31b-it", model_ids)
-        self.assertIn("nvidia/nemotron-3.5-super-vl:free", model_ids)
-        self.assertIn("nvidia/nemotron-3-ultra-550b-a55b:free", model_ids)
+        for expected_mid in (
+            "gemini-4-carbon",
+            "meta/muse-wonder",
+            "moonshotai/kimi-k3.1-pro",
+            "meta/muse-spark-open",
+            "claude-fable-5-2",
+            "gemini-4-argon",
+            "claude-fable-5-1",
+            "mistralai/mistral-large-4-0",
+            "meta/muse-ember",
+            "qwen/qwen3.8-max-prime",
+            "gemini-omni-1.2-flash",
+            "claude-haiku-5-5",
+            "openai/gpt-6-astra-pro",
+            "x-ai/grok-4.7",
+            "deepseek-ai/deepseek-v4.1-flash-maas",
+            "openai/gpt-6.1-terra-pro",
+            "zai-org/glm-5.2-maas",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "gemma-4-31b-it",
+            "nvidia/nemotron-3.5-super-vl:free",
+            "nvidia/nemotron-3-ultra-550b-a55b:free",
+        ):
+            self.assertIn(expected_mid, model_ids)
         self.assertNotIn("meta-llama/llama-4-maverick", model_ids)
 
         # Verify domain_scores exist for UI filter pills
@@ -105,13 +116,13 @@ class XKCDBenchTestSuite(unittest.TestCase):
         self.assertIn("xkcd-arch-title", arch_resp.text)
 
     def test_comic_detail_live_telemetry_contract(self) -> None:
-        # On #2347 (Dependency), all 23 frontier models completed live blind evaluations
+        # On #2347 (Dependency), all 32 frontier models completed live blind evaluations
         resp_2347 = self.client.get("/api/comics/2347")
         self.assertEqual(resp_2347.status_code, 200)
         data_2347 = resp_2347.json()
         self.assertEqual(data_2347["comic"]["num"], 2347)
         evals_2347 = data_2347["model_evaluations"]
-        self.assertEqual(len(evals_2347), 23)
+        self.assertEqual(len(evals_2347), 32)
         for item in evals_2347:
             self.assertTrue(item["is_live_empirical"])
             self.assertTrue(item["verified_live"])
