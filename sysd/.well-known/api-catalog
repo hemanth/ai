@@ -1,0 +1,28 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://h3manth.com/ai/sysd/",
+      "rel": "service-desc",
+      "href": "https://h3manth.com/ai/sysd/openapi.json",
+      "type": "application/json"
+    },
+    {
+      "anchor": "https://h3manth.com/ai/sysd/",
+      "rel": "api-catalog",
+      "href": "https://h3manth.com/ai/sysd/.well-known/api-catalog",
+      "type": "application/linkset+json"
+    },
+    {
+      "anchor": "https://h3manth.com/ai/sysd/",
+      "rel": "describedby",
+      "href": "https://h3manth.com/ai/sysd/llms.txt",
+      "type": "text/plain"
+    },
+    {
+      "anchor": "https://h3manth.com/ai/sysd/",
+      "rel": "service-doc",
+      "href": "https://h3manth.com/ai/sysd/index.md",
+      "type": "text/markdown"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "skills": [
+    {
+      "name": "design-distributed-system",
+      "description": "Retrieve Staff-level distributed systems blueprints and stamp/audit topologies on the sysd Excalidraw workbench.",
+      "entrypoint": "/ai/sysd/.well-known/agent-skills/design-distributed-system/SKILL.md",
+      "sha256": "c2ac5e29f57d4f3aea193ae4b901c4320d59e19371357cded6b2c1285cb42040"
+    }
+  ]
+}

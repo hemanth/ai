@@ -1,0 +1,72 @@
+{
+  "$schema": "https://a2a-protocol.org/schemas/agent-card/v1.0.0.json",
+  "schemaVersion": "1.0.0",
+  "name": "sysd Distributed Systems Architect Agent",
+  "description": "Local-first distributed systems workbench with Excalidraw scene-graph anti-pattern detection, 11 Staff-level reference blueprints, Free-Flow practice, and WebMCP tools.",
+  "url": "https://h3manth.com/ai/sysd/",
+  "version": "1.0.0",
+  "capabilities": {
+    "tools": [
+      {
+        "name": "list_sysd_archetypes",
+        "description": "List all 11 canonical distributed systems challenges and Free-Flow mode.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "all",
+                "product",
+                "infra"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "name": "get_sysd_reference_solution",
+        "description": "Retrieve Staff-level write/read paths, partitioning, and failure defenses.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "challengeId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "challengeId"
+          ]
+        }
+      },
+      {
+        "name": "stamp_sysd_topology",
+        "description": "Stamp a reference architecture blueprint onto the Excalidraw canvas and inspect topology findings.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "challengeId": {
+              "type": "string"
+            },
+            "customTopic": {
+              "type": "string"
+            },
+            "stampReference": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "challengeId"
+          ]
+        }
+      }
+    ]
+  },
+  "communication": {
+    "preferredChannel": "https",
+    "endpoints": {
+      "spec": "https://h3manth.com/ai/sysd/index.md",
+      "openapi": "https://h3manth.com/ai/sysd/openapi.json"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "resource": "https://h3manth.com/ai/sysd/",
+  "authorization_servers": [
+    "https://h3manth.com"
+  ],
+  "scopes_supported": [
+    "read"
+  ],
+  "bearer_methods_supported": [
+    "header"
+  ]
+}

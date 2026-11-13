@@ -1,0 +1,15 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/server-card/v1.json",
+  "name": "sysd-webmcp-server",
+  "version": "1.0.0",
+  "description": "In-browser WebMCP tools and static reference blueprints for sysd (Distributed Systems Workbench)",
+  "transport": {
+    "type": "webmcp",
+    "endpoint": "https://h3manth.com/ai/sysd/"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  }
+}

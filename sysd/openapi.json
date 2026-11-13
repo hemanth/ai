@@ -1,0 +1,82 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "sysd — Distributed Systems Workbench Discovery & Blueprint Surface",
+    "version": "1.0.0",
+    "description": "Agent-Ready discovery, Markdown content negotiation, and WebMCP capability descriptors for sysd.",
+    "contact": {
+      "name": "Hemanth HM",
+      "url": "https://h3manth.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://h3manth.com/ai/sysd"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "getSysdWorkbench",
+        "summary": "Fetch sysd workbench HTML or negotiated Markdown (Accept: text/markdown)",
+        "responses": {
+          "200": {
+            "description": "HTML application shell or YAML-frontmatter Markdown specification",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index.md": {
+      "get": {
+        "operationId": "getSysdMarkdownSpec",
+        "summary": "Direct Markdown specification of sysd archetypes, blueprints, and WebMCP tools",
+        "responses": {
+          "200": {
+            "description": "Markdown document",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "getSysdLlmsTxt",
+        "summary": "Concise LLM index for sysd",
+        "responses": {
+          "200": {
+            "description": "Plaintext LLM directory",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

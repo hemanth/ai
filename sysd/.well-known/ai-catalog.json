@@ -1,0 +1,21 @@
+{
+  "name": "sysd",
+  "url": "https://h3manth.com/ai/sysd/",
+  "repository": "https://github.com/hemanth/sysd",
+  "runtime": "browser-wasm-webgpu",
+  "models": [
+    "Cactus Needle 3 (35.3 MB WASM)",
+    "Cactus Whistle (16.9 MB WASM)",
+    "wasm-vad (Silero ONNX / DSP)",
+    "onnx-community/Kokoro-82M-v1.0-ONNX (WebGPU fp32 / WASM q8)",
+    "Chrome Built-in Gemini Nano / WebLLM Qwen 2.5 1.5B"
+  ],
+  "protocols": [
+    "RFC-9727",
+    "SEP-1649",
+    "A2A-1.0",
+    "Agent-Skills-0.2",
+    "WebMCP",
+    "RFC-9421"
+  ]
+}

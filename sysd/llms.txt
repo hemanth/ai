@@ -1,0 +1,12 @@
+# sysd — Distributed Systems Workbench
+
+> Local-first distributed systems architecture workbench combining Excalidraw topology parsing, 11 Staff-level reference blueprints, Free-Flow practice, Cactus Needle 3 + Whistle WASM, and Kokoro neural TTS.
+
+- Live App: https://h3manth.com/ai/sysd/
+- Markdown Spec: https://h3manth.com/ai/sysd/index.md
+- OpenAPI 3.1 Spec: https://h3manth.com/ai/sysd/openapi.json
+- API Catalog (RFC 9727): https://h3manth.com/ai/sysd/.well-known/api-catalog
+- A2A Agent Card: https://h3manth.com/ai/sysd/.well-known/agent-card.json
+- MCP Server Card: https://h3manth.com/ai/sysd/.well-known/mcp/server-card.json
+- Agent Skills Index: https://h3manth.com/ai/sysd/.well-known/agent-skills/index.json
+- Source Repository: https://github.com/hemanth/sysd
