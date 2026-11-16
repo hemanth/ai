@@ -32,6 +32,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 body {
   background: var(--bg);
@@ -1101,6 +1102,16 @@ kbd {
   .mode-btn { height: 22px; padding: 0 0.45rem; font-size: 0.64rem; }
   .pill-btn { padding: 0 0.48rem; font-size: 0.68rem; height: 26px; }
   #translate-btn span { display: none; }
+  .toast-box {
+    top: auto;
+    right: auto;
+    bottom: 4.1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+  }
   .back-btn { top: 0.5rem; left: 0.5rem; }
   .help-panel { padding: 1.25rem; border-radius: 12px; }
   .cmd-form { flex-wrap: wrap; }
