@@ -737,7 +737,50 @@ body {
   transform: scale(1);
 }
 
-/* Toolbar Pill Buttons (EN->Indic mode + Translate) */
+/* Segmented Dual-Mode Switch (Indic STT vs EN->Indic Translate) */
+.mode-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+
+.mode-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  font-family: var(--fontui);
+  font-size: 0.69rem;
+  font-weight: 600;
+  color: var(--ink3);
+  white-space: nowrap;
+  transition: color 140ms var(--ease), background 140ms var(--ease), box-shadow 140ms var(--ease);
+}
+
+.mode-btn:hover:not(.is-active) {
+  color: var(--ink);
+}
+
+.mode-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.mode-btn.is-active {
+  color: oklch(0.12 0.01 55);
+  background: var(--accent);
+  box-shadow: 0 1px 6px oklch(0.74 0.16 58 / 0.28);
+}
+
+/* Toolbar Pill Buttons (Translate) */
 .pill-btn {
   all: unset;
   cursor: pointer;
@@ -1055,6 +1098,7 @@ kbd {
     width: calc(100vw - 1.25rem);
     max-width: 360px;
   }
+  .mode-btn { height: 22px; padding: 0 0.45rem; font-size: 0.64rem; }
   .pill-btn { padding: 0 0.48rem; font-size: 0.68rem; height: 26px; }
   #translate-btn span { display: none; }
   .back-btn { top: 0.5rem; left: 0.5rem; }

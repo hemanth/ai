@@ -22,8 +22,17 @@ const pendingModelLoads = new Map();
 // Set of loaded model languages
 const loadedModels = new Set();
 
-// Progress event listeners
+// Progress & lifecycle event listeners
 const progressListeners = new Set();
+const statusListeners = new Set();
+
+function emitStatus(payload) {
+  for (const listener of statusListeners) {
+    try {
+      listener(payload);
+    } catch (_) {}
+  }
+}
 
 // Active Worker reference
 let activeWorker = null;
@@ -84,6 +93,11 @@ function handleWorkerMessage(event) {
       break;
     }
 
+    case 'model-loading': {
+      emitStatus({ ...data, type: 'model-loading' });
+      break;
+    }
+
     case 'model-ready': {
       const lang = data.language;
       if (lang) {
@@ -94,6 +108,12 @@ function handleWorkerMessage(event) {
           pendingModelLoads.delete(lang);
           pendingLoad.resolve();
         }
+      }
+      emitStatus({ ...data, type: 'model-ready' });
+      for (const listener of progressListeners) {
+        try {
+          listener({ ...data, type: 'model-ready', status: 'ready', progress: 100 });
+        } catch (_) {}
       }
       break;
     }
@@ -106,10 +126,12 @@ function handleWorkerMessage(event) {
         pendingModelLoads.delete(lang);
         pendingLoad.reject(new Error(data.error || 'Model loading failed'));
       }
+      emitStatus({ ...data, type: 'model-error' });
       break;
     }
 
     case 'model-progress': {
+      emitStatus(data);
       for (const listener of progressListeners) {
         try {
           listener(data);
@@ -226,6 +248,16 @@ export function getCacheSize() {
 export function onModelProgress(callback) {
   progressListeners.add(callback);
   return () => progressListeners.delete(callback);
+}
+
+/**
+ * Register a listener for model lifecycle events (model-loading, model-progress, model-ready, model-error).
+ * @param {Function} callback
+ * @returns {Function} unsubscribe
+ */
+export function onModelStatus(callback) {
+  statusListeners.add(callback);
+  return () => statusListeners.delete(callback);
 }
 
 /**

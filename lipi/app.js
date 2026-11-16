@@ -15,7 +15,7 @@ import {
 import {
   translateText,
   preloadLanguageModel,
-  onModelProgress,
+  onModelStatus,
 } from './translator.js';
 
 const STORAGE_KEYS = {
@@ -268,12 +268,15 @@ function openEditor() {
   if (!isMobile) $('#editor')?.focus();
   history.replaceState(null, '', '#editor');
 
-  // Preload active Paar translation model in idle time
-  const preload = () => {
-    preloadLanguageModel(state.currentLanguage).catch(() => {});
-  };
-  if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 2500 });
-  else setTimeout(preload, 600);
+  // Only preload Paar ONNX model if user is in EN -> Indic Translate mode;
+  // default Indic STT mode needs zero model downloads.
+  if (state.voiceTranslateMode) {
+    const preload = () => {
+      preloadLanguageModel(state.currentLanguage).catch(() => {});
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 2500 });
+    else setTimeout(preload, 600);
+  }
 }
 
 function closeEditor() {
@@ -435,15 +438,51 @@ function removeInterim() {
   }
 }
 
-// ─── Paar Model Download Progress ───
-function initModelProgress() {
-  onModelProgress((data) => {
-    if (!data.language || data.language === state.currentLanguage) {
+// ─── Paar Model Download Lifecycle ───
+let _unsubModelStatus = null;
+
+export function initModelProgress() {
+  if (typeof _unsubModelStatus === 'function') {
+    _unsubModelStatus();
+    _unsubModelStatus = null;
+  }
+
+  _unsubModelStatus = onModelStatus((data) => {
+    if (!data || (data.language && data.language !== state.currentLanguage)) return;
+
+    const langName = getLanguage(data.language || state.currentLanguage).name;
+
+    if (data.type === 'model-ready' || data.status === 'ready') {
+      hideProg();
+      return;
+    }
+
+    if (data.type === 'model-error') {
+      hideProg();
+      if (data.error) toast(`Paar model error: ${data.error}`, 'error');
+      return;
+    }
+
+    if (data.type === 'model-loading') {
+      showProg(2, `Loading Paar ${langName}…`);
+      return;
+    }
+
+    if (data.type === 'model-progress') {
+      if (data.status === 'done' || data.status === 'initiate' || data.status === 'download') {
+        return;
+      }
       const pct = typeof data.progress === 'number'
         ? Math.round(data.progress)
-        : (data.total ? Math.round((data.loaded / data.total) * 100) : 0);
-      showProg(pct, `Loading Paar ${getLanguage(data.language || state.currentLanguage).name}…`);
-      if (pct >= 100) hideProg();
+        : (data.total ? Math.round((data.loaded / data.total) * 100) : null);
+
+      if (pct !== null) {
+        if (pct >= 100) {
+          hideProg();
+        } else {
+          showProg(pct, `Loading Paar ${langName}… ${pct}%`);
+        }
+      }
     }
   });
 }
@@ -619,10 +658,12 @@ export function setLanguage(langId, notify = true) {
     }
   }
 
-  // 5. Preload Paar model in background
-  try {
-    preloadLanguageModel(langConfig.id).catch(() => {});
-  } catch {}
+  // 5. Lazy-load Paar model ONLY when EN -> Indic Translate mode is active
+  if (state.voiceTranslateMode) {
+    try {
+      preloadLanguageModel(langConfig.id).catch(() => {});
+    } catch {}
+  }
 
   // 6. Persist preference
   saveLanguagePreference(langConfig.id);
@@ -703,17 +744,25 @@ function stopRec() {
   saveDoc();
 }
 
-function toggleVoiceTranslateMode() {
-  state.voiceTranslateMode = !state.voiceTranslateMode;
-  const btn = $('#voice-mode-btn');
-  if (btn) {
-    btn.classList.toggle('is-active', state.voiceTranslateMode);
-    btn.setAttribute('aria-pressed', String(state.voiceTranslateMode));
+export function setEditorMode(mode, notify = true) {
+  const translateActive = mode === 'translate';
+  const changed = state.voiceTranslateMode !== translateActive;
+  state.voiceTranslateMode = translateActive;
+
+  const sttBtn = $('#mode-stt-btn');
+  const trBtn = $('#mode-translate-btn');
+  if (sttBtn) {
+    sttBtn.classList.toggle('is-active', !translateActive);
+    sttBtn.setAttribute('aria-pressed', String(!translateActive));
+  }
+  if (trBtn) {
+    trBtn.classList.toggle('is-active', translateActive);
+    trBtn.setAttribute('aria-pressed', String(translateActive));
   }
 
   const langConfig = getLanguage(state.currentLanguage);
   if (recognition) {
-    const targetLocale = state.voiceTranslateMode ? 'en-IN' : langConfig.speechLocale;
+    const targetLocale = translateActive ? 'en-IN' : langConfig.speechLocale;
     if (recognition.lang !== targetLocale) {
       recognition.lang = targetLocale;
       if (state.isRecording) {
@@ -722,12 +771,25 @@ function toggleVoiceTranslateMode() {
     }
   }
 
-  toast(
-    state.voiceTranslateMode
-      ? `English → ${langConfig.name} live voice translation ON`
-      : `Native ${langConfig.name} voice dictation ON`,
-    'info'
-  );
+  if (state.isRecording) {
+    setPhase('recording');
+  }
+
+  // Lazy-preload Paar model only when entering EN -> Indic translation mode
+  if (translateActive) {
+    try {
+      preloadLanguageModel(langConfig.id).catch(() => {});
+    } catch {}
+  }
+
+  if (notify && changed) {
+    toast(
+      translateActive
+        ? `Mode: English → ${langConfig.name} live translation`
+        : `Mode: Native ${langConfig.name} STT`,
+      'info'
+    );
+  }
 }
 
 // ─── Phase ───
@@ -755,16 +817,16 @@ let _progRAF = null;
 let _lastPct = -1;
 
 function showProg(pct, message) {
-  if (pct === _lastPct) return;
   _lastPct = pct;
+  const msg = message || ('Loading model… ' + pct + '%');
 
-  if (_progRAF) return;
+  if (_progRAF) cancelAnimationFrame(_progRAF);
   _progRAF = requestAnimationFrame(() => {
     _progRAF = null;
     const bar = $('#progress'), fill = $('#progress-fill'), lbl = $('#mic-label');
     if (bar) bar.hidden = false;
-    if (fill) fill.style.transform = 'scaleX(' + (_lastPct / 100) + ')';
-    if (lbl) lbl.textContent = message || ('Loading model… ' + _lastPct + '%');
+    if (fill) fill.style.transform = 'scaleX(' + (Math.max(0, Math.min(100, _lastPct)) / 100) + ')';
+    if (lbl) lbl.textContent = msg;
   });
 }
 
@@ -774,7 +836,11 @@ function hideProg() {
   const bar = $('#progress'), fill = $('#progress-fill'), lbl = $('#mic-label');
   if (bar) bar.hidden = true;
   if (fill) fill.style.transform = 'scaleX(0)';
-  if (lbl && !state.isRecording) lbl.textContent = '';
+  if (lbl) {
+    lbl.textContent = state.isRecording
+      ? (state.voiceTranslateMode ? '● EN → ' + state.currentLanguage.toUpperCase() : '● Streaming…')
+      : '';
+  }
 }
 
 // ─── Events ───
@@ -829,7 +895,8 @@ function bind() {
   });
 
   $('#mic')?.addEventListener('click', toggleRec);
-  $('#voice-mode-btn')?.addEventListener('click', toggleVoiceTranslateMode);
+  $('#mode-stt-btn')?.addEventListener('click', () => setEditorMode('stt', true));
+  $('#mode-translate-btn')?.addEventListener('click', () => setEditorMode('translate', true));
   $('#translate-btn')?.addEventListener('click', () => {
     translateCurrentContent().catch(() => {});
   });

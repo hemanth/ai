@@ -45,15 +45,16 @@ async function getTranslationPipeline(modelId, language) {
       const translator = await pipeline('translation', modelId, {
         dtype: 'q8',
         progress_callback: (progress) => {
-          ctx.postMessage({
+          const payload = {
             type: 'model-progress',
             language,
             modelId,
-            progress:
-              progress.progress ??
-              (progress.total ? Math.round((progress.loaded / progress.total) * 100) : 0),
             ...progress,
-          });
+          };
+          if (typeof progress.progress !== 'number' && progress.status === 'progress' && progress.total) {
+            payload.progress = Math.round((progress.loaded / progress.total) * 100);
+          }
+          ctx.postMessage(payload);
         },
       });
 
@@ -114,7 +115,6 @@ async function executeTranslation({ text, targetLang, id, modelId }) {
     const output = await translator(text, {
       num_beams: 1,
       max_new_tokens: 200,
-      decoder_start_token_id: 2,
     });
 
     let translatedText = '';

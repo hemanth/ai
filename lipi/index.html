@@ -54,7 +54,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
-  <link rel="stylesheet" href="index.css?v=4">
+  <link rel="stylesheet" href="index.css?v=5">
   <script>if(location.hash==='#editor'){document.documentElement.classList.add('direct-editor'); const isMobile = window.matchMedia('(max-width: 600px)').matches || 'ontouchstart' in window; if (!isMobile) setTimeout(() => document.getElementById('editor')?.focus(), 500);}</script>
   <style>.direct-editor #landing{display:none}.direct-editor #editor-view{display:flex!important}</style>
 </head>
@@ -206,15 +206,21 @@
         </div>
       </div>
 
-      <!-- English -> Indic Live Voice Translation Toggle -->
-      <button type="button" class="pill-btn" id="voice-mode-btn" aria-pressed="false"
-              title="Toggle English-to-Indic live speech translation via Paar">
-        <span id="voice-mode-label">EN → KN</span>
-      </button>
+      <!-- Dual Mode Switch: Direct Indic STT vs English -> Indic Paar Translation -->
+      <div class="mode-switch" id="mode-switch" role="group" aria-label="Voice mode">
+        <button type="button" class="mode-btn is-active" id="mode-stt-btn" aria-pressed="true"
+                title="Direct Speech-to-Text in selected Indic language (no model download)">
+          Indic STT
+        </button>
+        <button type="button" class="mode-btn" id="mode-translate-btn" aria-pressed="false"
+                title="Speak English and live-translate to selected Indic language via Paar">
+          <span id="voice-mode-label">EN → KN</span>
+        </button>
+      </div>
 
-      <!-- Translate Current Editor Content via Paar -->
+      <!-- Translate Current Editor Content via Paar on demand -->
       <button type="button" class="pill-btn pill-btn--accent" id="translate-btn"
-              title="Translate English text in editor to selected Indic language">
+              title="Translate English text in editor to selected Indic language (loads Paar on demand)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m5 8 6 6"/>
           <path d="m4 14 6-6 2-3"/>
@@ -308,6 +314,6 @@
 
   </main>
 
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

@@ -67,8 +67,9 @@ describe('Whisper Removal, 12-Language Lipi Hero Animation & Custom Dropdown', a
     assert.ok(html.includes('id="lang-trigger"'), 'Toolbar must include custom trigger #lang-trigger');
     assert.ok(html.includes('id="lang-menu"'), 'Toolbar must include custom popover listbox #lang-menu');
     assert.ok(html.includes('role="listbox"'), '#lang-menu must declare role="listbox"');
-    assert.ok(html.includes('id="translate-btn"'), 'Toolbar must include #translate-btn for Paar translation');
-    assert.ok(html.includes('id="voice-mode-btn"'), 'Toolbar must include #voice-mode-btn for EN->Indic voice translation');
+    assert.ok(html.includes('id="translate-btn"'), 'Toolbar must include #translate-btn for on-demand Paar translation');
+    assert.ok(html.includes('id="mode-stt-btn"'), 'Toolbar must include #mode-stt-btn for native Indic STT mode');
+    assert.ok(html.includes('id="mode-translate-btn"'), 'Toolbar must include #mode-translate-btn for EN->Indic translation mode');
 
     assert.ok(css.includes('.landing[hidden]'), 'index.css must hide .landing[hidden] despite display:flex');
     assert.ok(css.includes('.lang-picker'), 'index.css must style .lang-picker');
@@ -162,6 +163,71 @@ describe('Whisper Removal, 12-Language Lipi Hero Animation & Custom Dropdown', a
       assert.strictEqual(urOption.getAttribute('aria-selected'), 'true');
       assert.strictEqual(urOption.classList.contains('is-selected'), true);
       assert.strictEqual(knOption.getAttribute('aria-selected'), 'false');
+    });
+
+    it('U7 — Transformers.js progress sequence (progress -> done -> ready -> model-ready) never leaves Loading Paar stuck', async () => {
+      const translatorMod = await import('../translator.js');
+      const { MockTranslationWorker } = await import('./fixtures/mock-worker.js');
+      const mockWorker = new MockTranslationWorker();
+      translatorMod.setWorker(mockWorker);
+
+      assert.strictEqual(typeof appMod.initModelProgress, 'function', 'app.js must export initModelProgress');
+      appMod.initModelProgress();
+      appMod.setLanguage('kn', false);
+
+      // Simulate exact @huggingface/transformers progress_callback lifecycle
+      mockWorker.emitMessage({ type: 'model-loading', language: 'kn', modelId: 'udgamlabs/Paar-en-kn' });
+      mockWorker.emitMessage({ type: 'model-progress', status: 'initiate', file: 'config.json', language: 'kn' });
+      mockWorker.emitMessage({ type: 'model-progress', status: 'progress', progress: 52.4, file: 'onnx/encoder_model_quantized.onnx', language: 'kn' });
+      await new Promise(r => setTimeout(r, 15));
+
+      const bar = document.querySelector('#progress');
+      const lbl = document.querySelector('#mic-label');
+      assert.strictEqual(bar.hidden, false, 'Progress bar should be visible mid-download');
+      assert.ok(lbl.textContent.includes('Paar Kannada'), 'Label should indicate Paar Kannada mid-download');
+
+      // Trailing done/ready events have NO numeric progress field in Transformers.js
+      mockWorker.emitMessage({ type: 'model-progress', status: 'progress', progress: 100, file: 'onnx/decoder_model_merged_quantized.onnx', language: 'kn' });
+      mockWorker.emitMessage({ type: 'model-progress', status: 'done', file: 'onnx/decoder_model_merged_quantized.onnx', language: 'kn' });
+      mockWorker.emitMessage({ type: 'model-progress', status: 'ready', task: 'translation', model: 'udgamlabs/Paar-en-kn', language: 'kn' });
+      mockWorker.emitMessage({ type: 'model-ready', language: 'kn', modelId: 'udgamlabs/Paar-en-kn' });
+      await new Promise(r => setTimeout(r, 20));
+
+      assert.strictEqual(bar.hidden, true, 'Progress bar MUST be hidden after model-ready');
+      assert.strictEqual(lbl.textContent, '', 'mic-label MUST be cleared and NOT stuck on Loading Paar Kannada…');
+    });
+
+    it('U8 — Dual mode: Indic STT mode does NOT auto-download Paar models; Translate mode lazy-loads Paar', async () => {
+      const translatorMod = await import('../translator.js');
+      const { MockTranslationWorker } = await import('./fixtures/mock-worker.js');
+      const mockWorker = new MockTranslationWorker();
+      const posted = [];
+      const origPost = mockWorker.postMessage.bind(mockWorker);
+      mockWorker.postMessage = (msg) => {
+        posted.push(msg);
+        origPost(msg);
+      };
+      translatorMod.setWorker(mockWorker);
+
+      assert.strictEqual(typeof appMod.setEditorMode, 'function', 'app.js must export setEditorMode');
+
+      // 1. Default / STT mode: switching across Indic languages must NOT download Paar models
+      appMod.setEditorMode('stt', false);
+      posted.length = 0;
+      appMod.setLanguage('ta', false);
+      appMod.setLanguage('te', false);
+      assert.strictEqual(
+        posted.filter(m => m.action === 'load-translation-model').length,
+        0,
+        'Indic STT mode must NOT trigger Paar model downloads on language switch'
+      );
+
+      // 2. Switching to EN -> Indic translation mode lazy-preloads the active language Paar model
+      appMod.setEditorMode('translate', false);
+      const preloads = posted.filter(m => m.action === 'load-translation-model');
+      assert.strictEqual(preloads.length, 1, 'Switching to Translate mode should preload active Paar model');
+      assert.strictEqual(preloads[0].language, 'te');
+      assert.strictEqual(preloads[0].modelId, 'udgamlabs/Paar-en-te');
     });
   });
 });
