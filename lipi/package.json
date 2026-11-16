@@ -1,0 +1,18 @@
+{
+  "name": "lipi",
+  "version": "1.0.0",
+  "description": "Lipi Indic Voice Editor powered by Udgam Labs Paar translation models",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "indic",
+    "voice-editor",
+    "speech-to-text",
+    "translation",
+    "paar"
+  ],
+  "author": "",
+  "license": "Apache-2.0"
+}

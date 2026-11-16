@@ -1,30 +1,28 @@
-# ಲಿಪಿ (Lipi) — Kannada Voice Editor
+# Lipi — Indic Voice Editor
 
-> Speak Kannada and watch your words stream onto the page in real time.
+> Speak or type across 12 Indic languages in real time with Web Speech API and in-browser Paar neural translation.
 
 ## What this app does
-Lipi is a browser-based Kannada voice editor. It uses the Web Speech API to stream Kannada speech to text in real time. Users can also type in English and the app transliterates it to Kannada phonetically. After recording, users can click "Polish" to re-transcribe their audio using a Whisper AI model for improved accuracy.
+Lipi is a browser-based Indic voice and text editor supporting 12 Indian languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, and Assamese. Users can dictate natively in any of the 12 Indic locales via the Web Speech API, or speak/type in English and translate locally in the browser using Udgam Labs' quantized Paar ONNX models running on Transformers.js.
 
 ## Links
 - [Lipi App](https://h3manth.com/ai/lipi/): The live web application
-- [Source Code](https://github.com/hemanth/lipi): GitHub repository (private)
-- [Transformers.js](https://huggingface.co/docs/transformers.js): The library powering local Whisper inference
+- [Paar Models](https://udgamlabs.com/models/paar): Udgam Labs English-to-Indic neural translation models
+- [Transformers.js](https://huggingface.co/docs/transformers.js): In-browser ONNX inference runtime
+- [Source Code](https://github.com/hemanth/lipi): GitHub repository
 - [Author](https://h3manth.com): Hemanth HM
 
 ## Features
-- Real-time speech-to-text streaming for Kannada (via Web Speech API)
-- Phonetic typing: type English letters, get Kannada script (e.g., "namaskara" → ನಮಸ್ಕಾರ)
-- Whisper AI polish: re-transcribe recorded audio with Whisper for better accuracy
-- Full text editor: edit, copy, save as .txt
-- Auto-save to localStorage
-- Works on Chrome and Edge browsers
-- Fallback to Whisper chunked transcription for browsers without Speech API
+- 12 Indic languages: Hindi (`लिपि`), Bengali (`লিপি`), Marathi (`लिपी`), Telugu (`లిపి`), Tamil (`லிபி`), Gujarati (`લિપિ`), Urdu (`لپی`, RTL Nastaliq), Kannada (`ಲಿಪಿ`), Malayalam (`ലിപി`), Punjabi (`ਲਿਪੀ`), Odia (`ଲିପି`), and Assamese (`লিপি`)
+- Real-time native Indic speech streaming via Web Speech API
+- Live English-to-Indic voice and text translation powered by Udgam Labs Paar models in-browser
+- Phonetic English-to-Kannada typing helper (`ಕ` toggle)
+- Full BiDi text editor with voice punctuation commands, auto-save to `localStorage`, clipboard copy, and `.txt` export
 
 ## Tech stack
-- Vanilla HTML/CSS/JS (no framework)
-- Web Speech API for live streaming
-- Transformers.js + Whisper ONNX for polish and file upload
-- Custom phonetic-to-Kannada transliteration engine
+- Vanilla HTML/CSS/JS (zero frontend framework)
+- Web Speech API (`SpeechRecognition`) for real-time streaming dictation
+- Hugging Face Transformers.js (`@huggingface/transformers@3`) running quantized `q8` Paar ONNX models in a dedicated Web Worker
 
 ## Author
 Hemanth HM — [h3manth.com](https://h3manth.com)
