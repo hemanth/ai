@@ -22,11 +22,19 @@ export const SWANADA_SUPPORTED_CODES = new Set([
  * Detect optimal Swanada Conformer-CTC tier ('mobile' 25.4 MiB vs 'studio' 177.4 MiB).
  */
 export function detectSwanadaTier(overrides = {}) {
-  const ua = overrides.userAgent ?? (typeof navigator !== 'undefined' ? navigator.userAgent || '' : '');
-  const mem = overrides.deviceMemory ?? (typeof navigator !== 'undefined' ? navigator.deviceMemory : undefined);
+  const nav = typeof navigator !== 'undefined' ? navigator : {};
+  const scr = typeof screen !== 'undefined' ? screen : undefined;
+  const ua = overrides.userAgent ?? (nav.userAgent || '');
+  const mem = overrides.deviceMemory ?? nav.deviceMemory;
+  const platform = overrides.platform ?? (nav.platform || '');
+  const maxTouchPoints = overrides.maxTouchPoints ?? (nav.maxTouchPoints || 0);
+  const screenWidth = overrides.screenWidth ?? (scr && typeof scr.width === 'number' ? scr.width : undefined);
+
   const isMobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
   if (isMobileUa) return 'mobile';
-  if (typeof mem === 'number' && mem > 0 && mem < 4) return 'mobile';
+  if (platform === 'MacIntel' && maxTouchPoints > 1) return 'mobile';
+  if (maxTouchPoints > 1 && typeof screenWidth === 'number' && screenWidth > 0 && screenWidth < 1024) return 'mobile';
+  if (typeof mem === 'number' && mem > 0 && mem <= 4) return 'mobile';
   return 'studio';
 }
 
@@ -51,6 +59,8 @@ export function buildSwanadaModelConfig(acousticLang, tier = 'mobile', swanadaBa
   return {
     language: acousticLang,
     modelTier: useMobile ? 'mobile' : 'studio',
+    executionProvider: 'wasm',
+    numThreads: useMobile ? 1 : undefined,
     modelUrl,
     headUrl,
     vocabUrl,
@@ -98,10 +108,16 @@ export function createSwanadaSttController() {
   let isRemoteCrossOrigin = false;
   let workerClient = null;
   let workerBlobUrl = null;
-  let workletBlobUrl = null;
   let workletLoaded = false;
+  let workletLoadCtx = null;
+  let workletLoadPromise = null;
+  const pendingWorkletBlobUrls = new Set();
   let loadedAcousticLang = null;
   let activeInitPromise = null;
+  let engineBootPromise = null;
+  let activeStopPromise = null;
+  let activeTargetLang = null;
+  let destroySeq = 0;
 
   let audioCtx = null;
   let micStream = null;
@@ -111,6 +127,99 @@ export function createSwanadaSttController() {
   let silentSink = null;
   let watchdogTimer = null;
   let isStreaming = false;
+  let sessionSeq = 0;
+  let captureDesired = false;
+  const pendingAcquiredStreams = new Set();
+  const flushingStreams = new Set();
+  const stoppedStreams = new WeakSet();
+  let pendingCtxSuspend = null;
+  let pendingCtxSuspendCtx = null;
+
+  const revokeBlobUrl = (url) => {
+    if (url && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+      try { URL.revokeObjectURL(url); } catch (_) {}
+    }
+  };
+
+  const suspendCtxSafely = async (targetCtx) => {
+    if (!targetCtx || targetCtx.state === 'closed' || typeof targetCtx.suspend !== 'function') return;
+    if (pendingCtxSuspend && pendingCtxSuspendCtx === targetCtx) {
+      await pendingCtxSuspend.catch(() => {});
+      return;
+    }
+    const p = targetCtx.suspend().catch(() => {});
+    pendingCtxSuspend = p;
+    pendingCtxSuspendCtx = targetCtx;
+    try {
+      await p;
+    } finally {
+      if (pendingCtxSuspend === p) {
+        pendingCtxSuspend = null;
+        pendingCtxSuspendCtx = null;
+      }
+    }
+  };
+
+  const suspendIfIdleAndRunning = async (targetCtx) => {
+    if (!captureDesired && !isStreaming && !micStream && audioCtx === targetCtx && targetCtx.state === 'running' && typeof targetCtx.suspend === 'function') {
+      await suspendCtxSafely(targetCtx);
+    }
+  };
+
+  const stopStreamTracks = (stream) => {
+    if (!stream) return;
+    pendingAcquiredStreams.delete(stream);
+    flushingStreams.delete(stream);
+    if (stoppedStreams.has(stream)) return;
+    stoppedStreams.add(stream);
+    try { stream.getTracks().forEach(t => t.stop()); } catch (_) {}
+  };
+
+  const cleanupAttemptResources = (stream, source, sink) => {
+    stopStreamTracks(stream);
+    try { source?.disconnect(); } catch (_) {}
+    try { sink?.disconnect(); } catch (_) {}
+    if (micStream === stream) {
+      micStream = null;
+      isStreaming = false;
+    }
+    if (micSource === source) {
+      micSource = null;
+    }
+    if (silentSink === sink) {
+      silentSink = null;
+    }
+  };
+
+  const cleanupActiveCapture = () => {
+    if (watchdogTimer) {
+      clearTimeout(watchdogTimer);
+      watchdogTimer = null;
+    }
+    isStreaming = false;
+    const prevWorklet = workletNode;
+    workletNode = null;
+    const prevProc = scriptProc;
+    scriptProc = null;
+    const prevSource = micSource;
+    micSource = null;
+    const prevSink = silentSink;
+    silentSink = null;
+    const prevStream = micStream;
+    micStream = null;
+
+    if (prevWorklet) {
+      try { prevWorklet.port.onmessage = null; } catch (_) {}
+      try { prevWorklet.disconnect(); } catch (_) {}
+    }
+    if (prevProc) {
+      try { prevProc.onaudioprocess = null; } catch (_) {}
+      try { prevProc.disconnect(); } catch (_) {}
+    }
+    try { prevSource?.disconnect(); } catch (_) {}
+    try { prevSink?.disconnect(); } catch (_) {}
+    stopStreamTracks(prevStream);
+  };
 
   const emit = (event, payload) => {
     const fn = listeners.get(event);
@@ -134,80 +243,170 @@ export function createSwanadaSttController() {
     return { swanadaBase, isRemoteCrossOrigin };
   }
 
-  async function ensureEngine(acousticLang) {
-    const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
-    const tier = detectSwanadaTier();
+  async function bootWorkerClient(tier, initialLang) {
+    if (workerClient) return workerClient;
+    if (!engineBootPromise) {
+      const bootGen = destroySeq;
+      let localBoot = null;
+      localBoot = (async () => {
+        let localBlobUrl = null;
+        let localClient = null;
+        try {
+          const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
+          if (bootGen !== destroySeq) return null;
 
-    if (!workerClient) {
-      const sdkUrl = remote
-        ? `${base}/swanada.mjs?v=1.9.0`
-        : `${window.location.origin}${base}/swanada.mjs?v=1.9.0`;
-      const swanadaMod = await import(sdkUrl);
-      const SwanadaWorkerClient = swanadaMod.SwanadaWorkerClient;
+          const sdkUrl = remote
+            ? `${base}/swanada.mjs?v=1.9.0`
+            : `${window.location.origin}${base}/swanada.mjs?v=1.9.0`;
+          const swanadaMod = await import(sdkUrl);
+          if (bootGen !== destroySeq) return null;
 
-      let workerUrl = `${base}/stt-worker.mjs?v=1.9.0`;
-      if (remote) {
-        const shim = [
-          `const mod = await import(${JSON.stringify(`${base}/swanada.mjs?v=1.9.0`)});`,
-          `Object.assign(globalThis, mod);`,
-          `await import(${JSON.stringify(`${base}/stt-worker.mjs?v=1.9.0`)});`,
-        ].join('\n');
-        workerBlobUrl = URL.createObjectURL(new Blob([shim], { type: 'text/javascript' }));
-        workerUrl = workerBlobUrl;
-      }
+          const SwanadaWorkerClient = swanadaMod.SwanadaWorkerClient;
 
-      workerClient = new SwanadaWorkerClient({
-        workerUrl,
-        wasmPaths: `${base}/ort/`,
-      });
+          let workerUrl = `${base}/stt-worker.mjs?v=1.9.0`;
+          if (remote) {
+            const shim = [
+              `const mod = await import(${JSON.stringify(`${base}/swanada.mjs?v=1.9.0`)});`,
+              `Object.assign(globalThis, mod);`,
+              `await import(${JSON.stringify(`${base}/stt-worker.mjs?v=1.9.0`)});`,
+            ].join('\n');
+            localBlobUrl = URL.createObjectURL(new Blob([shim], { type: 'text/javascript' }));
+            workerUrl = localBlobUrl;
+          }
 
-      workerClient.on('progress', (p) => {
-        emit('progress', { ...p, language: acousticLang, tier });
-      });
+          localClient = new SwanadaWorkerClient({
+            workerUrl,
+            wasmPaths: `${base}/ort/`,
+          });
 
-      workerClient.on('ready', (r) => {
-        loadedAcousticLang = (r && r.language) || acousticLang;
-        emit('ready', { ...r, language: loadedAcousticLang, tier });
-      });
+          if (bootGen !== destroySeq) {
+            try { localClient.terminate?.(); } catch (_) {}
+            revokeBlobUrl(localBlobUrl);
+            return null;
+          }
 
-      workerClient.on('partial', (data) => {
-        emit('partial', data);
-      });
+          if (workerClient) {
+            try { localClient.terminate?.(); } catch (_) {}
+            revokeBlobUrl(localBlobUrl);
+            return workerClient;
+          }
 
-      workerClient.on('final', (data) => {
-        emit('final', data);
-      });
+          workerBlobUrl = localBlobUrl;
+          workerClient = localClient;
 
-      workerClient.on('error', (err) => {
-        if (err && err.fatal) {
-          loadedAcousticLang = null;
-          try { workerClient?.terminate(); } catch (_) {}
-          workerClient = null;
+          workerClient.on('progress', (p) => {
+            emit('progress', { ...p, language: activeTargetLang || loadedAcousticLang || initialLang, tier });
+          });
+
+          workerClient.on('ready', (r) => {
+            loadedAcousticLang = (r && r.language) || activeTargetLang || initialLang;
+            emit('ready', { ...r, language: loadedAcousticLang, tier });
+          });
+
+          workerClient.on('partial', (data) => {
+            emit('partial', data);
+          });
+
+          workerClient.on('final', (data) => {
+            emit('final', data);
+          });
+
+          workerClient.on('error', (err) => {
+            if (err && err.fatal) {
+              captureDesired = false;
+              loadedAcousticLang = null;
+              activeInitPromise = null;
+              engineBootPromise = null;
+              activeTargetLang = null;
+              cleanupActiveCapture();
+              for (const s of [...pendingAcquiredStreams]) {
+                stopStreamTracks(s);
+              }
+              try { workerClient?.terminate(); } catch (_) {}
+              workerClient = null;
+              revokeBlobUrl(workerBlobUrl);
+              workerBlobUrl = null;
+              if (audioCtx && audioCtx.state === 'running' && typeof audioCtx.suspend === 'function') {
+                void suspendCtxSafely(audioCtx);
+              }
+            }
+            emit('error', err);
+          });
+
+          return workerClient;
+        } catch (err) {
+          if (localClient) {
+            try { localClient.terminate?.(); } catch (_) {}
+          }
+          revokeBlobUrl(localBlobUrl);
+          throw err;
+        } finally {
+          if (localBoot && engineBootPromise === localBoot) {
+            engineBootPromise = null;
+          }
         }
-        emit('error', err);
-      });
+      })();
+      engineBootPromise = localBoot;
     }
 
-    if (loadedAcousticLang === acousticLang) {
-      return workerClient;
+    const pendingBoot = engineBootPromise;
+    const client = await pendingBoot;
+    if (!client) {
+      throw new Error('STT controller destroyed');
+    }
+    return client;
+  }
+
+  async function ensureEngine(acousticLang) {
+    const entryGen = destroySeq;
+    const tier = detectSwanadaTier();
+    const client = await bootWorkerClient(tier, acousticLang);
+    const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
+
+    if (entryGen !== destroySeq || !workerClient || workerClient !== client) {
+      throw new Error('STT controller destroyed');
     }
 
-    if (activeInitPromise) {
+    if (loadedAcousticLang === acousticLang && workerClient === client) {
+      return client;
+    }
+
+    while (activeInitPromise) {
       try { await activeInitPromise; } catch (_) {}
+      if (entryGen !== destroySeq || !workerClient || workerClient !== client) {
+        throw new Error('STT controller destroyed');
+      }
       if (loadedAcousticLang === acousticLang) return workerClient;
     }
 
-    const cfg = buildSwanadaModelConfig(acousticLang, tier, remote ? base : `${window.location.origin}${base}`);
-    activeInitPromise = (async () => {
+    const baseCfg = buildSwanadaModelConfig(acousticLang, tier, remote ? base : `${window.location.origin}${base}`);
+    const cfg = {
+      ...baseCfg,
+      modelTier: tier,
+      executionProvider: 'wasm',
+      numThreads: tier === 'mobile' ? 1 : undefined,
+    };
+    activeTargetLang = acousticLang;
+    const initGen = destroySeq;
+    let localInit = null;
+    localInit = (async () => {
       try {
-        await workerClient.init(cfg);
-        loadedAcousticLang = acousticLang;
+        await client.init(cfg);
+        if (initGen === destroySeq && workerClient === client) {
+          loadedAcousticLang = acousticLang;
+        }
       } finally {
-        activeInitPromise = null;
+        if (localInit && activeInitPromise === localInit) {
+          activeInitPromise = null;
+        }
       }
     })();
+    activeInitPromise = localInit;
 
-    await activeInitPromise;
+    await localInit;
+    if (initGen !== destroySeq || !workerClient || workerClient !== client) {
+      throw new Error('STT controller destroyed');
+    }
     return workerClient;
   }
 
@@ -250,12 +449,63 @@ export function createSwanadaSttController() {
     scriptProc = proc;
   }
 
+  async function ensureWorkletLoaded(targetCtx) {
+    if (workletLoaded && workletLoadCtx === targetCtx) return;
+    if (workletLoadPromise && workletLoadCtx === targetCtx) {
+      return workletLoadPromise;
+    }
+    let localLoad = null;
+    localLoad = (async () => {
+      let localWorkletBlobUrl = null;
+      try {
+        const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
+        if (audioCtx !== targetCtx || targetCtx.state === 'closed') return;
+        let modUrl = `${base}/audio-capture-worklet.js?v=1.5.4`;
+        if (remote) {
+          const resp = await fetch(modUrl);
+          if (audioCtx !== targetCtx || targetCtx.state === 'closed') return;
+          const code = await resp.text();
+          if (audioCtx !== targetCtx || targetCtx.state === 'closed') return;
+          localWorkletBlobUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+          pendingWorkletBlobUrls.add(localWorkletBlobUrl);
+          modUrl = localWorkletBlobUrl;
+        }
+        await targetCtx.audioWorklet.addModule(modUrl);
+        if (audioCtx === targetCtx && targetCtx.state !== 'closed') {
+          workletLoaded = true;
+        }
+      } finally {
+        if (localWorkletBlobUrl) {
+          revokeBlobUrl(localWorkletBlobUrl);
+          pendingWorkletBlobUrls.delete(localWorkletBlobUrl);
+          localWorkletBlobUrl = null;
+        }
+        if (workletLoadPromise === localLoad) {
+          workletLoadPromise = null;
+        }
+      }
+    })();
+    workletLoadCtx = targetCtx;
+    workletLoadPromise = localLoad;
+    return localLoad;
+  }
+
   async function start(acousticLang) {
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
       throw new Error('Microphone capture requires HTTPS or localhost.');
     }
 
+    const attemptId = ++sessionSeq;
+    const startDestroyGen = destroySeq;
+    activeStopPromise = null;
+    captureDesired = true;
+    cleanupActiveCapture();
+    for (const s of [...pendingAcquiredStreams]) {
+      stopStreamTracks(s);
+    }
+
     // Request mic permission synchronously inside user gesture before awaiting ONNX init
+    let localAcquiredStream = null;
     const streamPromise = navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: { ideal: 1 },
@@ -263,28 +513,95 @@ export function createSwanadaSttController() {
         noiseSuppression: false,
         autoGainControl: true,
       },
+    }).then((s) => {
+      if (attemptId !== sessionSeq || startDestroyGen !== destroySeq || !captureDesired) {
+        stopStreamTracks(s);
+        return null;
+      }
+      localAcquiredStream = s;
+      pendingAcquiredStreams.add(s);
+      return s;
     });
 
+    let acquiredStream = null;
     try {
-      await ensureEngine(acousticLang);
-      micStream = await streamPromise;
+      const [, stream] = await Promise.all([ensureEngine(acousticLang), streamPromise]);
+      acquiredStream = stream;
     } catch (err) {
-      streamPromise.then(s => s.getTracks().forEach(t => t.stop())).catch(() => {});
+      stopStreamTracks(localAcquiredStream);
+      streamPromise.then(s => stopStreamTracks(s)).catch(() => {});
+      if (attemptId === sessionSeq) {
+        captureDesired = false;
+      }
+      if (attemptId !== sessionSeq || startDestroyGen !== destroySeq) {
+        return;
+      }
       throw err;
+    }
+
+    if (!acquiredStream || attemptId !== sessionSeq || startDestroyGen !== destroySeq || !captureDesired) {
+      stopStreamTracks(acquiredStream || localAcquiredStream);
+      return;
     }
 
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     if (!audioCtx || audioCtx.state === 'closed') {
-      audioCtx = new AudioContextCtor();
+      try {
+        audioCtx = new AudioContextCtor({ latencyHint: 'interactive' });
+      } catch (_) {
+        audioCtx = new AudioContextCtor();
+      }
+      workletLoaded = false;
+      workletLoadCtx = audioCtx;
+      workletLoadPromise = null;
     }
-    if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
-      await audioCtx.resume().catch(() => {});
+    const targetCtx = audioCtx;
+    if (pendingCtxSuspend && pendingCtxSuspendCtx === targetCtx) {
+      await pendingCtxSuspend.catch(() => {});
+      if (!workerClient || !captureDesired || attemptId !== sessionSeq || startDestroyGen !== destroySeq || audioCtx !== targetCtx || targetCtx.state === 'closed') {
+        stopStreamTracks(acquiredStream);
+        await suspendIfIdleAndRunning(targetCtx);
+        return;
+      }
+    }
+    if (targetCtx.state === 'suspended' || targetCtx.state === 'interrupted') {
+      await targetCtx.resume().catch(() => {});
     }
 
-    micSource = audioCtx.createMediaStreamSource(micStream);
-    silentSink = audioCtx.createGain();
-    silentSink.gain.value = 0;
-    silentSink.connect(audioCtx.destination);
+    if (!workerClient || !captureDesired || attemptId !== sessionSeq || startDestroyGen !== destroySeq || audioCtx !== targetCtx || targetCtx.state === 'closed') {
+      stopStreamTracks(acquiredStream);
+      await suspendIfIdleAndRunning(targetCtx);
+      return;
+    }
+
+    cleanupActiveCapture();
+
+    let localSource = null;
+    let localSink = null;
+    try {
+      localSource = targetCtx.createMediaStreamSource(acquiredStream);
+      localSink = targetCtx.createGain();
+      localSink.gain.value = 0;
+      localSink.connect(targetCtx.destination);
+    } catch (err) {
+      cleanupAttemptResources(acquiredStream, localSource, localSink);
+      if (attemptId === sessionSeq) {
+        captureDesired = false;
+      }
+      await suspendIfIdleAndRunning(targetCtx);
+      throw err;
+    }
+
+    if (!workerClient || !captureDesired || attemptId !== sessionSeq || startDestroyGen !== destroySeq) {
+      cleanupAttemptResources(acquiredStream, localSource, localSink);
+      await suspendIfIdleAndRunning(targetCtx);
+      return;
+    }
+
+    pendingAcquiredStreams.delete(acquiredStream);
+    micStream = acquiredStream;
+    micSource = localSource;
+    silentSink = localSink;
 
     workerClient.startStream();
     isStreaming = true;
@@ -292,26 +609,21 @@ export function createSwanadaSttController() {
     let usedWorklet = false;
     let receivedQuanta = 0;
 
-    if (audioCtx.audioWorklet && typeof AudioWorkletNode === 'function') {
+    if (targetCtx.audioWorklet && typeof AudioWorkletNode === 'function') {
       try {
-        if (!workletLoaded) {
-          const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
-          let modUrl = `${base}/audio-capture-worklet.js?v=1.5.4`;
-          if (remote) {
-            const resp = await fetch(modUrl);
-            const code = await resp.text();
-            workletBlobUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
-            modUrl = workletBlobUrl;
-          }
-          await audioCtx.audioWorklet.addModule(modUrl);
-          workletLoaded = true;
+        await ensureWorkletLoaded(targetCtx);
+
+        if (!workerClient || !captureDesired || attemptId !== sessionSeq || !isStreaming || startDestroyGen !== destroySeq || audioCtx !== targetCtx || targetCtx.state === 'closed') {
+          cleanupAttemptResources(acquiredStream, localSource, localSink);
+          await suspendIfIdleAndRunning(targetCtx);
+          return;
         }
 
         const isMobile = detectSwanadaTier() === 'mobile';
-        const node = new AudioWorkletNode(audioCtx, 'swanada-audio-capture-processor', {
+        const node = new AudioWorkletNode(targetCtx, 'swanada-audio-capture-processor', {
           processorOptions: {
             chunkSamples: isMobile ? 2400 : 1600,
-            sampleRate: audioCtx.sampleRate,
+            sampleRate: targetCtx.sampleRate,
             noiseSuppressionEnabled: false,
             alcEnabled: true,
           },
@@ -320,8 +632,12 @@ export function createSwanadaSttController() {
 
         node.port.onmessage = (ev) => {
           const payload = ev.data;
-          if (payload && payload.audioChunk && isStreaming && workerClient) {
+          if (attemptId === sessionSeq && payload && payload.audioChunk && isStreaming && workerClient) {
             receivedQuanta++;
+            if (receivedQuanta === 1 && watchdogTimer) {
+              clearTimeout(watchdogTimer);
+              watchdogTimer = null;
+            }
             const chunk = payload.audioChunk;
             workerClient.pushAudio(new Float32Array(chunk), false);
             if (!payload.isTail) {
@@ -332,35 +648,78 @@ export function createSwanadaSttController() {
           }
         };
 
-        micSource.connect(node);
-        node.connect(silentSink);
+        localSource.connect(node);
+        node.connect(localSink);
         usedWorklet = true;
 
         watchdogTimer = setTimeout(() => {
-          if (isStreaming && receivedQuanta === 0 && micSource && silentSink) {
+          watchdogTimer = null;
+          if (attemptId === sessionSeq && isStreaming && receivedQuanta === 0 && micSource === localSource && silentSink === localSink) {
             try { workletNode?.disconnect(); } catch (_) {}
             workletNode = null;
-            attachScriptProcessorFallback(micSource, silentSink);
+            attachScriptProcessorFallback(localSource, localSink);
           }
-        }, 900);
+        }, 2500);
       } catch (_) {
         usedWorklet = false;
+        if (!workerClient || !captureDesired || attemptId !== sessionSeq || !isStreaming || startDestroyGen !== destroySeq || audioCtx !== targetCtx || targetCtx.state === 'closed') {
+          cleanupAttemptResources(acquiredStream, localSource, localSink);
+          await suspendIfIdleAndRunning(targetCtx);
+          return;
+        }
       }
     }
 
-    if (!usedWorklet) {
-      attachScriptProcessorFallback(micSource, silentSink);
+    if (!usedWorklet && attemptId === sessionSeq && isStreaming && startDestroyGen === destroySeq && micSource === localSource && silentSink === localSink) {
+      attachScriptProcessorFallback(localSource, localSink);
     }
   }
 
   async function stop() {
-    if (!isStreaming) return;
-    isStreaming = false;
+    if (activeStopPromise) return activeStopPromise;
+
+    sessionSeq++;
+    const stopSeq = sessionSeq;
+    captureDesired = false;
 
     if (watchdogTimer) {
       clearTimeout(watchdogTimer);
       watchdogTimer = null;
     }
+
+    for (const s of [...pendingAcquiredStreams]) {
+      stopStreamTracks(s);
+    }
+
+    if (!isStreaming) {
+      if (audioCtx && audioCtx.state === 'running') {
+        const targetCtx = audioCtx;
+        const canSuspend = typeof audioCtx.suspend === 'function';
+        const suspendPromise = (async () => {
+          if (canSuspend) {
+            await suspendCtxSafely(targetCtx);
+          } else if (typeof targetCtx.close === 'function') {
+            await targetCtx.close().catch(() => {});
+            if (audioCtx === targetCtx) {
+              audioCtx = null;
+              workletLoaded = false;
+              workletLoadCtx = null;
+              workletLoadPromise = null;
+            }
+          }
+        })();
+        activeStopPromise = suspendPromise;
+        try {
+          await suspendPromise;
+        } finally {
+          if (activeStopPromise === suspendPromise) {
+            activeStopPromise = null;
+          }
+        }
+      }
+      return;
+    }
+    isStreaming = false;
 
     const closingWorklet = workletNode;
     workletNode = null;
@@ -372,24 +731,95 @@ export function createSwanadaSttController() {
     silentSink = null;
     const closingStream = micStream;
     micStream = null;
+    if (closingStream) {
+      flushingStreams.add(closingStream);
+    }
 
-    if (closingWorklet) {
-      try { closingWorklet.port.postMessage({ type: 'flush' }); } catch (_) {}
-      await new Promise(r => setTimeout(r, 60));
-      try { closingWorklet.disconnect(); } catch (_) {}
-    }
-    if (closingProc) {
-      try { closingProc.__flushTail?.(); } catch (_) {}
-      try { closingProc.onaudioprocess = null; } catch (_) {}
-      try { closingProc.disconnect(); } catch (_) {}
-    }
-    try { closingSource?.disconnect(); } catch (_) {}
-    try { closingSink?.disconnect(); } catch (_) {}
-    try { closingStream?.getTracks().forEach(t => t.stop()); } catch (_) {}
+    const localStop = (async () => {
+      if (closingWorklet) {
+        try { closingWorklet.port.postMessage({ type: 'flush' }); } catch (_) {}
+        await new Promise(r => setTimeout(r, 60));
+        try { closingWorklet.disconnect(); } catch (_) {}
+        try { closingWorklet.port.onmessage = null; } catch (_) {}
+      }
+      if (closingProc) {
+        try { closingProc.__flushTail?.(); } catch (_) {}
+        try { closingProc.onaudioprocess = null; } catch (_) {}
+        try { closingProc.disconnect(); } catch (_) {}
+      }
+      try { closingSource?.disconnect(); } catch (_) {}
+      try { closingSink?.disconnect(); } catch (_) {}
+      stopStreamTracks(closingStream);
 
-    if (workerClient) {
-      await workerClient.finishStream().catch(() => {});
+      if (stopSeq !== sessionSeq || isStreaming) {
+        return;
+      }
+
+      if (audioCtx && audioCtx.state !== 'closed') {
+        const targetCtx = audioCtx;
+        if (typeof audioCtx.suspend === 'function') {
+          await suspendCtxSafely(targetCtx);
+        } else if (typeof targetCtx.close === 'function') {
+          await targetCtx.close().catch(() => {});
+          if (audioCtx === targetCtx) {
+            audioCtx = null;
+            workletLoaded = false;
+            workletLoadCtx = null;
+            workletLoadPromise = null;
+          }
+        }
+      }
+
+      if (stopSeq !== sessionSeq || isStreaming) {
+        return;
+      }
+
+      if (workerClient) {
+        await workerClient.finishStream().catch(() => {});
+      }
+    })();
+
+    activeStopPromise = localStop;
+    try {
+      await localStop;
+    } finally {
+      if (activeStopPromise === localStop) {
+        activeStopPromise = null;
+      }
     }
+  }
+
+  async function destroy() {
+    destroySeq++;
+    captureDesired = false;
+    pendingCtxSuspend = null;
+    pendingCtxSuspendCtx = null;
+    engineBootPromise = null;
+    activeInitPromise = null;
+    activeTargetLang = null;
+    await stop();
+    for (const s of [...pendingAcquiredStreams]) {
+      stopStreamTracks(s);
+    }
+    for (const s of [...flushingStreams]) {
+      stopStreamTracks(s);
+    }
+    if (audioCtx && audioCtx.state !== 'closed' && typeof audioCtx.close === 'function') {
+      await audioCtx.close().catch(() => {});
+    }
+    audioCtx = null;
+    workletLoaded = false;
+    workletLoadCtx = null;
+    workletLoadPromise = null;
+    try { workerClient?.terminate?.(); } catch (_) {}
+    workerClient = null;
+    loadedAcousticLang = null;
+    revokeBlobUrl(workerBlobUrl);
+    workerBlobUrl = null;
+    for (const url of pendingWorkletBlobUrls) {
+      revokeBlobUrl(url);
+    }
+    pendingWorkletBlobUrls.clear();
   }
 
   async function transcribeBuffer(pcm16kFloat32, acousticLang) {
@@ -408,6 +838,7 @@ export function createSwanadaSttController() {
     },
     start,
     stop,
+    destroy,
     ensureEngine,
     transcribeBuffer,
   };

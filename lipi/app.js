@@ -109,6 +109,11 @@ let sttController = null;
 let sttListenersAttached = false;
 let recognition = null;
 let interimSpan = null;
+let _interimRAF = null;
+let _pendingInterimText = null;
+let _lastInterimText = '';
+let _scrollRAF = null;
+let recordingAttemptId = 0;
 let heroTimer = null;
 let heroSwapTimer = null;
 let clearTranslitBuffer = () => {};
@@ -306,9 +311,10 @@ function closeEditor() {
 // ═══════════════════════════════════
 
 export function setSttController(customController) {
+  recordingAttemptId++;
   state.isRecording = false;
   state.activeSttEngine = null;
-  interimSpan = null;
+  removeInterim();
   sttController = customController;
   sttListenersAttached = false;
   if (sttController) {
@@ -338,23 +344,65 @@ function appendTextWithBreaks(container, text, hasLeadingSpace = false) {
   });
 }
 
+function scheduleEditorScroll(ed) {
+  if (!ed) return;
+  if (_scrollRAF) return;
+  _scrollRAF = requestAnimationFrame(() => {
+    _scrollRAF = null;
+    ed.scrollTop = ed.scrollHeight;
+  });
+}
+
+function hasCommittedEditorContent(ed) {
+  if (!ed) return false;
+  if (!interimSpan && !ed.querySelector?.('.kn-buffer, .translating-chunk')) {
+    return (ed.textContent || '').trim().length > 0;
+  }
+  return edText().length > 0;
+}
+
 function renderInterimTranscript(text) {
   const ed = $('#editor');
   if (!ed || !text) return;
+
   if (!interimSpan) {
     interimSpan = document.createElement('span');
     interimSpan.className = 'interim';
     interimSpan.textContent = text;
-    const prefix = edText().length > 0 ? ' ' : '';
+    _lastInterimText = text;
+    const prefix = hasCommittedEditorContent(ed) ? ' ' : '';
     if (prefix) ed.appendChild(document.createTextNode(prefix));
     ed.appendChild(interimSpan);
-  } else {
-    interimSpan.textContent = text;
+    scheduleEditorScroll(ed);
+    return;
   }
-  ed.scrollTop = ed.scrollHeight;
+
+  if (!_interimRAF && text === _lastInterimText && text === interimSpan.textContent) {
+    return;
+  }
+
+  _pendingInterimText = text;
+  if (_interimRAF) return;
+  _interimRAF = requestAnimationFrame(() => {
+    _interimRAF = null;
+    if (!interimSpan || _pendingInterimText === null) return;
+    const nextText = _pendingInterimText;
+    _pendingInterimText = null;
+    if (nextText !== _lastInterimText || interimSpan.textContent !== nextText) {
+      interimSpan.textContent = nextText;
+      _lastInterimText = nextText;
+    }
+    ed.scrollTop = ed.scrollHeight;
+  });
 }
 
 function removeInterim() {
+  if (_interimRAF) {
+    cancelAnimationFrame(_interimRAF);
+    _interimRAF = null;
+  }
+  _pendingInterimText = null;
+  _lastInterimText = '';
   if (interimSpan && interimSpan.parentNode) {
     interimSpan.remove();
   }
@@ -369,7 +417,7 @@ function commitRecognizedTranscript(rawText) {
   const processed = processVoiceCommands(String(rawText || '').trim());
   if (!processed) return;
 
-  const needsLeadingSpace = edText().length > 0;
+  const needsLeadingSpace = hasCommittedEditorContent(ed);
 
   if (state.voiceTranslateMode) {
     const pendingSpan = document.createElement('span');
@@ -377,7 +425,7 @@ function commitRecognizedTranscript(rawText) {
     if (needsLeadingSpace) ed.appendChild(document.createTextNode(' '));
     pendingSpan.textContent = processed;
     ed.appendChild(pendingSpan);
-    ed.scrollTop = ed.scrollHeight;
+    scheduleEditorScroll(ed);
 
     const lbl = $('#mic-label');
     if (lbl) lbl.textContent = 'Translating…';
@@ -394,7 +442,7 @@ function commitRecognizedTranscript(rawText) {
         } else if (lbl) {
           lbl.textContent = '';
         }
-        ed.scrollTop = ed.scrollHeight;
+        scheduleEditorScroll(ed);
         saveDoc();
       })
       .catch((err) => {
@@ -404,16 +452,16 @@ function commitRecognizedTranscript(rawText) {
       });
   } else {
     appendTextWithBreaks(ed, processed, needsLeadingSpace);
-    ed.scrollTop = ed.scrollHeight;
+    scheduleEditorScroll(ed);
     saveDoc();
   }
 
   clearTimeout(pauseTimer);
   if (pauseEnabled && state.isRecording) {
     pauseTimer = setTimeout(() => {
-      if (state.isRecording && edText().length > 0) {
+      if (state.isRecording && hasCommittedEditorContent(ed)) {
         ed.appendChild(document.createElement('br'));
-        ed.scrollTop = ed.scrollHeight;
+        scheduleEditorScroll(ed);
         saveDoc();
       }
     }, pauseThreshold * 1000);
@@ -425,6 +473,7 @@ function attachSttListeners(ctrl) {
   sttListenersAttached = true;
 
   ctrl.on('progress', (p) => {
+    if (!state.isRecording) return;
     const pct = Math.round((p.progress || 0) * 100);
     const tierMb = p.tier === 'mobile' ? '25 MB' : 'Studio';
     if (pct >= 100) {
@@ -442,6 +491,7 @@ function attachSttListeners(ctrl) {
   });
 
   ctrl.on('partial', (data) => {
+    if (!state.isRecording) return;
     const t = (data && data.text ? data.text : '').trim();
     if (t) renderInterimTranscript(t);
   });
@@ -628,6 +678,42 @@ function syncLangPickerUI(langConfig) {
   }
 }
 
+function syncLangMenuMaxHeight() {
+  const bar = $('#float-bar');
+  const popover = $('#lang-popover');
+  const menu = $('#lang-menu');
+  if (!menu && !popover) return;
+
+  const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+  const vvHeight = vv && typeof vv.height === 'number'
+    ? vv.height
+    : (typeof window !== 'undefined' && typeof window.innerHeight === 'number' ? window.innerHeight : 800);
+  const vvTop = vv && typeof vv.offsetTop === 'number' ? vv.offsetTop : 0;
+
+  const barRect = bar && typeof bar.getBoundingClientRect === 'function' ? bar.getBoundingClientRect() : null;
+  const hasBarRect = Boolean(barRect && (barRect.height > 0 || barRect.top > 0));
+  const isNarrow = typeof window !== 'undefined' &&
+    ((typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches) ||
+     (typeof window.innerWidth === 'number' && window.innerWidth <= 640));
+  const barHeight = hasBarRect ? barRect.height : (isNarrow ? 108 : 44);
+  const targetBarTop = vvHeight - 10 - barHeight;
+  const actualBarTop = hasBarRect ? (barRect.top - vvTop) : targetBarTop;
+  const effectiveBarTop = Math.min(actualBarTop, targetBarTop);
+
+  const maxH = Math.min(420, Math.max(140, Math.floor(effectiveBarTop - 74)));
+  const px = `${maxH}px`;
+
+  if (popover?.style && typeof popover.style.setProperty === 'function') {
+    popover.style.setProperty('--lang-menu-max-h', px);
+  }
+  if (menu?.style) {
+    if (typeof menu.style.setProperty === 'function') {
+      menu.style.setProperty('--lang-menu-max-h', px);
+    }
+    menu.style.maxHeight = px;
+  }
+}
+
 function openLangMenu() {
   const picker = $('#lang-picker');
   const trigger = $('#lang-trigger');
@@ -637,6 +723,7 @@ function openLangMenu() {
 
   state.langMenuOpen = true;
   popover.hidden = false;
+  syncLangMenuMaxHeight();
   picker.classList.add('is-open');
   trigger.setAttribute('aria-expanded', 'true');
 
@@ -764,6 +851,7 @@ async function toggleRec() {
 
 export async function startRecordingSession() {
   if (state.isRecording) return;
+  const attemptId = ++recordingAttemptId;
 
   const target = resolveSttTarget(state.currentLanguage, state.voiceTranslateMode);
 
@@ -771,15 +859,26 @@ export async function startRecordingSession() {
     const ctrl = ensureSttController();
     const tierLabel = detectSwanadaTier() === 'mobile' ? '25 MB' : 'Studio';
     const lbl = $('#mic-label');
-    if (lbl) lbl.textContent = `Loading Swanada (${tierLabel})…`;
 
     try {
       state.activeSttEngine = 'swanada';
       state.isRecording = true;
       setPhase('recording');
+      if (lbl) lbl.textContent = `Loading Swanada (${tierLabel})…`;
       await ctrl.start(target.acousticLang, { mode: state.voiceTranslateMode ? 'translate' : 'stt' });
+      if (attemptId !== recordingAttemptId || !state.isRecording) {
+        if (!state.isRecording) {
+          try { await ctrl.stop?.(); } catch {}
+          hideProg();
+        }
+        return;
+      }
       setPhase('recording');
     } catch (err) {
+      if (attemptId !== recordingAttemptId) {
+        if (!state.isRecording) hideProg();
+        return;
+      }
       state.isRecording = false;
       state.activeSttEngine = null;
       hideProg();
@@ -793,6 +892,7 @@ export async function startRecordingSession() {
   if (!(await initFallbackWebSpeech(target.acousticLang))) {
     return;
   }
+  if (attemptId !== recordingAttemptId) return;
   try {
     state.activeSttEngine = 'webspeech';
     recognition.start();
@@ -805,12 +905,15 @@ export async function startRecordingSession() {
 }
 
 export async function stopRecordingSession() {
+  recordingAttemptId++;
+  const stopAttempt = recordingAttemptId;
   if (!state.isRecording) return;
 
   const engine = state.activeSttEngine;
   state.isRecording = false;
   state.activeSttEngine = null;
   clearTimeout(pauseTimer);
+  hideProg();
 
   if (engine === 'swanada' && sttController) {
     const lbl = $('#mic-label');
@@ -821,6 +924,8 @@ export async function stopRecordingSession() {
   } else if (engine === 'webspeech' && recognition) {
     try { recognition.stop(); } catch {}
   }
+
+  if (stopAttempt !== recordingAttemptId || state.isRecording) return;
 
   removeInterim();
   setPhase('ready');
@@ -1061,16 +1166,40 @@ function bind() {
   if (window.visualViewport) {
     const bar = $('#float-bar');
     const ed = $('#editor');
-    window.visualViewport.addEventListener('resize', () => {
-      const kbHeight = window.innerHeight - window.visualViewport.height;
-      if (bar) bar.style.bottom = kbHeight > 50 ? `${kbHeight + 8}px` : '';
-      if (ed) ed.style.paddingBottom = kbHeight > 50 ? `${kbHeight + 60}px` : '';
+    let vvRAF = null;
+    const syncVisualViewport = () => {
+      if (vvRAF) return;
+      let syncDone = false;
+      vvRAF = requestAnimationFrame(() => {
+        syncDone = true;
+        vvRAF = null;
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const kbOffset = Math.max(0, Math.round(window.innerHeight - (vv.height + (vv.offsetTop || 0))));
+        if (bar) bar.style.bottom = kbOffset > 50 ? `${kbOffset + 8}px` : '';
+        if (ed) ed.style.paddingBottom = kbOffset > 50 ? `${kbOffset + 120}px` : '';
+        syncLangMenuMaxHeight();
+      });
+      if (syncDone) vvRAF = null;
+    };
+    window.visualViewport.addEventListener('resize', syncVisualViewport);
+    window.visualViewport.addEventListener('scroll', syncVisualViewport);
+  }
+  const barEl = $('#float-bar');
+  if (barEl && typeof barEl.addEventListener === 'function') {
+    barEl.addEventListener('transitionend', (e) => {
+      if (state.langMenuOpen && (!e?.propertyName || e.propertyName === 'bottom')) {
+        syncLangMenuMaxHeight();
+      }
     });
   }
+  window.addEventListener?.('resize', () => {
+    if (state.langMenuOpen) syncLangMenuMaxHeight();
+  });
 
   initTranslit();
   $('#editor')?.addEventListener('input', debounce(saveDoc, 800));
-  window.addEventListener('beforeunload', () => {
+  window.addEventListener?.('beforeunload', () => {
     saveDoc();
   });
 }
@@ -1199,8 +1328,23 @@ export function loadStoredState() {
 function toast(msg, type = 'info') {
   const c = $('#toast-container');
   if (!c) return;
+  const isErrorToast = (node) =>
+    Boolean(node?.classList?.contains?.('toast--error')) ||
+    /\btoast--error\b/.test(String(node?.className || ''));
+  const isMobile = typeof window !== 'undefined' &&
+    ((typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches) ||
+     (typeof window.innerWidth === 'number' && window.innerWidth > 0 && window.innerWidth <= 640));
+
+  for (const prev of Array.from(c.children || [])) {
+    if (!isErrorToast(prev) || type === 'error' || isMobile) {
+      if (typeof prev.remove === 'function') prev.remove();
+      else c.removeChild?.(prev);
+    }
+  }
+
   const el = document.createElement('div');
   el.className = 'toast toast--' + type;
+  el.classList?.add?.('toast', 'toast--' + type);
   el.textContent = msg;
   c.appendChild(el);
   requestAnimationFrame(() => el.classList.add('is-visible'));

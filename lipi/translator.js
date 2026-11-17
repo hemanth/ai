@@ -13,14 +13,20 @@ export const SENTENCE_SPLIT_REGEX = /(?<=[.!?।॥۔؟])\s+/;
 // In-memory translation cache: Map<`${targetLang}:${normalizedSentence}`, string>
 const translationCache = new Map();
 
-// Pending translation requests: Map<requestId, { resolve, reject, timeoutId }>
+// In-flight deduplication: Map<`${targetLang}:${normalizedSentence}`, Promise<string>>
+const inFlightSentences = new Map();
+
+// Pending translation requests: Map<requestId, { resolve, reject, timeoutId, resetTimeout }>
 const pendingRequests = new Map();
 
-// Pending model preload requests: Map<langId, { promise, resolve, reject, timeoutId }>
+// Pending model preload requests: Map<langId, { promise, resolve, reject, timeoutId, resetTimeout }>
 const pendingModelLoads = new Map();
 
 // Set of loaded model languages
 const loadedModels = new Set();
+
+// Sequential worker dispatch chain so queued sentences don't prematurely time out
+let dispatchChain = Promise.resolve();
 
 // Progress & lifecycle event listeners
 const progressListeners = new Set();
@@ -38,6 +44,39 @@ function emitStatus(payload) {
 let activeWorker = null;
 let listenerAttached = false;
 let requestCounter = 0;
+export const MAX_MODEL_PROGRESS_WAIT_MS = 300000;
+let activeGeneration = { id: 0, abortError: null };
+
+/**
+ * Collect runtime device capability hints for worker WASM threading & LRU sizing.
+ * @returns {Object}
+ */
+export function getRuntimeHints() {
+  const nav = typeof navigator !== 'undefined' ? navigator : {};
+  const scr = typeof screen !== 'undefined' ? screen : undefined;
+  const ua = nav.userAgent || '';
+  const platform = nav.platform || '';
+  const maxTouchPoints = nav.maxTouchPoints || 0;
+  const deviceMemory = nav.deviceMemory;
+  const hardwareConcurrency = nav.hardwareConcurrency;
+  const screenWidth = scr && typeof scr.width === 'number' ? scr.width : undefined;
+
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Mobile/i.test(ua) ||
+    (platform === 'MacIntel' && maxTouchPoints > 1) ||
+    (maxTouchPoints > 1 && typeof screenWidth === 'number' && screenWidth > 0 && screenWidth < 1024) ||
+    (typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4);
+
+  return {
+    isMobile,
+    userAgent: ua,
+    platform,
+    maxTouchPoints,
+    deviceMemory,
+    hardwareConcurrency,
+    screenWidth,
+  };
+}
 
 /**
  * Normalizes input text using Unicode NFC format.
@@ -94,6 +133,12 @@ function handleWorkerMessage(event) {
     }
 
     case 'model-loading': {
+      for (const pending of pendingRequests.values()) {
+        pending.resetTimeout?.(Math.max(pending.baseTimeoutMs, 90000));
+      }
+      if (data.language && pendingModelLoads.has(data.language)) {
+        pendingModelLoads.get(data.language).resetTimeout?.();
+      }
       emitStatus({ ...data, type: 'model-loading' });
       break;
     }
@@ -109,12 +154,23 @@ function handleWorkerMessage(event) {
           pendingLoad.resolve();
         }
       }
+      for (const pending of pendingRequests.values()) {
+        pending.resetTimeout?.(pending.baseTimeoutMs);
+      }
       emitStatus({ ...data, type: 'model-ready' });
       for (const listener of progressListeners) {
         try {
           listener({ ...data, type: 'model-ready', status: 'ready', progress: 100 });
         } catch (_) {}
       }
+      break;
+    }
+
+    case 'model-evicted': {
+      if (data.language) {
+        loadedModels.delete(data.language);
+      }
+      emitStatus({ ...data, type: 'model-evicted' });
       break;
     }
 
@@ -131,6 +187,12 @@ function handleWorkerMessage(event) {
     }
 
     case 'model-progress': {
+      for (const pending of pendingRequests.values()) {
+        pending.resetTimeout?.(Math.max(pending.baseTimeoutMs, 90000));
+      }
+      if (data.language && pendingModelLoads.has(data.language)) {
+        pendingModelLoads.get(data.language).resetTimeout?.();
+      }
       emitStatus(data);
       for (const listener of progressListeners) {
         try {
@@ -143,20 +205,81 @@ function handleWorkerMessage(event) {
 }
 
 /**
- * Attach message listener to a worker instance.
+ * Handle worker error or messageerror events by failing pending requests immediately
+ * and resetting the failed worker reference.
+ * @param {Event|ErrorEvent|Object} event
+ */
+function handleWorkerError(event) {
+  const rawErr = event && (event.error || event.message);
+  const message =
+    rawErr instanceof Error
+      ? rawErr.message
+      : (typeof rawErr === 'string' && rawErr) || 'Translation worker error';
+  const err = rawErr instanceof Error ? rawErr : new Error(message);
+
+  activeGeneration.abortError = err;
+  activeGeneration = { id: activeGeneration.id + 1, abortError: null };
+
+  for (const [id, pending] of pendingRequests.entries()) {
+    clearTimeout(pending.timeoutId);
+    pendingRequests.delete(id);
+    pending.reject(err);
+  }
+  for (const [langId, pendingLoad] of pendingModelLoads.entries()) {
+    clearTimeout(pendingLoad.timeoutId);
+    pendingModelLoads.delete(langId);
+    pendingLoad.reject(err);
+  }
+  loadedModels.clear();
+  inFlightSentences.clear();
+  dispatchChain = Promise.resolve();
+
+  const failedWorker = activeWorker;
+  if (failedWorker) {
+    detachWorkerListener(failedWorker);
+    try {
+      failedWorker.terminate?.();
+    } catch (_) {}
+    activeWorker = null;
+    listenerAttached = false;
+  }
+
+  emitStatus({ type: 'model-error', error: err.message });
+}
+
+function detachWorkerListener(worker) {
+  if (!worker) return;
+  if (typeof worker.removeEventListener === 'function') {
+    try { worker.removeEventListener('message', handleWorkerMessage); } catch (_) {}
+    try { worker.removeEventListener('error', handleWorkerError); } catch (_) {}
+    try { worker.removeEventListener('messageerror', handleWorkerError); } catch (_) {}
+  }
+}
+
+/**
+ * Attach message and error listeners to a worker instance.
  * @param {Worker|Object} worker
  */
 function attachWorkerListener(worker) {
   if (!worker || listenerAttached) return;
   if (typeof worker.addEventListener === 'function') {
     worker.addEventListener('message', handleWorkerMessage);
+    worker.addEventListener('error', handleWorkerError);
+    worker.addEventListener('messageerror', handleWorkerError);
     listenerAttached = true;
   } else if ('onmessage' in worker) {
-    const prev = worker.onmessage;
+    const prevMsg = worker.onmessage;
     worker.onmessage = (e) => {
       handleWorkerMessage(e);
-      if (typeof prev === 'function') prev(e);
+      if (typeof prevMsg === 'function') prevMsg(e);
     };
+    if ('onerror' in worker) {
+      const prevErr = worker.onerror;
+      worker.onerror = (e) => {
+        handleWorkerError(e);
+        if (typeof prevErr === 'function') prevErr(e);
+      };
+    }
     listenerAttached = true;
   }
 }
@@ -166,11 +289,27 @@ function attachWorkerListener(worker) {
  * @param {Worker|Object} worker
  */
 export function setWorker(worker) {
-  if (activeWorker && typeof activeWorker.removeEventListener === 'function') {
-    try {
-      activeWorker.removeEventListener('message', handleWorkerMessage);
-    } catch (_) {}
+  if (activeWorker) {
+    detachWorkerListener(activeWorker);
   }
+  const replaceErr = new Error('Translation worker was replaced');
+  activeGeneration.abortError = replaceErr;
+  activeGeneration = { id: activeGeneration.id + 1, abortError: null };
+
+  for (const [id, pending] of pendingRequests.entries()) {
+    clearTimeout(pending.timeoutId);
+    pendingRequests.delete(id);
+    pending.reject(replaceErr);
+  }
+  for (const [langId, pendingLoad] of pendingModelLoads.entries()) {
+    clearTimeout(pendingLoad.timeoutId);
+    pendingModelLoads.delete(langId);
+    pendingLoad.reject(replaceErr);
+  }
+  loadedModels.clear();
+  inFlightSentences.clear();
+  dispatchChain = Promise.resolve();
+
   activeWorker = worker;
   listenerAttached = false;
   if (activeWorker) {
@@ -267,7 +406,11 @@ export function onModelStatus(callback) {
  * @param {number} [timeoutMs=60000]
  * @returns {Promise<void>}
  */
-export async function preloadLanguageModel(targetLang, timeoutMs = 60000) {
+export async function preloadLanguageModel(
+  targetLang,
+  timeoutMs = 60000,
+  maxWaitMs = Math.max(timeoutMs, MAX_MODEL_PROGRESS_WAIT_MS)
+) {
   if (!isValidLanguage(targetLang)) {
     throw new Error(`Unsupported target language: ${targetLang}`);
   }
@@ -293,37 +436,62 @@ export async function preloadLanguageModel(targetLang, timeoutMs = 60000) {
     rejectRef = reject;
   });
 
-  const timeoutId = setTimeout(() => {
-    if (pendingModelLoads.has(langId)) {
-      pendingModelLoads.delete(langId);
-      rejectRef(new Error(`Timeout loading translation model for ${langId}`));
-    }
-  }, timeoutMs);
-
-  pendingModelLoads.set(langId, {
+  const entry = {
     promise,
     resolve: resolveRef,
     reject: rejectRef,
-    timeoutId,
-  });
+    timeoutId: null,
+    resetTimeout: null,
+  };
+
+  const deadline = Date.now() + Math.max(timeoutMs, maxWaitMs);
+  const armTimeout = () => {
+    clearTimeout(entry.timeoutId);
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      if (pendingModelLoads.has(langId)) {
+        pendingModelLoads.delete(langId);
+        rejectRef(new Error(`Timeout loading translation model for ${langId}`));
+      }
+      return;
+    }
+    entry.timeoutId = setTimeout(() => {
+      if (pendingModelLoads.has(langId)) {
+        pendingModelLoads.delete(langId);
+        rejectRef(new Error(`Timeout loading translation model for ${langId}`));
+      }
+    }, Math.min(timeoutMs, remaining));
+  };
+  entry.resetTimeout = armTimeout;
+  armTimeout();
+
+  pendingModelLoads.set(langId, entry);
 
   worker.postMessage({
     action: 'load-translation-model',
     language: langId,
     modelId: langConfig.paarModel,
+    runtimeHints: getRuntimeHints(),
   });
 
   return promise;
 }
 
 /**
- * Internal helper to translate a single sentence via worker with caching.
+ * Internal helper to translate a single sentence via worker with caching,
+ * in-flight deduplication, and sequential dispatch queuing.
  * @param {string} sentence
  * @param {string} targetLang
  * @param {number} [timeoutMs=30000]
+ * @param {number} [maxWaitMs=MAX_MODEL_PROGRESS_WAIT_MS]
  * @returns {Promise<string>}
  */
-async function translateSentence(sentence, targetLang, timeoutMs = 30000) {
+async function translateSentence(
+  sentence,
+  targetLang,
+  timeoutMs = 30000,
+  maxWaitMs = Math.max(timeoutMs, MAX_MODEL_PROGRESS_WAIT_MS)
+) {
   const normSentence = normalizeText(sentence).trim();
   if (!normSentence) return '';
 
@@ -332,44 +500,94 @@ async function translateSentence(sentence, targetLang, timeoutMs = 30000) {
     return translationCache.get(cacheKey);
   }
 
+  if (inFlightSentences.has(cacheKey)) {
+    return inFlightSentences.get(cacheKey);
+  }
+
   const worker = getWorker();
   if (!worker) {
     throw new Error('Translation worker is not available');
   }
 
-  const id = generateRequestId();
+  const capturedGen = activeGeneration;
 
-  const translationPromise = new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      if (pendingRequests.has(id)) {
-        pendingRequests.delete(id);
-        reject(new Error(`Translation request ${id} timed out`));
-      }
-    }, timeoutMs);
+  const runQueued = () => new Promise((resolve, reject) => {
+    if (capturedGen !== activeGeneration) {
+      reject(capturedGen.abortError || new Error('Translation worker was replaced'));
+      return;
+    }
 
-    pendingRequests.set(id, {
+    if (translationCache.has(cacheKey)) {
+      resolve(translationCache.get(cacheKey));
+      return;
+    }
+
+    const currentWorker = getWorker();
+    if (!currentWorker) {
+      reject(new Error('Translation worker is not available'));
+      return;
+    }
+
+    const id = generateRequestId();
+    const deadline = Date.now() + Math.max(timeoutMs, maxWaitMs);
+    const pendingEntry = {
+      baseTimeoutMs: timeoutMs,
+      timeoutId: null,
+      resetTimeout: null,
       resolve: (text) => {
-        clearTimeout(timeoutId);
+        clearTimeout(pendingEntry.timeoutId);
         const normResult = normalizeText(text || '').trim();
         translationCache.set(cacheKey, normResult);
         resolve(normResult);
       },
       reject: (err) => {
-        clearTimeout(timeoutId);
+        clearTimeout(pendingEntry.timeoutId);
         reject(err);
       },
-      timeoutId,
-    });
+    };
 
-    worker.postMessage({
+    const armTimeout = (ms = timeoutMs) => {
+      clearTimeout(pendingEntry.timeoutId);
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        if (pendingRequests.has(id)) {
+          pendingRequests.delete(id);
+          reject(new Error(`Translation request ${id} timed out`));
+        }
+        return;
+      }
+      pendingEntry.timeoutId = setTimeout(() => {
+        if (pendingRequests.has(id)) {
+          pendingRequests.delete(id);
+          reject(new Error(`Translation request ${id} timed out`));
+        }
+      }, Math.min(ms, remaining));
+    };
+    pendingEntry.resetTimeout = armTimeout;
+    armTimeout(timeoutMs);
+
+    pendingRequests.set(id, pendingEntry);
+
+    currentWorker.postMessage({
       action: 'translate',
       text: normSentence,
       targetLang,
       id,
+      runtimeHints: getRuntimeHints(),
     });
   });
 
-  return translationPromise;
+  const queuedPromise = dispatchChain.then(runQueued, runQueued);
+  dispatchChain = queuedPromise.catch(() => {});
+  inFlightSentences.set(cacheKey, queuedPromise);
+
+  try {
+    return await queuedPromise;
+  } finally {
+    if (inFlightSentences.get(cacheKey) === queuedPromise) {
+      inFlightSentences.delete(cacheKey);
+    }
+  }
 }
 
 /**
@@ -378,9 +596,10 @@ async function translateSentence(sentence, targetLang, timeoutMs = 30000) {
  * and caching.
  * @param {string} text
  * @param {string} targetLang
+ * @param {{ timeoutMs?: number, maxWaitMs?: number }} [options]
  * @returns {Promise<string>}
  */
-export async function translateText(text, targetLang) {
+export async function translateText(text, targetLang, options = {}) {
   if (!text || typeof text !== 'string') return '';
   const normalized = normalizeText(text);
   if (!normalized.trim()) return '';
@@ -391,6 +610,10 @@ export async function translateText(text, targetLang) {
 
   const langConfig = getLanguage(targetLang);
   const langId = langConfig.id;
+  const timeoutMs = typeof options?.timeoutMs === 'number' ? options.timeoutMs : 30000;
+  const maxWaitMs = typeof options?.maxWaitMs === 'number'
+    ? options.maxWaitMs
+    : Math.max(timeoutMs, MAX_MODEL_PROGRESS_WAIT_MS);
 
   // Split by line breaks to preserve paragraph structure
   const lines = normalized.split(/\r?\n/);
@@ -403,7 +626,7 @@ export async function translateText(text, targetLang) {
       if (sentences.length === 0) return '';
 
       const translatedSentences = await Promise.all(
-        sentences.map(sentence => translateSentence(sentence, langId))
+        sentences.map(sentence => translateSentence(sentence, langId, timeoutMs, maxWaitMs))
       );
       return translatedSentences.join(' ');
     })
