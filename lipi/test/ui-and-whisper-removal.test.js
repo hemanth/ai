@@ -42,8 +42,8 @@ describe('Whisper Removal, 12-Language Lipi Hero Animation & Custom Dropdown', a
 
     assert.strictEqual(/whisper/i.test(html), false, 'index.html must not mention Whisper');
     assert.strictEqual(/polish-btn|model-select|upload-btn/.test(html), false, 'index.html must not render legacy Whisper controls');
+    assert.ok(html.includes('Swanada'), 'Footer must credit Swanada STT');
     assert.ok(html.includes('Paar Models'), 'Footer must credit Paar Models');
-    assert.ok(html.includes('Web Speech API'), 'Footer must credit Web Speech API');
     assert.ok(html.includes('Transformers.js'), 'Footer must credit Transformers.js');
 
     assert.strictEqual(/whisper|astronova001|transcribe-chunk|startPolish|doPolish/i.test(appJs), false, 'app.js must not contain Whisper ASR or Polish logic');

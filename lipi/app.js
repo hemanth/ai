@@ -1,8 +1,8 @@
 /**
- * Lipi — Indic Voice Editor (app.js)
+ * Lipi — Indic Voice Editor (`app.js`)
  *
- * LIVE VOICE: Web Speech API streams native speech across 12 Indic locales (or English -> Indic via Paar)
- * TRANSLATE:  Udgam Labs Paar neural translation models run locally in-browser via Transformers.js
+ * LIVE STT:   Swanada 16 kHz Conformer-CTC INT8 (25.4 MiB Mobile / 177.4 MiB Studio + <1ms +EN code-switching)
+ * TRANSLATE:  Udgam Labs Paar int8 ONNX neural translation via Transformers.js (12 Indic scripts)
  */
 
 import { transliterate } from './transliterate.js';
@@ -17,6 +17,11 @@ import {
   preloadLanguageModel,
   onModelStatus,
 } from './translator.js';
+import {
+  resolveSttTarget,
+  detectSwanadaTier,
+  createSwanadaSttController,
+} from './stt-client.js';
 
 const STORAGE_KEYS = {
   CONTENT: 'lipi-editor-content',
@@ -92,6 +97,7 @@ loadPauseSettings();
 const state = {
   phase: 'idle',
   isRecording: false,
+  activeSttEngine: null, // 'swanada' | 'webspeech' | null
   kannadaMode: true,
   currentLanguage: DEFAULT_LANGUAGE_ID,
   voiceTranslateMode: false,
@@ -99,6 +105,8 @@ const state = {
   heroIndex: 0,
 };
 
+let sttController = null;
+let sttListenersAttached = false;
 let recognition = null;
 let interimSpan = null;
 let heroTimer = null;
@@ -107,6 +115,16 @@ let clearTranslitBuffer = () => {};
 let flushTranslitBuffer = () => {};
 
 const $ = s => document.querySelector(s);
+
+function clearElementChildren(el) {
+  if (!el) return;
+  if (el.children && typeof el.removeChild === 'function') {
+    while (el.children.length > 0) {
+      el.removeChild(el.children[0]);
+    }
+  }
+  el.innerHTML = '';
+}
 
 // ─── Boot ───
 document.addEventListener('DOMContentLoaded', () => {
@@ -119,6 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
   startHeroAnimation();
   setPhase('ready');
 
+  if (typeof window !== 'undefined') {
+    window.__lipiTranscribeBuffer = async (pcm16kFloat32) => {
+      const ctrl = ensureSttController();
+      const target = resolveSttTarget(state.currentLanguage, state.voiceTranslateMode);
+      const acousticLang = target.engine === 'swanada' ? target.acousticLang : 'en';
+      await ctrl.transcribeBuffer(pcm16kFloat32, acousticLang);
+    };
+  }
+
   if (location.hash === '#editor') openEditor();
 });
 
@@ -128,16 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function getOrderedHeroLanguages() {
   return getAllLanguages();
-}
-
-function clearElementChildren(el) {
-  if (!el) return;
-  if (el.children && typeof el.removeChild === 'function') {
-    while (el.children.length > 0) {
-      el.removeChild(el.children[0]);
-    }
-  }
-  el.innerHTML = '';
 }
 
 export function renderHeroStrip() {
@@ -186,16 +203,10 @@ export function setHeroLanguageIndex(index, { animate = true } = {}) {
   const meta = $('#hero-script-meta');
   const strip = $('#hero-script-strip');
 
-  if (strip && Array.isArray(strip.children)) {
-    for (let i = 0; i < strip.children.length; i++) {
-      const pill = strip.children[i];
-      if (pill && pill.classList) {
-        pill.classList.toggle('is-active', i === normalizedIdx);
-      }
-    }
-  } else if (strip && strip.children) {
-    Array.from(strip.children).forEach((pill, i) => {
-      pill.classList.toggle('is-active', i === normalizedIdx);
+  if (strip && strip.children) {
+    const items = Array.isArray(strip.children) ? strip.children : Array.from(strip.children);
+    items.forEach((pill, i) => {
+      pill.classList?.toggle('is-active', i === normalizedIdx);
     });
   }
 
@@ -268,8 +279,6 @@ function openEditor() {
   if (!isMobile) $('#editor')?.focus();
   history.replaceState(null, '', '#editor');
 
-  // Only preload Paar ONNX model if user is in EN -> Indic Translate mode;
-  // default Indic STT mode needs zero model downloads.
   if (state.voiceTranslateMode) {
     const preload = () => {
       preloadLanguageModel(state.currentLanguage).catch(() => {});
@@ -280,7 +289,7 @@ function openEditor() {
 }
 
 function closeEditor() {
-  if (state.isRecording) stopRec();
+  if (state.isRecording) stopRecordingSession();
   closeLangMenu();
   document.documentElement?.classList?.remove('direct-editor');
   const edView = $('#editor-view');
@@ -293,149 +302,203 @@ function closeEditor() {
 }
 
 // ═══════════════════════════════════
-//  Web Speech API — Live Streaming & Translation
+//  Swanada Neural STT + Fallback Controller
 // ═══════════════════════════════════
-async function initSpeech() {
-  const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechAPI) {
-    toast('Web Speech API requires Chrome, Edge, or Safari.', 'error');
-    return false;
+
+export function setSttController(customController) {
+  state.isRecording = false;
+  state.activeSttEngine = null;
+  interimSpan = null;
+  sttController = customController;
+  sttListenersAttached = false;
+  if (sttController) {
+    attachSttListeners(sttController);
   }
-
-  const langConfig = getLanguage(state.currentLanguage);
-  recognition = new SpeechAPI();
-  recognition.lang = state.voiceTranslateMode ? 'en-IN' : langConfig.speechLocale;
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  if ('processLocally' in recognition) {
-    try {
-      const locale = recognition.lang;
-      const availability = await SpeechAPI.available({ langs: [locale], processLocally: true });
-      if (availability === 'available') {
-        recognition.processLocally = true;
-      } else if (availability === 'downloadable') {
-        await SpeechAPI.install({ langs: [locale], processLocally: true });
-        recognition.processLocally = true;
-      }
-    } catch {}
-  }
-
-  recognition.onresult = handleSpeechResult;
-
-  recognition.onerror = (event) => {
-    if (event.error === 'no-speech' || event.error === 'aborted') return;
-    if (event.error === 'not-allowed') {
-      toast('Microphone access denied.', 'error');
-      stopRec();
-    }
-  };
-
-  recognition.onend = () => {
-    if (state.isRecording) {
-      try { recognition.start(); } catch {}
-    }
-  };
-
-  return true;
 }
 
-function renderTextToFragment(text, hasLeadingSpace = false) {
-  const frag = document.createDocumentFragment();
-  const parts = text.split('\n');
+function ensureSttController() {
+  if (!sttController) {
+    sttController = createSwanadaSttController();
+    sttListenersAttached = false;
+  }
+  if (!sttListenersAttached) {
+    attachSttListeners(sttController);
+  }
+  return sttController;
+}
+
+function appendTextWithBreaks(container, text, hasLeadingSpace = false) {
+  const parts = String(text || '').split('\n');
   parts.forEach((part, i) => {
-    if (i > 0) frag.appendChild(document.createElement('br'));
+    if (i > 0) container.appendChild(document.createElement('br'));
     if (part) {
-      if (i === 0 && hasLeadingSpace) frag.appendChild(document.createTextNode(' '));
-      frag.appendChild(document.createTextNode(part));
+      const chunk = i === 0 && hasLeadingSpace ? ` ${part}` : part;
+      container.appendChild(document.createTextNode(chunk));
     }
   });
-  return frag;
 }
 
-function handleSpeechResult(event) {
+function renderInterimTranscript(text) {
   const ed = $('#editor');
-  if (!ed) return;
-
-  let interim = '', final = '';
-  for (let i = event.resultIndex; i < event.results.length; i++) {
-    const t = event.results[i][0].transcript;
-    if (event.results[i].isFinal) final += t;
-    else interim += t;
+  if (!ed || !text) return;
+  if (!interimSpan) {
+    interimSpan = document.createElement('span');
+    interimSpan.className = 'interim';
+    interimSpan.textContent = text;
+    const prefix = edText().length > 0 ? ' ' : '';
+    if (prefix) ed.appendChild(document.createTextNode(prefix));
+    ed.appendChild(interimSpan);
+  } else {
+    interimSpan.textContent = text;
   }
-
-  if (final) {
-    removeInterim();
-    const processed = processVoiceCommands(final.trim());
-    if (processed) {
-      const needsLeadingSpace = ed.textContent.trim().length > 0;
-
-      if (state.voiceTranslateMode) {
-        const pendingSpan = document.createElement('span');
-        pendingSpan.className = 'translating-chunk';
-        if (needsLeadingSpace) ed.appendChild(document.createTextNode(' '));
-        pendingSpan.textContent = processed;
-        ed.appendChild(pendingSpan);
-        ed.scrollTop = ed.scrollHeight;
-
-        const lbl = $('#mic-label');
-        if (lbl) lbl.textContent = 'Translating…';
-
-        const targetLang = state.currentLanguage;
-        translateText(processed, targetLang)
-          .then((translated) => {
-            if (pendingSpan.parentNode) {
-              const frag = renderTextToFragment(translated, false);
-              pendingSpan.parentNode.replaceChild(frag, pendingSpan);
-            }
-            if (state.isRecording && lbl) lbl.textContent = '● Streaming…';
-            else if (lbl) lbl.textContent = '';
-            ed.scrollTop = ed.scrollHeight;
-            saveDoc();
-          })
-          .catch((err) => {
-            if (pendingSpan.parentNode) pendingSpan.classList.remove('translating-chunk');
-            toast(`Translation error: ${err.message}`, 'error');
-            if (state.isRecording && lbl) lbl.textContent = '● Streaming…';
-          });
-      } else {
-        const frag = renderTextToFragment(processed, needsLeadingSpace);
-        ed.appendChild(frag);
-        ed.scrollTop = ed.scrollHeight;
-        saveDoc();
-      }
-    }
-
-    clearTimeout(pauseTimer);
-    if (pauseEnabled && state.isRecording) {
-      pauseTimer = setTimeout(() => {
-        if (state.isRecording && ed.textContent.trim()) {
-          ed.appendChild(document.createElement('br'));
-          ed.scrollTop = ed.scrollHeight;
-          saveDoc();
-        }
-      }, pauseThreshold * 1000);
-    }
-  }
-
-  if (interim) {
-    if (!interimSpan) {
-      interimSpan = document.createElement('span');
-      interimSpan.className = 'interim';
-      if (ed.textContent.trim() && !final) ed.appendChild(document.createTextNode(' '));
-      ed.appendChild(interimSpan);
-    }
-    interimSpan.textContent = interim;
-    ed.scrollTop = ed.scrollHeight;
-  }
+  ed.scrollTop = ed.scrollHeight;
 }
 
 function removeInterim() {
   if (interimSpan && interimSpan.parentNode) {
     interimSpan.remove();
-    interimSpan = null;
   }
+  interimSpan = null;
+}
+
+function commitRecognizedTranscript(rawText) {
+  const ed = $('#editor');
+  if (!ed) return;
+  removeInterim();
+
+  const processed = processVoiceCommands(String(rawText || '').trim());
+  if (!processed) return;
+
+  const needsLeadingSpace = edText().length > 0;
+
+  if (state.voiceTranslateMode) {
+    const pendingSpan = document.createElement('span');
+    pendingSpan.className = 'translating-chunk';
+    if (needsLeadingSpace) ed.appendChild(document.createTextNode(' '));
+    pendingSpan.textContent = processed;
+    ed.appendChild(pendingSpan);
+    ed.scrollTop = ed.scrollHeight;
+
+    const lbl = $('#mic-label');
+    if (lbl) lbl.textContent = 'Translating…';
+
+    const targetLang = state.currentLanguage;
+    translateText(processed, targetLang)
+      .then((translated) => {
+        if (pendingSpan.parentNode) {
+          const replacement = document.createTextNode(translated);
+          pendingSpan.replaceWith(replacement);
+        }
+        if (state.isRecording && lbl) {
+          lbl.textContent = '● EN → ' + state.currentLanguage.toUpperCase();
+        } else if (lbl) {
+          lbl.textContent = '';
+        }
+        ed.scrollTop = ed.scrollHeight;
+        saveDoc();
+      })
+      .catch((err) => {
+        if (pendingSpan.parentNode) pendingSpan.classList.remove('translating-chunk');
+        toast(`Translation error: ${err.message}`, 'error');
+        if (state.isRecording && lbl) lbl.textContent = '● EN → ' + state.currentLanguage.toUpperCase();
+      });
+  } else {
+    appendTextWithBreaks(ed, processed, needsLeadingSpace);
+    ed.scrollTop = ed.scrollHeight;
+    saveDoc();
+  }
+
+  clearTimeout(pauseTimer);
+  if (pauseEnabled && state.isRecording) {
+    pauseTimer = setTimeout(() => {
+      if (state.isRecording && edText().length > 0) {
+        ed.appendChild(document.createElement('br'));
+        ed.scrollTop = ed.scrollHeight;
+        saveDoc();
+      }
+    }, pauseThreshold * 1000);
+  }
+}
+
+function attachSttListeners(ctrl) {
+  if (!ctrl || sttListenersAttached) return;
+  sttListenersAttached = true;
+
+  ctrl.on('progress', (p) => {
+    const pct = Math.round((p.progress || 0) * 100);
+    const tierMb = p.tier === 'mobile' ? '25 MB' : 'Studio';
+    if (pct >= 100) {
+      hideProg();
+    } else {
+      showProg(pct, `Loading Swanada (${tierMb})… ${pct}%`);
+    }
+  });
+
+  ctrl.on('ready', () => {
+    hideProg();
+    if (state.isRecording) {
+      setPhase('recording');
+    }
+  });
+
+  ctrl.on('partial', (data) => {
+    const t = (data && data.text ? data.text : '').trim();
+    if (t) renderInterimTranscript(t);
+  });
+
+  ctrl.on('final', (data) => {
+    const t = (data && data.text ? data.text : '').trim();
+    if (t) commitRecognizedTranscript(t);
+    else removeInterim();
+  });
+
+  ctrl.on('error', (err) => {
+    hideProg();
+    const msg = (err && (err.message || err.error)) || 'Speech engine error';
+    toast(msg, 'error');
+  });
+}
+
+// ─── Web Speech Fallback (only for direct Urdu / Assamese native STT) ───
+async function initFallbackWebSpeech(locale) {
+  const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechAPI) {
+    toast('Direct Urdu/Assamese STT requires Chrome/Safari — or use EN → UR / EN → AS mode for 100% on-device Swanada + Paar.', 'error');
+    return false;
+  }
+
+  recognition = new SpeechAPI();
+  recognition.lang = locale;
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    let interim = '', final = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    if (final) commitRecognizedTranscript(final);
+    if (interim) renderInterimTranscript(interim);
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === 'no-speech' || event.error === 'aborted') return;
+    if (event.error === 'not-allowed') {
+      toast('Microphone access denied.', 'error');
+      stopRecordingSession();
+    }
+  };
+
+  recognition.onend = () => {
+    if (state.isRecording && state.activeSttEngine === 'webspeech') {
+      try { recognition.start(); } catch {}
+    }
+  };
+
+  return true;
 }
 
 // ─── Paar Model Download Lifecycle ───
@@ -494,7 +557,6 @@ export function initModelProgress() {
 export function populateLanguages() {
   const allLangs = getAllLanguages();
 
-  // 1. Sync hidden <select id="lang-select">
   const sel = $('#lang-select');
   if (sel) {
     sel.innerHTML = allLangs.map(lang =>
@@ -503,7 +565,6 @@ export function populateLanguages() {
     sel.value = state.currentLanguage;
   }
 
-  // 2. Populate custom glassmorphic listbox (#lang-menu)
   const menu = $('#lang-menu');
   if (menu) {
     clearElementChildren(menu);
@@ -611,14 +672,12 @@ export function setLanguage(langId, notify = true) {
   const prevLang = state.currentLanguage;
   state.currentLanguage = langConfig.id;
 
-  // 1. Sync hidden select & custom dropdown UI
   const sel = $('#lang-select');
   if (sel && sel.value !== langConfig.id) {
     sel.value = langConfig.id;
   }
   syncLangPickerUI(langConfig);
 
-  // 2. Update editor attributes & BiDi
   const ed = $('#editor');
   if (ed) {
     ed.dir = langConfig.direction;
@@ -630,21 +689,11 @@ export function setLanguage(langId, notify = true) {
     ed.classList.toggle('is-rtl', langConfig.direction === 'rtl');
   }
 
-  // 3. Update speech recognition locale
-  if (recognition) {
-    const targetLocale = state.voiceTranslateMode ? 'en-IN' : langConfig.speechLocale;
-    if (recognition.lang !== targetLocale) {
-      if (state.isRecording) {
-        try { recognition.stop(); } catch {}
-        recognition.lang = targetLocale;
-        try { recognition.start(); } catch {}
-      } else {
-        recognition.lang = targetLocale;
-      }
-    }
+  // If currently recording and language changed, restart recording cleanly with the new target head
+  if (state.isRecording && prevLang !== langConfig.id) {
+    stopRecordingSession().then(() => startRecordingSession()).catch(() => {});
   }
 
-  // 4. Update Kannada phonetic toggle visibility
   const knToggle = $('#kn-toggle');
   if (knToggle) {
     if (langConfig.id === 'kn') {
@@ -658,17 +707,14 @@ export function setLanguage(langId, notify = true) {
     }
   }
 
-  // 5. Lazy-load Paar model ONLY when EN -> Indic Translate mode is active
   if (state.voiceTranslateMode) {
     try {
       preloadLanguageModel(langConfig.id).catch(() => {});
     } catch {}
   }
 
-  // 6. Persist preference
   saveLanguagePreference(langConfig.id);
 
-  // 7. Toast feedback on user-initiated change
   if (notify && prevLang !== langConfig.id) {
     toast(`Language: ${langConfig.name} (${langConfig.nativeName})`, 'info');
   }
@@ -709,37 +755,74 @@ export async function translateCurrentContent(targetLang = state.currentLanguage
 }
 
 // ═══════════════════════════════════
-//  RECORD — Web Speech API Streaming
+//  RECORD — Swanada Neural STT (with Web Speech fallback for UR/AS native)
 // ═══════════════════════════════════
 
 async function toggleRec() {
-  state.isRecording ? stopRec() : await startRec();
+  state.isRecording ? await stopRecordingSession() : await startRecordingSession();
 }
 
-async function startRec() {
-  if (!recognition && !(await initSpeech())) {
+export async function startRecordingSession() {
+  if (state.isRecording) return;
+
+  const target = resolveSttTarget(state.currentLanguage, state.voiceTranslateMode);
+
+  if (target.engine === 'swanada') {
+    const ctrl = ensureSttController();
+    const tierLabel = detectSwanadaTier() === 'mobile' ? '25 MB' : 'Studio';
+    const lbl = $('#mic-label');
+    if (lbl) lbl.textContent = `Loading Swanada (${tierLabel})…`;
+
+    try {
+      state.activeSttEngine = 'swanada';
+      state.isRecording = true;
+      setPhase('recording');
+      await ctrl.start(target.acousticLang, { mode: state.voiceTranslateMode ? 'translate' : 'stt' });
+      setPhase('recording');
+    } catch (err) {
+      state.isRecording = false;
+      state.activeSttEngine = null;
+      hideProg();
+      setPhase('ready');
+      toast(err.message || 'Microphone or Swanada init failed.', 'error');
+    }
     return;
   }
 
-  const langConfig = getLanguage(state.currentLanguage);
-  recognition.lang = state.voiceTranslateMode ? 'en-IN' : langConfig.speechLocale;
-
+  // Fallback for direct native Urdu / Assamese dictation
+  if (!(await initFallbackWebSpeech(target.acousticLang))) {
+    return;
+  }
   try {
+    state.activeSttEngine = 'webspeech';
     recognition.start();
     state.isRecording = true;
     setPhase('recording');
-  } catch (err) {
+  } catch {
+    state.activeSttEngine = null;
     toast('Could not start speech recognition.', 'error');
   }
 }
 
-function stopRec() {
-  if (recognition) {
+export async function stopRecordingSession() {
+  if (!state.isRecording) return;
+
+  const engine = state.activeSttEngine;
+  state.isRecording = false;
+  state.activeSttEngine = null;
+  clearTimeout(pauseTimer);
+
+  if (engine === 'swanada' && sttController) {
+    const lbl = $('#mic-label');
+    if (lbl) lbl.textContent = 'Finishing…';
+    try {
+      await sttController.stop();
+    } catch {}
+  } else if (engine === 'webspeech' && recognition) {
     try { recognition.stop(); } catch {}
   }
-  clearTimeout(pauseTimer);
+
   removeInterim();
-  state.isRecording = false;
   setPhase('ready');
   saveDoc();
 }
@@ -760,22 +843,11 @@ export function setEditorMode(mode, notify = true) {
     trBtn.setAttribute('aria-pressed', String(translateActive));
   }
 
+  if (state.isRecording && changed) {
+    stopRecordingSession().then(() => startRecordingSession()).catch(() => {});
+  }
+
   const langConfig = getLanguage(state.currentLanguage);
-  if (recognition) {
-    const targetLocale = translateActive ? 'en-IN' : langConfig.speechLocale;
-    if (recognition.lang !== targetLocale) {
-      recognition.lang = targetLocale;
-      if (state.isRecording) {
-        try { recognition.stop(); } catch {}
-      }
-    }
-  }
-
-  if (state.isRecording) {
-    setPhase('recording');
-  }
-
-  // Lazy-preload Paar model only when entering EN -> Indic translation mode
   if (translateActive) {
     try {
       preloadLanguageModel(langConfig.id).catch(() => {});
@@ -785,7 +857,7 @@ export function setEditorMode(mode, notify = true) {
   if (notify && changed) {
     toast(
       translateActive
-        ? `Mode: English → ${langConfig.name} live translation`
+        ? `Mode: English → ${langConfig.name} (Swanada EN + Paar)`
         : `Mode: Native ${langConfig.name} STT`,
       'info'
     );
@@ -807,7 +879,9 @@ function setPhase(p) {
     lbl.textContent = {
       idle: '',
       ready: '',
-      recording: state.voiceTranslateMode ? '● EN → ' + state.currentLanguage.toUpperCase() : '● Streaming…',
+      recording: state.voiceTranslateMode
+        ? '● EN → ' + state.currentLanguage.toUpperCase()
+        : '● Swanada Live…',
     }[p] || '';
   }
 }
@@ -838,7 +912,7 @@ function hideProg() {
   if (fill) fill.style.transform = 'scaleX(0)';
   if (lbl) {
     lbl.textContent = state.isRecording
-      ? (state.voiceTranslateMode ? '● EN → ' + state.currentLanguage.toUpperCase() : '● Streaming…')
+      ? (state.voiceTranslateMode ? '● EN → ' + state.currentLanguage.toUpperCase() : '● Swanada Live…')
       : '';
   }
 }
@@ -848,12 +922,10 @@ function bind() {
   $('#hero-open-editor')?.addEventListener('click', openEditor);
   $('#back-btn')?.addEventListener('click', closeEditor);
 
-  // Sync hidden <select id="lang-select">
   $('#lang-select')?.addEventListener('change', e => {
     setLanguage(e.target.value, true);
   });
 
-  // Custom language dropdown interactions
   $('#lang-trigger')?.addEventListener('click', e => {
     e.stopPropagation?.();
     toggleLangMenu();
@@ -939,7 +1011,6 @@ function bind() {
     });
   }
 
-  // Help overlay
   $('#help-btn')?.addEventListener('click', toggleHelp);
   $('#help-close')?.addEventListener('click', toggleHelp);
   $('#help-overlay')?.addEventListener('click', e => { if (e.target.id === 'help-overlay') toggleHelp(); });
@@ -1016,6 +1087,13 @@ export function edText() {
     clone.querySelectorAll?.('.interim, .kn-buffer, .translating-chunk').forEach(el => el.remove());
     return (clone.innerText || clone.textContent || '').trim();
   }
+  if (Array.isArray(ed.children) && ed.children.length > 0) {
+    return ed.children
+      .filter(el => !el.classList?.contains('interim') && !el.classList?.contains('kn-buffer') && !el.classList?.contains('translating-chunk'))
+      .map(el => (el.tagName === 'BR' ? '\n' : (el.textContent || '')))
+      .join('')
+      .trim();
+  }
   return (ed.innerText || ed.textContent || '').trim();
 }
 
@@ -1063,7 +1141,7 @@ export function clearEditor() {
   const ed = $('#editor');
   if (ed && ed.textContent.trim() && !confirm('Clear?')) return;
 
-  if (state.isRecording) stopRec();
+  if (state.isRecording) stopRecordingSession();
 
   if (ed) {
     ed.innerHTML = '';

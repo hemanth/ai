@@ -1,12 +1,13 @@
 # Lipi — Indic Voice Editor
 
-> Speak or type across 12 Indic languages in real time with Web Speech API and in-browser Paar neural translation.
+> Speak or type across 12 Indic languages 100% client-side with Swanada Conformer-CTC STT and Udgam Labs' Paar neural translation.
 
 ## What this app does
-Lipi is a browser-based Indic voice and text editor supporting 12 Indian languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, and Assamese. Users can dictate natively in any of the 12 Indic locales via the Web Speech API, or speak/type in English and translate locally in the browser using Udgam Labs' quantized Paar ONNX models running on Transformers.js.
+Lipi is an in-browser Indic voice and text editor supporting 12 Indian languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, and Assamese. Speech-to-text runs locally in WebAssembly via **Swanada** (`gnumanth/swanada`, capability-routed `25.35 MiB` Mobile Conformer-Small and `177.4 MiB` Studio Conformer-Large with `+EN` code-switching), and English-to-Indic translation runs locally via **Udgam Labs' Paar** (`17.7 MB` int8 ONNX models on Transformers.js).
 
 ## Links
 - [Lipi App](https://h3manth.com/ai/lipi/): The live web application
+- [Swanada STT](https://h3manth.com/ai/swanada/): In-browser 16 kHz multilingual Conformer-CTC speech-to-text
 - [Paar Models](https://udgamlabs.com/models/paar): Udgam Labs English-to-Indic neural translation models
 - [Transformers.js](https://huggingface.co/docs/transformers.js): In-browser ONNX inference runtime
 - [Source Code](https://github.com/hemanth/lipi): GitHub repository
@@ -14,15 +15,15 @@ Lipi is a browser-based Indic voice and text editor supporting 12 Indian languag
 
 ## Features
 - 12 Indic languages: Hindi (`लिपि`), Bengali (`লিপি`), Marathi (`लिपी`), Telugu (`లిపి`), Tamil (`லிபி`), Gujarati (`લિપિ`), Urdu (`لپی`, RTL Nastaliq), Kannada (`ಲಿಪಿ`), Malayalam (`ലിപി`), Punjabi (`ਲਿਪੀ`), Odia (`ଲିପି`), and Assamese (`লিপি`)
-- Real-time native Indic speech streaming via Web Speech API
-- Live English-to-Indic voice and text translation powered by Udgam Labs Paar models in-browser
+- 100% client-side neural STT via Swanada (`0.009x–0.021x` RTF, `+EN` code-switching, works in Chrome, Firefox, Safari, Brave, Edge)
+- On-demand English-to-Indic voice and text translation powered by Udgam Labs Paar models in-browser
 - Phonetic English-to-Kannada typing helper (`ಕ` toggle)
 - Full BiDi text editor with voice punctuation commands, auto-save to `localStorage`, clipboard copy, and `.txt` export
 
 ## Tech stack
 - Vanilla HTML/CSS/JS (zero frontend framework)
-- Web Speech API (`SpeechRecognition`) for real-time streaming dictation
-- Hugging Face Transformers.js (`@huggingface/transformers@3`) running quantized `q8` Paar ONNX models in a dedicated Web Worker
+- Swanada (`gnumanth/swanada`) 16 kHz AudioWorklet + ONNX Runtime Web WASM SIMD Conformer-CTC
+- Hugging Face Transformers.js (`@huggingface/transformers@3`) running quantized `q8` Paar ONNX models in a Web Worker
 
 ## Author
 Hemanth HM — [h3manth.com](https://h3manth.com)

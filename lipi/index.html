@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>Lipi — Indic Voice Editor</title>
-  <meta name="description" content="Real-time Indic voice and text editor supporting 12 languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, and Assamese. Powered by Udgam Labs Paar models, Web Speech API, and Transformers.js.">
+  <meta name="description" content="Real-time on-device Indic voice and text editor supporting 12 languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, and Assamese. Powered by Swanada Conformer-CTC STT, Udgam Labs Paar models, and Transformers.js.">
   <meta name="theme-color" content="#111116">
   <meta name="google" content="notranslate">
 
@@ -31,16 +31,16 @@
     "name": "Lipi",
     "alternateName": "Lipi Indic Voice Editor",
     "url": "https://h3manth.com/ai/lipi/",
-    "description": "Real-time Indic voice editor and in-browser neural translation workspace supporting 12 Indic languages via Udgam Labs Paar models, Web Speech API, and Transformers.js.",
+    "description": "Real-time on-device Indic voice editor and neural translation workspace supporting 12 Indic languages via Swanada Conformer-CTC STT, Udgam Labs Paar models, and Transformers.js.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Web",
-    "browserRequirements": "Chrome 80+, Edge 80+",
+    "browserRequirements": "Chrome, Edge, Firefox, Safari",
     "inLanguage": ["kn", "hi", "bn", "mr", "te", "ta", "gu", "ur", "ml", "pa", "or", "as", "en"],
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "author": { "@type": "Person", "name": "Hemanth HM", "url": "https://h3manth.com" },
     "featureList": [
       "12 Indic languages: Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, Assamese",
-      "Real-time Indic and English speech streaming via Web Speech API",
+      "100% client-side 16 kHz Conformer-CTC neural speech recognition via Swanada (25.4 MiB Mobile / 177.4 MiB Studio)",
       "In-browser neural translation powered by Udgam Labs Paar models and Transformers.js",
       "BiDi and RTL layout support for Urdu",
       "Full text editor with auto-save and text export"
@@ -54,7 +54,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600;700&family=Noto+Sans+Gurmukhi:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Oriya:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
-  <link rel="stylesheet" href="index.css?v=5">
+  <link rel="stylesheet" href="index.css?v=6">
   <script>if(location.hash==='#editor'){document.documentElement.classList.add('direct-editor'); const isMobile = window.matchMedia('(max-width: 600px)').matches || 'ontouchstart' in window; if (!isMobile) setTimeout(() => document.getElementById('editor')?.focus(), 500);}</script>
   <style>.direct-editor #landing{display:none}.direct-editor #editor-view{display:flex!important}</style>
 </head>
@@ -100,8 +100,8 @@
     <section class="features" aria-label="Features">
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <h2 class="feature-title">Real-time Streaming</h2>
-        <p class="feature-desc">Words appear as you speak in native Indic locales or English.</p>
+        <h2 class="feature-title">On-Device Swanada STT</h2>
+        <p class="feature-desc">16 kHz Conformer-CTC INT8 speech recognition in WASM SIMD with +EN code-switching and zero cloud servers.</p>
       </div>
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
@@ -140,7 +140,7 @@
     </section>
 
     <footer class="landing-footer">
-      <p>Lipi · Powered by <a href="https://udgamlabs.com/models/paar" target="_blank" rel="noopener">Paar Models</a> + Web Speech API + <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a></p>
+      <p>Lipi · Powered by <a href="https://h3manth.com/ai/swanada/" target="_blank" rel="noopener">Swanada STT</a> + <a href="https://udgamlabs.com/models/paar" target="_blank" rel="noopener">Paar Models</a> + <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noopener">Transformers.js</a></p>
     </footer>
   </section>
 
@@ -314,6 +314,6 @@
 
   </main>
 
-  <script type="module" src="app.js?v=5"></script>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 </html>
