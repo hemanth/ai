@@ -21,7 +21,7 @@ import {
   resolveSttTarget,
   detectSwanadaTier,
   createSwanadaSttController,
-} from './stt-client.js';
+} from './stt-client.js?v=8';
 
 const STORAGE_KEYS = {
   CONTENT: 'lipi-editor-content',
@@ -114,6 +114,7 @@ let _pendingInterimText = null;
 let _lastInterimText = '';
 let _scrollRAF = null;
 let recordingAttemptId = 0;
+let isCaptureReady = false;
 let heroTimer = null;
 let heroSwapTimer = null;
 let clearTranslitBuffer = () => {};
@@ -271,6 +272,14 @@ export function stopHeroAnimation() {
   }
 }
 
+function normalizeEmptyEditor(ed = $('#editor')) {
+  if (!ed || interimSpan) return;
+  if (ed.querySelector?.('.interim, .kn-buffer, .translating-chunk')) return;
+  if (!(ed.textContent || '').trim()) {
+    if (ed.innerHTML !== '') ed.innerHTML = '';
+  }
+}
+
 // ─── View switching ───
 function openEditor() {
   stopHeroAnimation();
@@ -279,6 +288,7 @@ function openEditor() {
   const edView = $('#editor-view');
   if (landing) landing.hidden = true;
   if (edView) edView.hidden = false;
+  normalizeEmptyEditor();
 
   const isMobile = window.matchMedia('(max-width: 640px)').matches || 'ontouchstart' in window;
   if (!isMobile) $('#editor')?.focus();
@@ -312,6 +322,7 @@ function closeEditor() {
 
 export function setSttController(customController) {
   recordingAttemptId++;
+  isCaptureReady = false;
   state.isRecording = false;
   state.activeSttEngine = null;
   removeInterim();
@@ -485,7 +496,7 @@ function attachSttListeners(ctrl) {
 
   ctrl.on('ready', () => {
     hideProg();
-    if (state.isRecording) {
+    if (state.isRecording && isCaptureReady) {
       setPhase('recording');
     }
   });
@@ -863,6 +874,7 @@ export async function startRecordingSession() {
     try {
       state.activeSttEngine = 'swanada';
       state.isRecording = true;
+      isCaptureReady = false;
       setPhase('recording');
       if (lbl) lbl.textContent = `Loading Swanada (${tierLabel})…`;
       await ctrl.start(target.acousticLang, { mode: state.voiceTranslateMode ? 'translate' : 'stt' });
@@ -873,12 +885,15 @@ export async function startRecordingSession() {
         }
         return;
       }
+      isCaptureReady = true;
+      hideProg();
       setPhase('recording');
     } catch (err) {
       if (attemptId !== recordingAttemptId) {
         if (!state.isRecording) hideProg();
         return;
       }
+      isCaptureReady = false;
       state.isRecording = false;
       state.activeSttEngine = null;
       hideProg();
@@ -897,6 +912,7 @@ export async function startRecordingSession() {
     state.activeSttEngine = 'webspeech';
     recognition.start();
     state.isRecording = true;
+    isCaptureReady = true;
     setPhase('recording');
   } catch {
     state.activeSttEngine = null;
@@ -910,6 +926,7 @@ export async function stopRecordingSession() {
   if (!state.isRecording) return;
 
   const engine = state.activeSttEngine;
+  isCaptureReady = false;
   state.isRecording = false;
   state.activeSttEngine = null;
   clearTimeout(pauseTimer);
@@ -969,6 +986,17 @@ export function setEditorMode(mode, notify = true) {
   }
 }
 
+function getRecordingStatusLabel() {
+  if (state.voiceTranslateMode) {
+    return '● EN → ' + state.currentLanguage.toUpperCase();
+  }
+  if (state.activeSttEngine === 'swanada' && !isCaptureReady) {
+    return 'Starting Swanada…';
+  }
+  const nativeName = getLanguage(state.currentLanguage).nativeName;
+  return `● Swanada Live (${nativeName})…`;
+}
+
 // ─── Phase ───
 function setPhase(p) {
   state.phase = p;
@@ -984,9 +1012,7 @@ function setPhase(p) {
     lbl.textContent = {
       idle: '',
       ready: '',
-      recording: state.voiceTranslateMode
-        ? '● EN → ' + state.currentLanguage.toUpperCase()
-        : '● Swanada Live…',
+      recording: getRecordingStatusLabel(),
     }[p] || '';
   }
 }
@@ -1016,9 +1042,7 @@ function hideProg() {
   if (bar) bar.hidden = true;
   if (fill) fill.style.transform = 'scaleX(0)';
   if (lbl) {
-    lbl.textContent = state.isRecording
-      ? (state.voiceTranslateMode ? '● EN → ' + state.currentLanguage.toUpperCase() : '● Swanada Live…')
-      : '';
+    lbl.textContent = state.isRecording ? getRecordingStatusLabel() : '';
   }
 }
 
@@ -1198,7 +1222,11 @@ function bind() {
   });
 
   initTranslit();
-  $('#editor')?.addEventListener('input', debounce(saveDoc, 800));
+  const debouncedSave = debounce(saveDoc, 800);
+  $('#editor')?.addEventListener('input', () => {
+    normalizeEmptyEditor();
+    debouncedSave();
+  });
   window.addEventListener?.('beforeunload', () => {
     saveDoc();
   });
@@ -1322,6 +1350,7 @@ export function loadStoredState() {
   const savedLang = loadLanguagePreference();
   setLanguage(savedLang, false);
   loadDoc();
+  normalizeEmptyEditor();
 }
 
 // ─── Toast ───
@@ -1451,6 +1480,13 @@ function initTranslit() {
         e.preventDefault();
         buf += e.data;
         showBuf();
+        return;
+      }
+      if (e.data.length > 1 && /[a-zA-Z]/.test(e.data)) {
+        e.preventDefault();
+        if (buf) flush('');
+        const converted = e.data.replace(/[a-zA-Z]+/g, match => transliterate(match));
+        insertText(converted);
         return;
       }
       if (e.data === ' ' && buf) {

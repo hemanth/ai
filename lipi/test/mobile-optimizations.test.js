@@ -64,10 +64,21 @@ describe('Mobile Performance & UX Optimizations', () => {
           platform: 'Linux x86_64',
           maxTouchPoints: 5,
           screenWidth: 800,
-          deviceMemory: 8,
+          deviceMemory: undefined,
         }),
         'mobile',
-        'Touch tablets (<1024px) must use mobile tier'
+        'Touch tablets (<1024px) with unknown deviceMemory must use mobile tier'
+      );
+      assert.strictEqual(
+        detectSwanadaTier({
+          userAgent: 'Mozilla/5.0 (Linux; Android 15; Pixel 10 Pro XL) Mobile',
+          platform: 'Linux armv81',
+          maxTouchPoints: 5,
+          screenWidth: 448,
+          deviceMemory: 8,
+        }),
+        'studio',
+        'High-RAM Android phones (deviceMemory > 4) must route to studio tier for full Indic + adapter accuracy'
       );
       assert.strictEqual(
         detectSwanadaTier({

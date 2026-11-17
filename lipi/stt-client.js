@@ -13,6 +13,7 @@ import { getLanguage } from './languages.js';
 const HF_MODEL_BASE = 'https://huggingface.co/gnumanth/swanada/resolve/main/onnx';
 const HF_MOBILE_MODEL_BASE = 'https://huggingface.co/gnumanth/swanada/resolve/main/onnx_mobile';
 const REMOTE_SWANADA_BASE = 'https://h3manth.com/ai/swanada';
+const SWANADA_RUNTIME_VER = '1.9.2';
 
 export const SWANADA_SUPPORTED_CODES = new Set([
   'hi', 'bn', 'mr', 'te', 'ta', 'gu', 'kn', 'ml', 'pa', 'or', 'en', 'sa'
@@ -20,6 +21,9 @@ export const SWANADA_SUPPORTED_CODES = new Set([
 
 /**
  * Detect optimal Swanada Conformer-CTC tier ('mobile' 25.4 MiB vs 'studio' 177.4 MiB).
+ * - iOS WebKit / iPadOS and <= 4 GB RAM devices use 'mobile' (25.4 MiB).
+ * - >= 6 GB RAM Android devices (deviceMemory > 4) and desktop browsers use 'studio'
+ *   (177.4 MiB Conformer-Large + dedicated residual adapters for kn, ta, en).
  */
 export function detectSwanadaTier(overrides = {}) {
   const nav = typeof navigator !== 'undefined' ? navigator : {};
@@ -30,25 +34,30 @@ export function detectSwanadaTier(overrides = {}) {
   const maxTouchPoints = overrides.maxTouchPoints ?? (nav.maxTouchPoints || 0);
   const screenWidth = overrides.screenWidth ?? (scr && typeof scr.width === 'number' ? scr.width : undefined);
 
-  const isMobileUa = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-  if (isMobileUa) return 'mobile';
+  const isIosUa = /iPhone|iPad|iPod|CriOS|FxiOS|EdgiOS/i.test(ua);
+  if (isIosUa) return 'mobile';
   if (platform === 'MacIntel' && maxTouchPoints > 1) return 'mobile';
-  if (maxTouchPoints > 1 && typeof screenWidth === 'number' && screenWidth > 0 && screenWidth < 1024) return 'mobile';
   if (typeof mem === 'number' && mem > 0 && mem <= 4) return 'mobile';
+
+  const isMobileOrSmallTouch =
+    /Android|Mobile/i.test(ua) ||
+    (maxTouchPoints > 1 && typeof screenWidth === 'number' && screenWidth > 0 && screenWidth < 1024);
+  if (isMobileOrSmallTouch && typeof mem !== 'number') return 'mobile';
+
   return 'studio';
 }
 
 /**
  * Build capability-routed Swanada encoder, CTC head, and vocabulary URLs.
  */
-export function buildSwanadaModelConfig(acousticLang, tier = 'mobile', swanadaBase = '/ai/swanada') {
+export function buildSwanadaModelConfig(acousticLang, tier = 'mobile', swanadaBase = '/ai/swanada', opts = {}) {
   const base = swanadaBase.replace(/\/+$/, '');
   const useMobile = tier === 'mobile';
   const modelUrl = useMobile
     ? `${HF_MOBILE_MODEL_BASE}/swanada_mobile_ctc_int8.onnx?v=1.7.0`
     : `${HF_MODEL_BASE}/sushrota_sanskrit_ctc_int8.onnx?v=1.7.0`;
 
-  const headVer = 'v=1.9.1';
+  const headVer = `v=${SWANADA_RUNTIME_VER}`;
   const headUrl = useMobile
     ? `${base}/heads_mobile/${acousticLang}.bin?${headVer}`
     : `${base}/heads/${acousticLang}.bin?${headVer}`;
@@ -60,11 +69,11 @@ export function buildSwanadaModelConfig(acousticLang, tier = 'mobile', swanadaBa
     language: acousticLang,
     modelTier: useMobile ? 'mobile' : 'studio',
     executionProvider: 'wasm',
-    numThreads: useMobile ? 1 : undefined,
+    numThreads: useMobile ? 1 : (opts.isMobileRuntime ? 2 : undefined),
     modelUrl,
     headUrl,
     vocabUrl,
-    codeSwitchEn: acousticLang !== 'en',
+    codeSwitchEn: Boolean(opts.codeSwitchEn),
   };
 }
 
@@ -129,6 +138,7 @@ export function createSwanadaSttController() {
   let isStreaming = false;
   let sessionSeq = 0;
   let captureDesired = false;
+  let activeCaptureStats = null;
   const pendingAcquiredStreams = new Set();
   const flushingStreams = new Set();
   const stoppedStreams = new WeakSet();
@@ -197,6 +207,7 @@ export function createSwanadaSttController() {
       watchdogTimer = null;
     }
     isStreaming = false;
+    activeCaptureStats = null;
     const prevWorklet = workletNode;
     workletNode = null;
     const prevProc = scriptProc;
@@ -256,19 +267,19 @@ export function createSwanadaSttController() {
           if (bootGen !== destroySeq) return null;
 
           const sdkUrl = remote
-            ? `${base}/swanada.mjs?v=1.9.0`
-            : `${window.location.origin}${base}/swanada.mjs?v=1.9.0`;
+            ? `${base}/swanada.mjs?v=${SWANADA_RUNTIME_VER}`
+            : `${window.location.origin}${base}/swanada.mjs?v=${SWANADA_RUNTIME_VER}`;
           const swanadaMod = await import(sdkUrl);
           if (bootGen !== destroySeq) return null;
 
           const SwanadaWorkerClient = swanadaMod.SwanadaWorkerClient;
 
-          let workerUrl = `${base}/stt-worker.mjs?v=1.9.0`;
+          let workerUrl = `${base}/stt-worker.mjs?v=${SWANADA_RUNTIME_VER}`;
           if (remote) {
             const shim = [
-              `const mod = await import(${JSON.stringify(`${base}/swanada.mjs?v=1.9.0`)});`,
+              `const mod = await import(${JSON.stringify(`${base}/swanada.mjs?v=${SWANADA_RUNTIME_VER}`)});`,
               `Object.assign(globalThis, mod);`,
-              `await import(${JSON.stringify(`${base}/stt-worker.mjs?v=1.9.0`)});`,
+              `await import(${JSON.stringify(`${base}/stt-worker.mjs?v=${SWANADA_RUNTIME_VER}`)});`,
             ].join('\n');
             localBlobUrl = URL.createObjectURL(new Blob([shim], { type: 'text/javascript' }));
             workerUrl = localBlobUrl;
@@ -379,12 +390,18 @@ export function createSwanadaSttController() {
       if (loadedAcousticLang === acousticLang) return workerClient;
     }
 
-    const baseCfg = buildSwanadaModelConfig(acousticLang, tier, remote ? base : `${window.location.origin}${base}`);
+    const isMobileRuntime =
+      typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+    const baseCfg = buildSwanadaModelConfig(
+      acousticLang,
+      tier,
+      remote ? base : `${window.location.origin}${base}`,
+      { isMobileRuntime }
+    );
     const cfg = {
       ...baseCfg,
       modelTier: tier,
       executionProvider: 'wasm',
-      numThreads: tier === 'mobile' ? 1 : undefined,
     };
     activeTargetLang = acousticLang;
     const initGen = destroySeq;
@@ -410,7 +427,117 @@ export function createSwanadaSttController() {
     return workerClient;
   }
 
-  function attachScriptProcessorFallback(sourceNode, sinkNode) {
+  function computeChunkRms(chunk) {
+    if (!chunk || chunk.length === 0) return 0;
+    let sumSq = 0;
+    for (let i = 0; i < chunk.length; i++) {
+      const s = chunk[i];
+      sumSq += s * s;
+    }
+    return Math.sqrt(sumSq / chunk.length);
+  }
+
+  function createSessionSpeechGate(attemptId) {
+    let receivedChunks = 0;
+    let pushedSpeechInTurn = false;
+    let inSpeech = false;
+    let hangoverLeft = 0;
+    let postSpeechSilentChunks = 0;
+    let noiseFloor = 0.0025;
+    const preRoll = [];
+    const queuedDuringFlush = [];
+    let turnFlushPromise = null;
+
+    const enqueueSpeechChunk = (copy) => {
+      pushedSpeechInTurn = true;
+      if (turnFlushPromise) {
+        queuedDuringFlush.push(copy);
+      } else if (workerClient && isStreaming && attemptId === sessionSeq) {
+        workerClient.pushAudio(copy, false);
+      }
+    };
+
+    const rotateTurnOnPause = () => {
+      if (turnFlushPromise || !pushedSpeechInTurn || !workerClient) return;
+      inSpeech = false;
+      postSpeechSilentChunks = 0;
+      pushedSpeechInTurn = false;
+      const flushClient = workerClient;
+      let localFlush = null;
+      localFlush = (async () => {
+        try {
+          if (flushClient && isStreaming && attemptId === sessionSeq) {
+            await flushClient.finishStream().catch(() => {});
+          }
+          if (flushClient && workerClient === flushClient && isStreaming && attemptId === sessionSeq) {
+            flushClient.startStream();
+            while (queuedDuringFlush.length > 0) {
+              flushClient.pushAudio(queuedDuringFlush.shift(), false);
+            }
+          }
+        } finally {
+          if (turnFlushPromise === localFlush) {
+            turnFlushPromise = null;
+          }
+        }
+      })();
+      turnFlushPromise = localFlush;
+    };
+
+    const handleChunk = (chunk, reportedRms, isTail = false) => {
+      receivedChunks++;
+      const rms = typeof reportedRms === 'number' && Number.isFinite(reportedRms)
+        ? reportedRms
+        : computeChunkRms(chunk);
+      const speechThresh = Math.max(0.0045, Math.min(0.025, noiseFloor * 2.8));
+
+      if (!inSpeech && rms < speechThresh) {
+        noiseFloor = rms < noiseFloor
+          ? (0.85 * noiseFloor + 0.15 * rms)
+          : (0.98 * noiseFloor + 0.02 * rms);
+        noiseFloor = Math.max(0.0008, Math.min(0.012, noiseFloor));
+      }
+
+      if (rms >= speechThresh) {
+        if (!inSpeech) {
+          inSpeech = true;
+          while (preRoll.length > 0) {
+            enqueueSpeechChunk(preRoll.shift());
+          }
+        }
+        hangoverLeft = 4;
+        postSpeechSilentChunks = 0;
+        enqueueSpeechChunk(new Float32Array(chunk));
+        return;
+      }
+
+      if (inSpeech) {
+        if (hangoverLeft > 0 || isTail) {
+          if (hangoverLeft > 0) hangoverLeft--;
+          enqueueSpeechChunk(new Float32Array(chunk));
+        } else {
+          postSpeechSilentChunks++;
+          preRoll.push(new Float32Array(chunk));
+          if (preRoll.length > 3) preRoll.shift();
+          if (postSpeechSilentChunks >= 4) {
+            rotateTurnOnPause();
+          }
+        }
+      } else {
+        preRoll.push(new Float32Array(chunk));
+        if (preRoll.length > 3) preRoll.shift();
+      }
+    };
+
+    return {
+      handleChunk,
+      getReceivedChunks: () => receivedChunks,
+      hasPendingSpeech: () => pushedSpeechInTurn || queuedDuringFlush.length > 0,
+      getTurnFlushPromise: () => turnFlushPromise,
+    };
+  }
+
+  function attachScriptProcessorFallback(sourceNode, sinkNode, speechGate) {
     if (!audioCtx || !sourceNode || !sinkNode || scriptProc) return;
     const createProc = audioCtx.createScriptProcessor || audioCtx.createJavaScriptNode;
     if (typeof createProc !== 'function') return;
@@ -423,7 +550,8 @@ export function createSwanadaSttController() {
       if (accum.length > 0 && workerClient) {
         const tail = accum;
         accum = new Float32Array(0);
-        workerClient.pushAudio(tail, false);
+        if (speechGate) speechGate.handleChunk(tail, undefined, true);
+        else workerClient.pushAudio(tail, false);
       }
     };
 
@@ -439,7 +567,8 @@ export function createSwanadaSttController() {
       while (pos + 1600 <= merged.length) {
         const slice = merged.slice(pos, pos + 1600);
         pos += 1600;
-        workerClient.pushAudio(slice, false);
+        if (speechGate) speechGate.handleChunk(slice, undefined, false);
+        else workerClient.pushAudio(slice, false);
       }
       accum = merged.slice(pos);
     };
@@ -460,7 +589,7 @@ export function createSwanadaSttController() {
       try {
         const { swanadaBase: base, isRemoteCrossOrigin: remote } = await resolveRuntimeBase();
         if (audioCtx !== targetCtx || targetCtx.state === 'closed') return;
-        let modUrl = `${base}/audio-capture-worklet.js?v=1.5.4`;
+        let modUrl = `${base}/audio-capture-worklet.js?v=${SWANADA_RUNTIME_VER}`;
         if (remote) {
           const resp = await fetch(modUrl);
           if (audioCtx !== targetCtx || targetCtx.state === 'closed') return;
@@ -509,7 +638,7 @@ export function createSwanadaSttController() {
     const streamPromise = navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: { ideal: 1 },
-        echoCancellation: true,
+        echoCancellation: false,
         noiseSuppression: false,
         autoGainControl: true,
       },
@@ -605,6 +734,8 @@ export function createSwanadaSttController() {
 
     workerClient.startStream();
     isStreaming = true;
+    const speechGate = createSessionSpeechGate(attemptId);
+    activeCaptureStats = speechGate;
 
     let usedWorklet = false;
     let receivedQuanta = 0;
@@ -619,13 +750,12 @@ export function createSwanadaSttController() {
           return;
         }
 
-        const isMobile = detectSwanadaTier() === 'mobile';
         const node = new AudioWorkletNode(targetCtx, 'swanada-audio-capture-processor', {
           processorOptions: {
-            chunkSamples: isMobile ? 2400 : 1600,
+            chunkSamples: 1600,
             sampleRate: targetCtx.sampleRate,
             noiseSuppressionEnabled: false,
-            alcEnabled: true,
+            alcEnabled: false,
           },
         });
         workletNode = node;
@@ -639,7 +769,7 @@ export function createSwanadaSttController() {
               watchdogTimer = null;
             }
             const chunk = payload.audioChunk;
-            workerClient.pushAudio(new Float32Array(chunk), false);
+            speechGate.handleChunk(chunk, payload.rms, Boolean(payload.isTail));
             if (!payload.isTail) {
               try {
                 node.port.postMessage({ type: 'recycle', buffer: chunk.buffer }, [chunk.buffer]);
@@ -657,7 +787,7 @@ export function createSwanadaSttController() {
           if (attemptId === sessionSeq && isStreaming && receivedQuanta === 0 && micSource === localSource && silentSink === localSink) {
             try { workletNode?.disconnect(); } catch (_) {}
             workletNode = null;
-            attachScriptProcessorFallback(localSource, localSink);
+            attachScriptProcessorFallback(localSource, localSink, speechGate);
           }
         }, 2500);
       } catch (_) {
@@ -671,7 +801,7 @@ export function createSwanadaSttController() {
     }
 
     if (!usedWorklet && attemptId === sessionSeq && isStreaming && startDestroyGen === destroySeq && micSource === localSource && silentSink === localSink) {
-      attachScriptProcessorFallback(localSource, localSink);
+      attachScriptProcessorFallback(localSource, localSink, speechGate);
     }
   }
 
@@ -720,6 +850,8 @@ export function createSwanadaSttController() {
       return;
     }
     isStreaming = false;
+    const closingStats = activeCaptureStats;
+    activeCaptureStats = null;
 
     const closingWorklet = workletNode;
     workletNode = null;
@@ -774,8 +906,21 @@ export function createSwanadaSttController() {
         return;
       }
 
+      if (closingStats?.getTurnFlushPromise()) {
+        await closingStats.getTurnFlushPromise().catch(() => {});
+        if (stopSeq !== sessionSeq || isStreaming) {
+          return;
+        }
+      }
+
       if (workerClient) {
-        await workerClient.finishStream().catch(() => {});
+        const shouldFinish =
+          !closingStats ||
+          closingStats.getReceivedChunks() === 0 ||
+          closingStats.hasPendingSpeech();
+        if (shouldFinish) {
+          await workerClient.finishStream().catch(() => {});
+        }
       }
     })();
 
@@ -824,10 +969,14 @@ export function createSwanadaSttController() {
 
   async function transcribeBuffer(pcm16kFloat32, acousticLang) {
     await ensureEngine(acousticLang);
+    const copy = new Float32Array(pcm16kFloat32);
+    if (typeof workerClient.transcribe === 'function') {
+      return workerClient.transcribe(copy);
+    }
     workerClient.startStream();
     const chunkSize = 3200;
-    for (let i = 0; i < pcm16kFloat32.length; i += chunkSize) {
-      workerClient.pushAudio(pcm16kFloat32.slice(i, i + chunkSize), false);
+    for (let i = 0; i < copy.length; i += chunkSize) {
+      workerClient.pushAudio(copy.slice(i, i + chunkSize), false);
     }
     await workerClient.finishStream();
   }

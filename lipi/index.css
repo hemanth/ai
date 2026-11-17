@@ -343,7 +343,8 @@ body {
   white-space: pre-wrap;
 }
 
-.editor:empty::before {
+.editor:empty::before,
+.editor:has(> br:only-child)::before {
   content: attr(data-placeholder);
   white-space: pre-line;
   color: var(--ink3);
@@ -352,9 +353,12 @@ body {
   line-height: 2.2;
 }
 
-.editor[placeholder]:empty::before { content: attr(placeholder); }
-.editor[data-placeholder]:empty::before { content: attr(data-placeholder); }
-.editor:not([data-placeholder]):not([placeholder]):empty::before {
+.editor[placeholder]:empty::before,
+.editor[placeholder]:has(> br:only-child)::before { content: attr(placeholder); }
+.editor[data-placeholder]:empty::before,
+.editor[data-placeholder]:has(> br:only-child)::before { content: attr(data-placeholder); }
+.editor:not([data-placeholder]):not([placeholder]):empty::before,
+.editor:not([data-placeholder]):not([placeholder]):has(> br:only-child)::before {
   content: "ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಿ...";
 }
 

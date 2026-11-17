@@ -11,10 +11,10 @@ import { setupTestEnvironment } from './fixtures/test-env.js';
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
-    if (specifier === 'http://localhost/ai/swanada/swanada.mjs?v=1.9.0') {
+    if (specifier.startsWith('http://localhost/ai/swanada/swanada.mjs?v=1.9.')) {
       return { shortCircuit: true, url: 'mock:swanada-sdk' };
     }
-    if (specifier === 'https://h3manth.com/ai/swanada/swanada.mjs?v=1.9.0') {
+    if (specifier.startsWith('https://h3manth.com/ai/swanada/swanada.mjs?v=1.9.')) {
       return { shortCircuit: true, url: 'mock:swanada-sdk-slow' };
     }
     return nextResolve(specifier, context);
@@ -61,7 +61,11 @@ registerHooks({
             startStream() {
               globalThis.__swanadaStartStreamCalls = (globalThis.__swanadaStartStreamCalls || 0) + 1;
             }
-            pushAudio() {}
+            pushAudio(chunk) {
+              globalThis.__swanadaPushAudioCalls = (globalThis.__swanadaPushAudioCalls || 0) + 1;
+              globalThis.__swanadaPushedChunks = globalThis.__swanadaPushedChunks || [];
+              globalThis.__swanadaPushedChunks.push(chunk);
+            }
             async finishStream() {
               globalThis.__swanadaFinishStreamCalls = (globalThis.__swanadaFinishStreamCalls || 0) + 1;
             }
@@ -105,6 +109,8 @@ describe('stt-client.js — Runtime AudioContext, Watchdog & Abort Lifecycle', (
     globalThis.__swanadaOnInit = null;
     globalThis.__swanadaStartStreamCalls = 0;
     globalThis.__swanadaFinishStreamCalls = 0;
+    globalThis.__swanadaPushAudioCalls = 0;
+    globalThis.__swanadaPushedChunks = [];
 
     globalThis.fetch = async (url) => {
       if (String(url).includes('models_manifest.json')) {
@@ -1106,5 +1112,86 @@ describe('stt-client.js — Runtime AudioContext, Watchdog & Abort Lifecycle', (
     }
 
     assert.strictEqual(env.blobs.size, 0);
+  });
+
+  it('S22 — Adaptive speech gate suppresses ambient room silence hallucinations while preserving pre-roll onset & committing pause-separated clauses', async () => {
+    const ctrl = sttMod.createSwanadaSttController();
+    await ctrl.start('kn');
+
+    const node = globalThis.__lastWorkletNode;
+    assert.ok(node, 'Worklet node should be attached');
+
+    // 1. Send 15 chunks (1.5s) of -50 dBFS steady ambient room hiss (RMS ~ 0.002)
+    const hiss = new Float32Array(1600).fill(0.002);
+    for (let i = 0; i < 15; i++) {
+      node.port.onmessage({ data: { audioChunk: hiss, rms: 0.002, isTail: false } });
+    }
+    assert.strictEqual(
+      globalThis.__swanadaPushAudioCalls,
+      0,
+      'Ambient room hiss below adaptive speech threshold must NOT be pushed to Swanada worker'
+    );
+
+    // Stopping after pure room silence must NOT invoke finishStream() (prevents empty-room hallucinations)
+    await ctrl.stop();
+    assert.strictEqual(
+      globalThis.__swanadaFinishStreamCalls,
+      0,
+      'stop() after silence-only mic session must skip finishStream() so 0 hallucinations occur'
+    );
+
+    // 2. Start a second session with 2 silent chunks -> 5 speech chunks -> 8 silent pause chunks -> 3 speech chunks
+    globalThis.__swanadaStartStreamCalls = 0;
+    globalThis.__swanadaFinishStreamCalls = 0;
+    globalThis.__swanadaPushAudioCalls = 0;
+    globalThis.__swanadaPushedChunks = [];
+
+    await ctrl.start('kn');
+    const node2 = globalThis.__lastWorkletNode;
+
+    // 2 pre-roll chunks (200ms)
+    node2.port.onmessage({ data: { audioChunk: hiss, rms: 0.002, isTail: false } });
+    node2.port.onmessage({ data: { audioChunk: hiss, rms: 0.002, isTail: false } });
+    assert.strictEqual(globalThis.__swanadaPushAudioCalls, 0);
+
+    // 5 active Kannada speech chunks (RMS 0.04) -> flushes 2 pre-roll + 5 speech = 7 chunks!
+    const speech = new Float32Array(1600).fill(0.04);
+    for (let i = 0; i < 5; i++) {
+      node2.port.onmessage({ data: { audioChunk: speech, rms: 0.04, isTail: false } });
+    }
+    assert.strictEqual(
+      globalThis.__swanadaPushAudioCalls,
+      7,
+      'Speech onset must flush 2 pre-roll chunks + 5 speech chunks so initial consonant plosive is preserved'
+    );
+
+    // 8 silent chunks (4 hangover + 4 post-speech pause = 800ms pause) -> triggers clause commit & stream rotation!
+    for (let i = 0; i < 8; i++) {
+      node2.port.onmessage({ data: { audioChunk: hiss, rms: 0.002, isTail: false } });
+    }
+    await new Promise((r) => setTimeout(r, 20));
+    assert.strictEqual(
+      globalThis.__swanadaFinishStreamCalls,
+      1,
+      'Natural 800ms pause after speech must commit Clause 1 via finishStream()'
+    );
+    assert.strictEqual(
+      globalThis.__swanadaStartStreamCalls,
+      2,
+      'After committing Clause 1, speech gate must open a fresh stream for Clause 2'
+    );
+
+    // Speak Clause 2 (3 chunks) and call stop()
+    for (let i = 0; i < 3; i++) {
+      node2.port.onmessage({ data: { audioChunk: speech, rms: 0.04, isTail: false } });
+    }
+    await ctrl.stop();
+    assert.strictEqual(
+      globalThis.__swanadaFinishStreamCalls,
+      2,
+      'stop() after Clause 2 must commit Clause 2 via finishStream()'
+    );
+
+    await ctrl.destroy();
   });
 });

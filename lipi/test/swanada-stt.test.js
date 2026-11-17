@@ -41,6 +41,14 @@ describe('Swanada In-Browser Neural STT + Paar Integration', async () => {
       'mobile'
     );
     assert.strictEqual(
+      sttMod.detectSwanadaTier({ userAgent: 'Mozilla/5.0 (Linux; Android 15; Pixel 10 Pro XL) Mobile', deviceMemory: 4 }),
+      'mobile'
+    );
+    assert.strictEqual(
+      sttMod.detectSwanadaTier({ userAgent: 'Mozilla/5.0 (Linux; Android 15; Pixel 10 Pro XL) Mobile', deviceMemory: 8 }),
+      'studio'
+    );
+    assert.strictEqual(
       sttMod.detectSwanadaTier({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)', deviceMemory: 2 }),
       'mobile'
     );
@@ -51,14 +59,15 @@ describe('Swanada In-Browser Neural STT + Paar Integration', async () => {
 
     const mobileUrls = sttMod.buildSwanadaModelConfig('kn', 'mobile', '/ai/swanada');
     assert.ok(mobileUrls.modelUrl.includes('onnx_mobile/swanada_mobile_ctc_int8.onnx'));
-    assert.strictEqual(mobileUrls.headUrl, '/ai/swanada/heads_mobile/kn.bin?v=1.9.1');
-    assert.strictEqual(mobileUrls.vocabUrl, '/ai/swanada/vocabularies/kn_vocab.json?v=1.9.1');
-    assert.strictEqual(mobileUrls.codeSwitchEn, true);
+    assert.strictEqual(mobileUrls.headUrl, '/ai/swanada/heads_mobile/kn.bin?v=1.9.2');
+    assert.strictEqual(mobileUrls.vocabUrl, '/ai/swanada/vocabularies/kn_vocab.json?v=1.9.2');
+    assert.strictEqual(mobileUrls.codeSwitchEn, false);
 
     const studioUrls = sttMod.buildSwanadaModelConfig('hi', 'studio', '/ai/swanada');
     assert.ok(studioUrls.modelUrl.includes('onnx/sushrota_sanskrit_ctc_int8.onnx'));
-    assert.strictEqual(studioUrls.headUrl, '/ai/swanada/heads/hi.bin?v=1.9.1');
-    assert.strictEqual(studioUrls.vocabUrl, '/ai/swanada/vocabularies/hi_vocab.json?v=1.9.1');
+    assert.strictEqual(studioUrls.headUrl, '/ai/swanada/heads/hi.bin?v=1.9.2');
+    assert.strictEqual(studioUrls.vocabUrl, '/ai/swanada/vocabularies/hi_vocab.json?v=1.9.2');
+    assert.strictEqual(studioUrls.codeSwitchEn, false);
   });
 
   it('S3 — resolveSttTarget routes native Indic heads for 10 languages and Swanada EN for all 12 in Translate mode', async () => {
